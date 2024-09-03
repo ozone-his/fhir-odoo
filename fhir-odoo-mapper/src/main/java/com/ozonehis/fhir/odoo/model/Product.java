@@ -2,11 +2,10 @@ package com.ozonehis.fhir.odoo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serial;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serial;
 
 @Data
 @AllArgsConstructor
@@ -28,5 +27,4 @@ public class Product implements OdooResource {
 
     @JsonProperty("res_id")
     private Integer productResId;
-
 }
