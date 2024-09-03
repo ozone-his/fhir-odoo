@@ -1,124 +1,193 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.ozonehis.fhir</groupId>
-    <artifactId>fhir-odoo-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.ozonehis.fhir</groupId>
+  <artifactId>fhir-odoo-parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-    <name>FHIR Odoo Facade Parent</name>
-    <description>FHIR Odoo Facade Parent</description>
+  <name>FHIR Odoo Facade Parent</name>
+  <description>FHIR Odoo Facade Parent</description>
 
-    <inceptionYear>2024</inceptionYear>
+  <inceptionYear>2024</inceptionYear>
 
-    <organization>
-        <name>Ozone HIS</name>
-        <url>https://www.ozone-his.com</url>
-    </organization>
-    <developers>
-        <developer>
-            <name>Mekom Solutions</name>
-            <url>https://www.mekomsolutions.com</url>
-        </developer>
-    </developers>
-    <modules>
-        <module>fhir-odoo</module>
-        <module>fhir-odoo-mapper</module>
-    </modules>
+  <organization>
+    <name>Ozone HIS</name>
+    <url>https://www.ozone-his.com</url>
+  </organization>
+  <developers>
+    <developer>
+      <name>Mekom Solutions</name>
+      <url>https://www.mekomsolutions.com</url>
+    </developer>
+  </developers>
+  <modules>
+    <module>fhir-odoo</module>
+    <module>fhir-odoo-mapper</module>
+  </modules>
 
-    <repositories>
-        <repository>
-            <id>openmrs-repo</id>
-            <name>OpenMRS Nexus Repository</name>
-            <url>https://mavenrepo.openmrs.org/public</url>
-        </repository>
-        <repository>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <id>openmrs-snapshots</id>
-            <name>OpenMRS Snapshots Repository</name>
-            <url>https://mavenrepo.openmrs.org/snapshots</url>
-        </repository>
-        <repository>
-            <id>mks-repo</id>
-            <name>Mekom Solutions Maven repository</name>
-            <url>https://nexus.mekomsolutions.net/repository/maven-public</url>
-        </repository>
-        <repository>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <id>mks-repo-snapshots</id>
-            <name>Mekom Solutions Maven repository for snapshots</name>
-            <url>https://nexus.mekomsolutions.net/repository/maven-public-snapshots</url>
-        </repository>
-    </repositories>
+  <properties>
+    <java.version>17</java.version>
+    <hapi.fhir.version>7.2.2</hapi.fhir.version>
+    <spring-boot.version>3.3.2</spring-boot.version>
+    <fhir-structures-backport-r4.version>1.0.0-SNAPSHOT</fhir-structures-backport-r4.version>
+    <lombok.version>1.18.30</lombok.version>
+    <spotless.version>2.43.0</spotless.version>
+    <palantirJavaFormat.version>2.49.0</palantirJavaFormat.version>
+  </properties>
 
-    <properties>
-        <java.version>17</java.version>
-        <hapi.fhir.version>7.2.2</hapi.fhir.version>
-        <spring-boot.version>3.3.2</spring-boot.version>
-        <fhir-structures-backport-r4.version>1.0.0-SNAPSHOT</fhir-structures-backport-r4.version>
-        <lombok.version>1.18.30</lombok.version>
-        <spotless.version>2.43.0</spotless.version>
-        <palantirJavaFormat.version>2.49.0</palantirJavaFormat.version>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>ca.uhn.hapi.fhir</groupId>
-                <artifactId>hapi-fhir-structures-r4</artifactId>
-                <version>${hapi.fhir.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ca.uhn.hapi.fhir</groupId>
-                <artifactId>hapi-fhir-base</artifactId>
-                <version>${hapi.fhir.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ca.uhn.hapi.fhir</groupId>
-                <artifactId>hapi-fhir-server</artifactId>
-                <version>${hapi.fhir.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
+  <dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring-boot.version}</version>
-        </dependency>
-
-        <!-- HAPI FHIR -->
-        <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>hapi-fhir-structures-r4</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>hapi-fhir-base</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>hapi-fhir-server</artifactId>
-        </dependency>
-
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-        </dependency>
-
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <version>${spring-boot.version}</version>
-        </dependency>
+      <dependency>
+        <groupId>ca.uhn.hapi.fhir</groupId>
+        <artifactId>hapi-fhir-structures-r4</artifactId>
+        <version>${hapi.fhir.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ca.uhn.hapi.fhir</groupId>
+        <artifactId>hapi-fhir-base</artifactId>
+        <version>${hapi.fhir.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ca.uhn.hapi.fhir</groupId>
+        <artifactId>hapi-fhir-server</artifactId>
+        <version>${hapi.fhir.version}</version>
+      </dependency>
     </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <version>${spring-boot.version}</version>
+    </dependency>
+
+    <!-- HAPI FHIR -->
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-structures-r4</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-base</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-server</artifactId>
+    </dependency>
+
+    <!-- Lombok -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <version>${spring-boot.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>openmrs-repo</id>
+      <name>OpenMRS Nexus Repository</name>
+      <url>https://mavenrepo.openmrs.org/public</url>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>openmrs-snapshots</id>
+      <name>OpenMRS Snapshots Repository</name>
+      <url>https://mavenrepo.openmrs.org/snapshots</url>
+    </repository>
+    <repository>
+      <id>mks-repo</id>
+      <name>Mekom Solutions Maven repository</name>
+      <url>https://nexus.mekomsolutions.net/repository/maven-public</url>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>mks-repo-snapshots</id>
+      <name>Mekom Solutions Maven repository for snapshots</name>
+      <url>https://nexus.mekomsolutions.net/repository/maven-public-snapshots</url>
+    </repository>
+  </repositories>
+  <build>
+    <plugins>
+      <!-- Spotless -->
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <formats>
+            <format>
+              <includes>
+                <include>.gitignore</include>
+              </includes>
+              <trimTrailingWhitespace/>
+              <endWithNewline/>
+              <indent>
+                <tabs>true</tabs>
+                <spacesPerTab>4</spacesPerTab>
+              </indent>
+            </format>
+          </formats>
+          <java>
+            <toggleOffOn/>
+            <palantirJavaFormat>
+              <version>${palantirJavaFormat.version}</version>
+            </palantirJavaFormat>
+            <removeUnusedImports/>
+            <formatAnnotations/>
+          </java>
+          <pom>
+            <includes>
+              <include>pom.xml</include>
+              <include>**/pom.xml</include>
+            </includes>
+            <sortPom>
+              <encoding>UTF-8</encoding>
+              <expandEmptyElements>false</expandEmptyElements>
+              <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
+              <sortProperties>false</sortProperties>
+            </sortPom>
+          </pom>
+          <markdown>
+            <includes>
+              <include>**/*.md</include>
+              <include>*.md</include>
+            </includes>
+            <flexmark/>
+          </markdown>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <version>${spotless.version}</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>format</id>
+            <goals>
+              <goal>apply</goal>
+              <goal>check</goal>
+            </goals>
+            <phase>install</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
