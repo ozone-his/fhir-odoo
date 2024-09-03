@@ -23,6 +23,7 @@
     </developers>
     <modules>
         <module>fhir-odoo</module>
+        <module>fhir-odoo-mapper</module>
     </modules>
 
     <repositories>
