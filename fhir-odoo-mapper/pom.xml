@@ -29,7 +29,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.ozonehis.fhir</groupId>
+      <groupId>org.openmrs.fhir</groupId>
       <artifactId>fhir-structures-backport-r4</artifactId>
       <version>${fhir.structures.backport-r4.version}</version>
     </dependency>
