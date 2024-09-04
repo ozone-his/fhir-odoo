@@ -33,13 +33,13 @@
   <modules>
     <module>fhir-odoo</module>
     <module>fhir-odoo-mapper</module>
+    <module>development</module>
   </modules>
 
   <properties>
     <java.version>17</java.version>
     <hapi.fhir.version>7.2.2</hapi.fhir.version>
     <spring-boot.version>3.3.2</spring-boot.version>
-    <fhir-structures-backport-r4.version>1.0.0-SNAPSHOT</fhir-structures-backport-r4.version>
     <lombok.version>1.18.30</lombok.version>
     <spotless.version>2.43.0</spotless.version>
     <palantirJavaFormat.version>2.49.0</palantirJavaFormat.version>
