@@ -115,11 +115,6 @@ public abstract class BaseOdooService<T extends OdooResource> implements OdooSer
         return resources;
     }
 
-    @Override
-    public Optional<T> searchFirst(FilterCollection filters) {
-        return  search(filters).stream().findFirst();
-    }
-
     /**
      * Maps a Row object to a resource.
      *
