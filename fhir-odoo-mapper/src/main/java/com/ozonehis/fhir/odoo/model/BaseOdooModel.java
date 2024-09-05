@@ -13,8 +13,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serial;
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,16 +32,16 @@ public class BaseOdooModel implements OdooResource {
     private int id;
 
     @JsonProperty("__last_update")
-    private LocalDateTime lastModifiedOn;
+    private Date lastModifiedOn;
 
     @JsonProperty("create_date")
-    private LocalDateTime createdOn;
+    private Date createdOn;
 
-    @JsonProperty("created_uid")
+    @JsonProperty("create_uid")
     private int createdBy;
 
     @JsonProperty("write_date")
-    private LocalDateTime lastUpdatedOn;
+    private Date lastUpdatedOn;
 
     @JsonProperty("write_uid")
     private int lastUpdatedBy;
