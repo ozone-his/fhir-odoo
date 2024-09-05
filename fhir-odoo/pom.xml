@@ -45,6 +45,11 @@
       <artifactId>fhir-odoo-mapper</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.odoojava</groupId>
+      <artifactId>odoo-java-api</artifactId>
+      <version>3.1.8</version>
+    </dependency>
   </dependencies>
 
 </project>

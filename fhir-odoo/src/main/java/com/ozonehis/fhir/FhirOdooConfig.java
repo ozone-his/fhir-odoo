@@ -8,6 +8,7 @@
 package com.ozonehis.fhir;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,6 +16,42 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FhirOdooConfig {
 
-    @Value("${fhir.odoo.server-url}")
-    private String OdooServerUrl;
+    @Value("${fhir.odoo.host}")
+    private String OdooHost;
+
+    @Value("${fhir.odoo.username}")
+    private String OdooUsername;
+
+    @Value("${fhir.odoo.password}")
+    private String OdooPassword;
+
+    @Value("${fhir.odoo.database}")
+    private String OdooDatabase;
+
+    @Value("${fhir.odoo.port}")
+    private String OdooPort;
+
+    @Value("${fhir.odoo.protocol}")
+    private String OdooProtocol;
+
+    public void validateOdooProperties() {
+        if (StringUtils.isEmpty(OdooHost) && StringUtils.isBlank(OdooHost)) {
+            throw new IllegalArgumentException("OdooHost is required");
+        }
+        if (StringUtils.isEmpty(OdooUsername) && StringUtils.isBlank(OdooUsername)) {
+            throw new IllegalArgumentException("OdooUsername is required");
+        }
+        if (StringUtils.isEmpty(OdooPassword) && StringUtils.isBlank(OdooPassword)) {
+            throw new IllegalArgumentException("OdooPassword is required");
+        }
+        if (StringUtils.isEmpty(OdooDatabase) && StringUtils.isBlank(OdooDatabase)) {
+            throw new IllegalArgumentException("OdooDatabase is required");
+        }
+        if (StringUtils.isEmpty(OdooPort) && StringUtils.isBlank(OdooPort)) {
+            throw new IllegalArgumentException("OdooPort is required");
+        }
+        if (StringUtils.isEmpty(OdooProtocol) && StringUtils.isBlank(OdooProtocol)) {
+            throw new IllegalArgumentException("OdooProtocol is required");
+        }
+    }
 }
