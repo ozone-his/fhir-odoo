@@ -9,7 +9,6 @@ package com.ozonehis.fhir.odoo.inventoryItem;
 
 import ca.uhn.fhir.rest.param.TokenAndListParam;
 import com.ozonehis.fhir.odoo.FhirService;
-
 import org.hl7.fhir.r4.model.Bundle;
 import org.openmrs.fhir.InventoryItem;
 

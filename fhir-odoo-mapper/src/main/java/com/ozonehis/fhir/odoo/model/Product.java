@@ -1,16 +1,21 @@
+/*
+ * Copyright © 2024, Ozone HIS <info@ozone-his.com>
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.ozonehis.fhir.odoo.model;
-
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serial;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.io.Serial;
 
 @Data
 @Builder
@@ -42,6 +47,9 @@ public class Product extends BaseOdooModel {
     @JsonProperty("lst_price")
     private Double publicPrice;
 
+    @JsonProperty("standard_price")
+    private Double standardPrice;
+
     @JsonProperty("active")
     @JsonFormat(shape = JsonFormat.Shape.BOOLEAN)
     private boolean active;
@@ -51,5 +59,4 @@ public class Product extends BaseOdooModel {
 
     @JsonProperty("currency_id")
     private Integer currencyId;
-
 }

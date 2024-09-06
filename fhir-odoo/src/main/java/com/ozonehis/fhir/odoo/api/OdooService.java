@@ -10,7 +10,6 @@ package com.ozonehis.fhir.odoo.api;
 import com.odoojava.api.FilterCollection;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import jakarta.annotation.Nonnull;
-
 import java.util.Collection;
 import java.util.Optional;
 

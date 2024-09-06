@@ -10,7 +10,6 @@ package com.ozonehis.fhir.odoo.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serial;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
