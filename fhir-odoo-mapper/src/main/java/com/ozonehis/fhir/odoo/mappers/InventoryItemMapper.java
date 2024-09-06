@@ -12,13 +12,12 @@ import com.ozonehis.fhir.odoo.model.BaseOdooModel;
 import com.ozonehis.fhir.odoo.model.ExternalIdentifier;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Product;
+import java.util.Map;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Quantity;
 import org.openmrs.fhir.InventoryItem;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 @Component
 public class InventoryItemMapper<O extends BaseOdooModel & OdooResource> implements ToFhirMapping<O, InventoryItem> {
@@ -34,7 +33,8 @@ public class InventoryItemMapper<O extends BaseOdooModel & OdooResource> impleme
         Coding odooCoding = new Coding();
 
         Product product = (Product) resourceMap.get(OdooConstants.MODEL_PRODUCT);
-        ExternalIdentifier externalIdentifier = (ExternalIdentifier) resourceMap.get(OdooConstants.MODEL_EXTERNAL_IDENTIFIER);
+        ExternalIdentifier externalIdentifier =
+                (ExternalIdentifier) resourceMap.get(OdooConstants.MODEL_EXTERNAL_IDENTIFIER);
         if (product == null || externalIdentifier == null) {
             return null;
         }
@@ -44,7 +44,8 @@ public class InventoryItemMapper<O extends BaseOdooModel & OdooResource> impleme
         nameComponent.setName(product.getName());
         inventoryItem.addName(nameComponent);
 
-        InventoryItem.InventoryItemDescriptionComponent descriptionComponent = new InventoryItem.InventoryItemDescriptionComponent();
+        InventoryItem.InventoryItemDescriptionComponent descriptionComponent =
+                new InventoryItem.InventoryItemDescriptionComponent();
         descriptionComponent.setDescription(product.getDescription());
         inventoryItem.setDescription(descriptionComponent);
 

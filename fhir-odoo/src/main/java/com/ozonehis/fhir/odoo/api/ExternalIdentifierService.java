@@ -1,4 +1,13 @@
+/*
+ * Copyright © 2024, Ozone HIS <info@ozone-his.com>
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.ozonehis.fhir.odoo.api;
+
+import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 
 import com.odoojava.api.FilterCollection;
 import com.odoojava.api.OdooApiException;
@@ -6,20 +15,18 @@ import com.odoojava.api.Row;
 import com.ozonehis.fhir.FhirOdooConfig;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.ExternalIdentifier;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ExternalIdentifierService extends BaseOdooService<ExternalIdentifier> implements OdooService<ExternalIdentifier> {
+public class ExternalIdentifierService extends BaseOdooService<ExternalIdentifier>
+        implements OdooService<ExternalIdentifier> {
 
     @Autowired
     public ExternalIdentifierService(FhirOdooConfig fhirOdooConfig) {

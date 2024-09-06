@@ -70,7 +70,6 @@ public abstract class BaseOdooService<T extends OdooResource> implements OdooSer
         }
     }
 
-
     /**
      * Gets a resource by its ID.
      *

@@ -46,8 +46,7 @@ public class InventoryItemResourceProvider implements IResourceProvider {
     }
 
     @Search
-    public Bundle searchForInventoryItems(
-            @OptionalParam(name = InventoryItem.SP_CODE) TokenAndListParam code) {
+    public Bundle searchForInventoryItems(@OptionalParam(name = InventoryItem.SP_CODE) TokenAndListParam code) {
         return inventoryItemService.searchForInventoryItems(code);
     }
 }

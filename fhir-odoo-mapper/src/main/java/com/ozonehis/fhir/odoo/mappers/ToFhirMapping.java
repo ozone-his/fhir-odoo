@@ -9,10 +9,8 @@ package com.ozonehis.fhir.odoo.mappers;
 
 import com.ozonehis.fhir.odoo.model.BaseOdooModel;
 import com.ozonehis.fhir.odoo.model.OdooResource;
-import org.hl7.fhir.instance.model.api.IAnyResource;
-
-import java.util.List;
 import java.util.Map;
+import org.hl7.fhir.instance.model.api.IAnyResource;
 
 /**
  * This interface is used to map Odoo resources to FHIR resources.
