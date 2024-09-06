@@ -44,7 +44,7 @@ public abstract class BaseOdooService<T extends OdooResource> implements OdooSer
      *
      * @return the model name
      */
-    protected abstract String getModelName();
+    protected abstract String modelName();
 
     /**
      * Gets the fields for the Odoo object.
@@ -64,7 +64,7 @@ public abstract class BaseOdooService<T extends OdooResource> implements OdooSer
                     fhirOdooConfig.getOdooUsername(),
                     fhirOdooConfig.getOdooPassword());
             odooSession.startSession();
-            this.objectAdapter = odooSession.getObjectAdapter(getModelName());
+            this.objectAdapter = odooSession.getObjectAdapter(modelName());
         } catch (Exception e) {
             throw new RuntimeException("Error while initializing Odoo session", e);
         }

@@ -10,6 +10,7 @@ package com.ozonehis.fhir.odoo.api;
 import com.odoojava.api.FilterCollection;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import jakarta.annotation.Nonnull;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -35,12 +36,4 @@ public interface OdooService<O extends OdooResource> {
      * @return the collection of {@link O}
      */
     Collection<O> search(FilterCollection filters);
-
-    /**
-     * Search one optional of {@link O}.
-     *
-     * @param filters the filter collection
-     * @return the optional of {@link O}
-     */
-    Optional<O> searchFirst(FilterCollection filters);
 }
