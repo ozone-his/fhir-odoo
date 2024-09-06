@@ -1,37 +1,55 @@
-/*
- * Copyright © 2024, Ozone HIS <info@ozone-his.com>
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
 package com.ozonehis.fhir.odoo.model;
 
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serial;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Product implements OdooResource {
+public class Product extends BaseOdooModel {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @JsonProperty("id")
-    private Integer productId;
+    @JsonProperty("description")
+    private String description;
 
-    @JsonProperty("display_name")
-    private String productDisplayName; // Product Name
+    @JsonProperty("uom_name")
+    private String uomName;
 
-    @JsonProperty("name")
-    private String productName; // Product ID
+    // Quantity on hand
+    @JsonProperty("qty_available")
+    private Double quantityAvailable;
 
-    @JsonProperty("res_id")
-    private Integer productResId;
+    @JsonProperty("price")
+    private Double price;
+
+    @JsonProperty("list_price")
+    private Double listPrice;
+
+    @JsonProperty("lst_price")
+    private Double publicPrice;
+
+    @JsonProperty("active")
+    @JsonFormat(shape = JsonFormat.Shape.BOOLEAN)
+    private boolean active;
+
+    @JsonProperty("code")
+    private String code;
+
+    @JsonProperty("currency_id")
+    private Integer currencyId;
+
 }
