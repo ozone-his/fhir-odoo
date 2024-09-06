@@ -31,6 +31,12 @@ public class BaseOdooModel implements OdooResource {
     @JsonProperty("id")
     private int id;
 
+    @JsonProperty("name")
+    private String name;
+
+    @JsonProperty("display_name")
+    private String displayName;
+
     @JsonProperty("__last_update")
     private Date lastModifiedOn;
 
