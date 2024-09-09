@@ -22,6 +22,7 @@ import org.hl7.fhir.r4.model.IdType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @FhirOdooProvider
+@SuppressWarnings("unused")
 public class ChargeItemDefinitionResourceProvider implements IResourceProvider {
 
     private final ChargeItemDefinitionService chargeItemDefinitionService;
