@@ -9,7 +9,8 @@ package com.ozonehis.fhir.odoo.mappers;
 
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.BaseOdooModel;
-import com.ozonehis.fhir.odoo.model.ExternalIdentifier;
+import com.ozonehis.fhir.odoo.model.Currency;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Product;
 import java.util.Map;
@@ -29,13 +30,13 @@ public class ChargeItemDefinitionMapper<O extends BaseOdooModel & OdooResource>
             return null;
         }
         Product product = (Product) resourceMap.get(OdooConstants.MODEL_PRODUCT);
-        ExternalIdentifier externalIdentifier =
-                (ExternalIdentifier) resourceMap.get(OdooConstants.MODEL_EXTERNAL_IDENTIFIER);
+        ExtId extId = (ExtId) resourceMap.get(OdooConstants.MODEL_EXTERNAL_IDENTIFIER);
+        Currency currency = (Currency) resourceMap.get(OdooConstants.MODEL_CURRENCY);
 
-        if (product == null || externalIdentifier == null) {
+        if (product == null || extId == null) {
             return null;
         }
-        chargeItemDefinition.setId(externalIdentifier.getName());
+        chargeItemDefinition.setId(extId.getName());
         chargeItemDefinition.setName(product.getName());
         chargeItemDefinition.setDescription(product.getDescription());
 
@@ -49,16 +50,23 @@ public class ChargeItemDefinitionMapper<O extends BaseOdooModel & OdooResource>
         }
 
         // Price Component
+        ChargeItemDefinition.ChargeItemDefinitionPropertyGroupPriceComponentComponent priceComponent = getPriceComponent(product, currency);
+        chargeItemDefinition.addPropertyGroup().addPriceComponent(priceComponent);
+
+        return chargeItemDefinition;
+    }
+
+    private static ChargeItemDefinition.ChargeItemDefinitionPropertyGroupPriceComponentComponent getPriceComponent(Product product, Currency currency) {
         ChargeItemDefinition.ChargeItemDefinitionPropertyGroupPriceComponentComponent priceComponent =
                 new ChargeItemDefinition.ChargeItemDefinitionPropertyGroupPriceComponentComponent();
         Money money = new Money();
         money.setValue(product.getPrice());
-        money.setCurrency(product.getCurrencyId().toString());
+        if (currency != null) {
+            money.setCurrency(currency.getName());
+        }
         priceComponent.setAmount(money);
         // Base price
         priceComponent.setType(ChargeItemDefinition.ChargeItemDefinitionPriceComponentType.BASE);
-        chargeItemDefinition.addPropertyGroup().addPriceComponent(priceComponent);
-
-        return chargeItemDefinition;
+        return priceComponent;
     }
 }
