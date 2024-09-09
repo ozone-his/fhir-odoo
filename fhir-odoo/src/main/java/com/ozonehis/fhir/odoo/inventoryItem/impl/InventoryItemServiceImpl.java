@@ -9,11 +9,11 @@ package com.ozonehis.fhir.odoo.inventoryItem.impl;
 
 import ca.uhn.fhir.rest.param.TokenAndListParam;
 import com.ozonehis.fhir.odoo.OdooConstants;
-import com.ozonehis.fhir.odoo.api.ExternalIdentifierService;
+import com.ozonehis.fhir.odoo.api.ExtIdService;
 import com.ozonehis.fhir.odoo.api.ProductService;
 import com.ozonehis.fhir.odoo.inventoryItem.InventoryItemService;
 import com.ozonehis.fhir.odoo.mappers.InventoryItemMapper;
-import com.ozonehis.fhir.odoo.model.ExternalIdentifier;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Product;
 import jakarta.annotation.Nonnull;
@@ -33,7 +33,7 @@ import org.springframework.stereotype.Service;
 @SuppressWarnings("rawtypes, unchecked")
 public class InventoryItemServiceImpl implements InventoryItemService {
 
-    private final ExternalIdentifierService externalIdentifierService;
+    private final ExtIdService extIdService;
 
     private final ProductService productService;
 
@@ -41,18 +41,15 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     @Autowired
     public InventoryItemServiceImpl(
-            ExternalIdentifierService externalIdentifierService,
-            ProductService productService,
-            InventoryItemMapper inventoryItemMapper) {
-        this.externalIdentifierService = externalIdentifierService;
+            ExtIdService extIdService, ProductService productService, InventoryItemMapper inventoryItemMapper) {
+        this.extIdService = extIdService;
         this.productService = productService;
         this.inventoryItemMapper = inventoryItemMapper;
     }
 
     @Override
     public Optional<InventoryItem> getById(@Nonnull String id) {
-        Optional<ExternalIdentifier> externalIdentifier =
-                externalIdentifierService.getByNameAndModel(id, OdooConstants.MODEL_PRODUCT);
+        Optional<ExtId> externalIdentifier = extIdService.getByNameAndModel(id, OdooConstants.MODEL_PRODUCT);
         if (externalIdentifier.isEmpty()) {
             log.warn("Inventory Item with ID {} missing an External ID Identifier", id);
             return Optional.empty();
@@ -73,15 +70,13 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Override
     public Bundle searchForInventoryItems(TokenAndListParam code) {
         Bundle bundle = new Bundle();
-
         List<String> codes = new ArrayList<>();
         code.getValuesAsQueryTokens()
                 .forEach(value -> value.getValuesAsQueryTokens().forEach(v -> codes.add(v.getValue())));
 
         if (!codes.isEmpty()) {
-            Collection<ExternalIdentifier> externalIdentifiers =
-                    externalIdentifierService.getResIdsByNameAndModel(codes, OdooConstants.MODEL_PRODUCT);
-            externalIdentifiers.forEach(externalIdentifier -> {
+            Collection<ExtId> extIds = extIdService.getResIdsByNameAndModel(codes, OdooConstants.MODEL_PRODUCT);
+            extIds.forEach(externalIdentifier -> {
                 Optional<Product> product = productService.getById(String.valueOf(externalIdentifier.getResId()));
                 if (product.isPresent() && product.get().isActive()) {
                     Map<String, OdooResource> resourceMap = Map.of(

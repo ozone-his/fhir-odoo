@@ -9,7 +9,7 @@ package com.ozonehis.fhir.odoo.mappers;
 
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.BaseOdooModel;
-import com.ozonehis.fhir.odoo.model.ExternalIdentifier;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Product;
 import java.util.Map;
@@ -18,6 +18,8 @@ import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Quantity;
 import org.openmrs.fhir.InventoryItem;
 import org.springframework.stereotype.Component;
+
+import static com.ozonehis.fhir.odoo.OdooConstants.FHIR_OPENMRS_INVENTORY_ITEM;
 
 @Component
 public class InventoryItemMapper<O extends BaseOdooModel & OdooResource> implements ToFhirMapping<O, InventoryItem> {
@@ -30,16 +32,13 @@ public class InventoryItemMapper<O extends BaseOdooModel & OdooResource> impleme
         InventoryItem inventoryItem = new InventoryItem();
         CodeableConcept codeableConcept = new CodeableConcept();
         Coding openmrsCoding = new Coding();
-        Coding odooCoding = new Coding();
-
         Product product = (Product) resourceMap.get(OdooConstants.MODEL_PRODUCT);
-        ExternalIdentifier externalIdentifier =
-                (ExternalIdentifier) resourceMap.get(OdooConstants.MODEL_EXTERNAL_IDENTIFIER);
-        if (product == null || externalIdentifier == null) {
+        ExtId extId = (ExtId) resourceMap.get(OdooConstants.MODEL_EXTERNAL_IDENTIFIER);
+        if (product == null || extId == null) {
             return null;
         }
 
-        inventoryItem.setId(externalIdentifier.getName());
+        inventoryItem.setId(extId.getName());
         InventoryItem.InventoryItemNameComponent nameComponent = new InventoryItem.InventoryItemNameComponent();
         nameComponent.setName(product.getName());
         inventoryItem.addName(nameComponent);
@@ -60,16 +59,9 @@ public class InventoryItemMapper<O extends BaseOdooModel & OdooResource> impleme
         quantity.setUnit(product.getUomName());
         inventoryItem.setNetContent(quantity);
 
-        // TODO: Implement proper handling of Codings
-        codeableConcept.setText(product.getDisplayName());
-        odooCoding.setSystem("https://odoo.com");
-        odooCoding.setCode(product.getCode());
-        odooCoding.setDisplay(product.getDisplayName());
-        codeableConcept.addCoding(odooCoding);
-
-        openmrsCoding.setCode(externalIdentifier.getName());
+        openmrsCoding.setCode(extId.getName());
         openmrsCoding.setDisplay(product.getDisplayName());
-        openmrsCoding.setSystem("https://fhir.openmrs.org");
+        openmrsCoding.setSystem(FHIR_OPENMRS_INVENTORY_ITEM);
         codeableConcept.addCoding(openmrsCoding);
         inventoryItem.addCode(codeableConcept);
 
