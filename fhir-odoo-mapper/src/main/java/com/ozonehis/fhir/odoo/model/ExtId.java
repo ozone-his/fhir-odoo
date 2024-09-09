@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ExternalIdentifier extends BaseOdooModel {
+public class ExtId extends BaseOdooModel {
 
     @JsonProperty("complete_name")
     private String completeName;

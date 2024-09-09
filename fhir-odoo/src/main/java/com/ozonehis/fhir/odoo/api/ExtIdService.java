@@ -14,7 +14,7 @@ import com.odoojava.api.OdooApiException;
 import com.odoojava.api.Row;
 import com.ozonehis.fhir.FhirOdooConfig;
 import com.ozonehis.fhir.odoo.OdooConstants;
-import com.ozonehis.fhir.odoo.model.ExternalIdentifier;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -25,12 +25,11 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ExternalIdentifierService extends BaseOdooService<ExternalIdentifier>
-        implements OdooService<ExternalIdentifier> {
+public class ExtIdService extends BaseOdooService<ExtId> implements OdooService<ExtId> {
 
     @Autowired
-    public ExternalIdentifierService(FhirOdooConfig fhirOdooConfig) {
-        super(fhirOdooConfig);
+    public ExtIdService(FhirOdooConfig config) {
+        super(config);
     }
 
     @Override
@@ -40,47 +39,47 @@ public class ExternalIdentifierService extends BaseOdooService<ExternalIdentifie
 
     @Override
     protected String[] modelFields() {
-        return new ExternalIdentifier().fields();
+        return new ExtId().fields();
     }
 
     @Override
-    protected ExternalIdentifier mapRowToResource(Row row) {
-        ExternalIdentifier externalIdentifier = new ExternalIdentifier();
-        externalIdentifier.setModel((String) row.get("model"));
-        externalIdentifier.setModule((String) row.get("module"));
-        externalIdentifier.setResId((Integer) row.get("res_id"));
-        externalIdentifier.setUpdatable((boolean) row.get("noupdate"));
-        externalIdentifier.setReference((String) row.get("reference"));
-        externalIdentifier.setCompleteName((String) row.get("complete_name"));
-        externalIdentifier.setName((String) row.get("name"));
-        externalIdentifier.setDisplayName((String) row.get("display_name"));
-        externalIdentifier.setId((Integer) row.get("id"));
+    protected ExtId mapRowToResource(Row row) {
+        ExtId extId = new ExtId();
+        extId.setModel((String) row.get("model"));
+        extId.setModule((String) row.get("module"));
+        extId.setResId((Integer) row.get("res_id"));
+        extId.setUpdatable((boolean) row.get("noupdate"));
+        extId.setReference((String) row.get("reference"));
+        extId.setCompleteName((String) row.get("complete_name"));
+        extId.setName((String) row.get("name"));
+        extId.setDisplayName((String) row.get("display_name"));
+        extId.setId((Integer) row.get("id"));
         // Audit fields
         var createdOn = get(row, "create_date");
         if (createdOn != null) {
-            externalIdentifier.setCreatedOn((Date) createdOn);
+            extId.setCreatedOn((Date) createdOn);
         }
         var createdBy = get(row, "create_uid");
         if (createdBy != null) {
-            externalIdentifier.setCreatedBy((Integer) createdBy);
+            extId.setCreatedBy((Integer) createdBy);
         }
 
         var lastUpdatedOn = get(row, "write_date");
         if (lastUpdatedOn != null) {
-            externalIdentifier.setLastUpdatedOn((Date) lastUpdatedOn);
+            extId.setLastUpdatedOn((Date) lastUpdatedOn);
         }
 
         var lastUpdatedBy = get(row, "write_uid");
         if (lastUpdatedBy != null) {
-            externalIdentifier.setLastUpdatedBy((Integer) lastUpdatedBy);
+            extId.setLastUpdatedBy((Integer) lastUpdatedBy);
         }
 
         var lastModifiedOn = get(row, "__last_update");
         if (lastModifiedOn != null) {
-            externalIdentifier.setLastModifiedOn((Date) lastModifiedOn);
+            extId.setLastModifiedOn((Date) lastModifiedOn);
         }
 
-        return externalIdentifier;
+        return extId;
     }
 
     /**
@@ -90,12 +89,12 @@ public class ExternalIdentifierService extends BaseOdooService<ExternalIdentifie
      * @param model the model
      * @return the external identifier
      */
-    public Optional<ExternalIdentifier> getByNameAndModel(String name, String model) {
+    public Optional<ExtId> getByNameAndModel(String name, String model) {
         FilterCollection filters = new FilterCollection();
         try {
             filters.add("name", "=", name);
             filters.add("model", "=", model);
-            Collection<ExternalIdentifier> results = this.search(filters);
+            Collection<ExtId> results = this.search(filters);
             if (results.size() > 1) {
                 log.warn("Multiple External Identifiers found for name: {} and model: {} ", name, model);
             }
@@ -105,7 +104,7 @@ public class ExternalIdentifierService extends BaseOdooService<ExternalIdentifie
         }
     }
 
-    public Collection<ExternalIdentifier> getResIdsByNameAndModel(List<String> name, String model) {
+    public Collection<ExtId> getResIdsByNameAndModel(List<String> name, String model) {
         FilterCollection filters = new FilterCollection();
         try {
             name.forEach(n -> {
