@@ -21,11 +21,10 @@ import com.ozonehis.fhir.odoo.model.Currency;
 import java.util.Date;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 
-@Disabled
 class CurrencyServiceTest {
 
     @InjectMocks
@@ -44,7 +43,8 @@ class CurrencyServiceTest {
     }
 
     @Test
-    void mapRowToResource_shouldMapRowToCurrency() {
+    @DisplayName("should map row to Currency")
+    void shouldMapRowToCurrency() {
         Row row = mock(Row.class);
         when(row.get("active")).thenReturn(true);
         when(row.get("name")).thenReturn("USD");
@@ -75,7 +75,8 @@ class CurrencyServiceTest {
     }
 
     @Test
-    void mapRowToResource_shouldHandleNullValues() {
+    @DisplayName("should handle null values")
+    void shouldHandleNullValues() {
         Row row = mock(Row.class);
         when(row.get("active")).thenReturn(null);
         when(row.get("name")).thenReturn(null);
@@ -99,9 +100,9 @@ class CurrencyServiceTest {
         assertNull(currency.getCurrencySubunitLabel());
         assertEquals(0, currency.getDecimalPlaces());
         assertNull(currency.getCreatedOn());
-        assertNull(currency.getCreatedBy());
+        assertEquals(0, currency.getCreatedBy());
         assertNull(currency.getLastUpdatedOn());
-        assertNull(currency.getLastUpdatedBy());
+        assertEquals(0, currency.getLastUpdatedBy());
         assertNull(currency.getLastModifiedOn());
     }
 }
