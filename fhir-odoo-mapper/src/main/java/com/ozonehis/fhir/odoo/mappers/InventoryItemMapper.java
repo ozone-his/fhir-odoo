@@ -7,6 +7,8 @@
  */
 package com.ozonehis.fhir.odoo.mappers;
 
+import static com.ozonehis.fhir.odoo.OdooConstants.FHIR_OPENMRS_INVENTORY_ITEM;
+
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.BaseOdooModel;
 import com.ozonehis.fhir.odoo.model.ExtId;
@@ -18,8 +20,6 @@ import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Quantity;
 import org.openmrs.fhir.InventoryItem;
 import org.springframework.stereotype.Component;
-
-import static com.ozonehis.fhir.odoo.OdooConstants.FHIR_OPENMRS_INVENTORY_ITEM;
 
 @Component
 public class InventoryItemMapper<O extends BaseOdooModel & OdooResource> implements ToFhirMapping<O, InventoryItem> {
@@ -62,6 +62,7 @@ public class InventoryItemMapper<O extends BaseOdooModel & OdooResource> impleme
         openmrsCoding.setCode(extId.getName());
         openmrsCoding.setDisplay(product.getDisplayName());
         openmrsCoding.setSystem(FHIR_OPENMRS_INVENTORY_ITEM);
+        codeableConcept.setText(product.getDisplayName());
         codeableConcept.addCoding(openmrsCoding);
         inventoryItem.addCode(codeableConcept);
 

@@ -79,7 +79,7 @@ class InventoryItemMapperTest {
         assertEquals(50.0, result.getNetContent().getValue().doubleValue());
         assertEquals("units", result.getNetContent().getUnit());
         assertEquals("Test Display Name", result.getCode().get(0).getText());
-        assertEquals("TP001", result.getCode().get(0).getCoding().get(0).getCode());
+        assertEquals("TestID", result.getCode().get(0).getCoding().get(0).getCode());
         assertEquals(
                 "Test Display Name", result.getCode().get(0).getCoding().get(0).getDisplay());
     }

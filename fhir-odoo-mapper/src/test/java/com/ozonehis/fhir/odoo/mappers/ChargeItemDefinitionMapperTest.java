@@ -7,23 +7,22 @@
  */
 package com.ozonehis.fhir.odoo.mappers;
 
-import com.ozonehis.fhir.odoo.OdooConstants;
-import com.ozonehis.fhir.odoo.model.Currency;
-import com.ozonehis.fhir.odoo.model.ExtId;
-import com.ozonehis.fhir.odoo.model.Product;
-import org.hl7.fhir.r4.model.ChargeItemDefinition;
-import org.hl7.fhir.r4.model.Enumerations;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.ozonehis.fhir.odoo.OdooConstants;
+import com.ozonehis.fhir.odoo.model.Currency;
+import com.ozonehis.fhir.odoo.model.ExtId;
+import com.ozonehis.fhir.odoo.model.Product;
+import java.util.HashMap;
+import org.hl7.fhir.r4.model.ChargeItemDefinition;
+import org.hl7.fhir.r4.model.Enumerations;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 class ChargeItemDefinitionMapperTest {
@@ -68,7 +67,7 @@ class ChargeItemDefinitionMapperTest {
         when(product.getDescription()).thenReturn("Test Description");
         when(product.getLastModifiedOn()).thenReturn(new java.util.Date());
         when(product.isActive()).thenReturn(true);
-        when(product.getPrice()).thenReturn(100.0);
+        when(product.getStandardPrice()).thenReturn(100.0);
         when(extId.getName()).thenReturn("TestID");
         when(currency.getName()).thenReturn("USD");
 

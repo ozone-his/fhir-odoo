@@ -12,7 +12,6 @@ import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 import com.odoojava.api.FilterCollection;
 import com.odoojava.api.OdooApiException;
 import com.odoojava.api.Row;
-import com.ozonehis.fhir.FhirOdooConfig;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.ExtId;
 import java.util.Collection;
@@ -20,17 +19,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class ExtIdService extends BaseOdooService<ExtId> implements OdooService<ExtId> {
-
-    @Autowired
-    public ExtIdService(FhirOdooConfig config) {
-        super(config);
-    }
 
     @Override
     protected String modelName() {
