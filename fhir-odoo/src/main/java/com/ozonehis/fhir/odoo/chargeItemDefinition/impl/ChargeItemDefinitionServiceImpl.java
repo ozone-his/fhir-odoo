@@ -8,7 +8,6 @@
 package com.ozonehis.fhir.odoo.chargeItemDefinition.impl;
 
 import ca.uhn.fhir.rest.param.TokenAndListParam;
-import ca.uhn.fhir.rest.param.TokenParam;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.api.CurrencyService;
 import com.ozonehis.fhir.odoo.api.ExtIdService;
@@ -60,7 +59,8 @@ public class ChargeItemDefinitionServiceImpl implements ChargeItemDefinitionServ
     public Bundle searchForChargeItemDefinitions(TokenAndListParam code) {
         Bundle bundle = new Bundle();
         List<String> codes = new ArrayList<>();
-        code.getValuesAsQueryTokens().forEach(value -> value.getValuesAsQueryTokens().forEach(v -> codes.add(v.getValue())));
+        code.getValuesAsQueryTokens()
+                .forEach(value -> value.getValuesAsQueryTokens().forEach(v -> codes.add(v.getValue())));
 
         if (!codes.isEmpty()) {
             Collection<ExtId> extIds = extIdService.getResIdsByNameAndModel(codes, OdooConstants.MODEL_PRODUCT);
@@ -72,8 +72,10 @@ public class ChargeItemDefinitionServiceImpl implements ChargeItemDefinitionServ
                             product.get(),
                             OdooConstants.MODEL_EXTERNAL_IDENTIFIER,
                             externalIdentifier));
-                    Optional<Currency> currency = currencyService.getById(String.valueOf(product.get().getCurrencyId()));
+                    Optional<Currency> currency =
+                            currencyService.getById(String.valueOf(product.get().getCurrencyId()));
                     currency.ifPresent(value -> resourceMap.put(OdooConstants.MODEL_CURRENCY, value));
+
                     bundle.addEntry().setResource(chargeItemDefinitionMapper.toFhir(resourceMap));
                 }
             });
@@ -90,7 +92,8 @@ public class ChargeItemDefinitionServiceImpl implements ChargeItemDefinitionServ
             return Optional.empty();
         }
 
-        Optional<Product> product = productService.getById(String.valueOf(externalIdentifier.get().getResId()));
+        Optional<Product> product =
+                productService.getById(String.valueOf(externalIdentifier.get().getResId()));
         if (product.isEmpty()) {
             log.warn("Inventory Item with ID {} missing a Product", id);
             return Optional.empty();
@@ -100,7 +103,8 @@ public class ChargeItemDefinitionServiceImpl implements ChargeItemDefinitionServ
                 OdooConstants.MODEL_PRODUCT, product.get(),
                 OdooConstants.MODEL_EXTERNAL_IDENTIFIER, externalIdentifier.get()));
 
-        currencyService.getById(String.valueOf(product.get().getCurrencyId()))
+        currencyService
+                .getById(String.valueOf(product.get().getCurrencyId()))
                 .ifPresent(currency -> resourceMap.put(OdooConstants.MODEL_CURRENCY, currency));
 
         return Optional.of(chargeItemDefinitionMapper.toFhir(resourceMap));

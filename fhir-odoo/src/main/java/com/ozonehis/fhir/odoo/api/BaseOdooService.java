@@ -9,19 +9,18 @@ package com.ozonehis.fhir.odoo.api;
 
 import com.odoojava.api.FilterCollection;
 import com.odoojava.api.ObjectAdapter;
+import com.odoojava.api.OdooApiException;
 import com.odoojava.api.Row;
 import com.odoojava.api.RowCollection;
-import com.odoojava.api.Session;
-import com.ozonehis.fhir.FhirOdooConfig;
+import com.ozonehis.fhir.odoo.SessionHolder;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.xmlrpc.XmlRpcException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,10 +33,18 @@ import org.springframework.stereotype.Component;
 @Component
 public abstract class BaseOdooService<T extends OdooResource> implements OdooService<T> {
 
-    @Getter
-    private Session odooSession;
-
-    protected final ObjectAdapter objectAdapter;
+    /**
+     * Gets the ObjectAdapter for the Odoo object.
+     *
+     * @return the ObjectAdapter
+     */
+    protected ObjectAdapter objectAdapter() {
+        try {
+            return SessionHolder.getOdooSession().getObjectAdapter(modelName());
+        } catch (XmlRpcException | OdooApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Gets the model name for the Odoo object.
@@ -53,23 +60,6 @@ public abstract class BaseOdooService<T extends OdooResource> implements OdooSer
      */
     protected abstract String[] modelFields();
 
-    @Autowired
-    public BaseOdooService(FhirOdooConfig fhirOdooConfig) {
-        fhirOdooConfig.validateOdooProperties();
-        try {
-            odooSession = new Session(
-                    fhirOdooConfig.getOdooHost(),
-                    Integer.parseInt(fhirOdooConfig.getOdooPort()),
-                    fhirOdooConfig.getOdooDatabase(),
-                    fhirOdooConfig.getOdooUsername(),
-                    fhirOdooConfig.getOdooPassword());
-            odooSession.startSession();
-            this.objectAdapter = odooSession.getObjectAdapter(modelName());
-        } catch (Exception e) {
-            throw new RuntimeException("Error while initializing Odoo session", e);
-        }
-    }
-
     /**
      * Gets a resource by its ID.
      *
@@ -81,8 +71,9 @@ public abstract class BaseOdooService<T extends OdooResource> implements OdooSer
         try {
             FilterCollection filters = new FilterCollection();
             filters.add("id", "=", id);
-            RowCollection rows = objectAdapter.searchAndReadObject(filters, modelFields());
+            RowCollection rows = objectAdapter().searchAndReadObject(filters, modelFields());
             if (!rows.isEmpty()) {
+                // There should be only one row
                 Row row = rows.get(0);
                 T resource = mapRowToResource(row);
                 return Optional.of(resource);
@@ -103,7 +94,7 @@ public abstract class BaseOdooService<T extends OdooResource> implements OdooSer
     public Collection<T> search(FilterCollection filters) {
         List<T> resources = new ArrayList<>();
         try {
-            RowCollection rows = objectAdapter.searchAndReadObject(filters, modelFields());
+            RowCollection rows = objectAdapter().searchAndReadObject(filters, modelFields());
             for (Row row : rows) {
                 T resource = mapRowToResource(row);
                 resources.add(resource);

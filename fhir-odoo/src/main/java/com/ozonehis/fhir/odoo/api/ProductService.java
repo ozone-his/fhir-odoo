@@ -8,20 +8,13 @@
 package com.ozonehis.fhir.odoo.api;
 
 import com.odoojava.api.Row;
-import com.ozonehis.fhir.FhirOdooConfig;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.Product;
 import java.util.Date;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ProductService extends BaseOdooService<Product> implements OdooService<Product> {
-
-    @Autowired
-    public ProductService(FhirOdooConfig fhirOdooConfig) {
-        super(fhirOdooConfig);
-    }
 
     @Override
     protected String modelName() {
@@ -43,6 +36,7 @@ public class ProductService extends BaseOdooService<Product> implements OdooServ
         product.setPrice((Double) row.get("price"));
         product.setListPrice((Double) row.get("list_price"));
         product.setPublicPrice((Double) row.get("lst_price"));
+        product.setStandardPrice((Double) row.get("standard_price"));
         product.setActive((boolean) row.get("active"));
         product.setCode((String) row.get("code"));
         product.setCurrencyId((Integer) row.get("currency_id"));

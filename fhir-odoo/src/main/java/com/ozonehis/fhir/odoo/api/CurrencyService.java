@@ -10,20 +10,14 @@ package com.ozonehis.fhir.odoo.api;
 import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 
 import com.odoojava.api.Row;
-import com.ozonehis.fhir.FhirOdooConfig;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.Currency;
 import java.util.Date;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 @Service
 public class CurrencyService extends BaseOdooService<Currency> implements OdooService<Currency> {
-
-    @Autowired
-    public CurrencyService(FhirOdooConfig fhirOdooConfig) {
-        super(fhirOdooConfig);
-    }
 
     @Override
     protected String modelName() {

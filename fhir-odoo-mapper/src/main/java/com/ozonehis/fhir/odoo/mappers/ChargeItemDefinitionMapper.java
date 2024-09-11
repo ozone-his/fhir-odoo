@@ -50,17 +50,19 @@ public class ChargeItemDefinitionMapper<O extends BaseOdooModel & OdooResource>
         }
 
         // Price Component
-        ChargeItemDefinition.ChargeItemDefinitionPropertyGroupPriceComponentComponent priceComponent = getPriceComponent(product, currency);
+        ChargeItemDefinition.ChargeItemDefinitionPropertyGroupPriceComponentComponent priceComponent =
+                getPriceComponent(product, currency);
         chargeItemDefinition.addPropertyGroup().addPriceComponent(priceComponent);
 
         return chargeItemDefinition;
     }
 
-    private static ChargeItemDefinition.ChargeItemDefinitionPropertyGroupPriceComponentComponent getPriceComponent(Product product, Currency currency) {
+    private static ChargeItemDefinition.ChargeItemDefinitionPropertyGroupPriceComponentComponent getPriceComponent(
+            Product product, Currency currency) {
         ChargeItemDefinition.ChargeItemDefinitionPropertyGroupPriceComponentComponent priceComponent =
                 new ChargeItemDefinition.ChargeItemDefinitionPropertyGroupPriceComponentComponent();
         Money money = new Money();
-        money.setValue(product.getPrice());
+        money.setValue(product.getStandardPrice());
         if (currency != null) {
             money.setCurrency(currency.getName());
         }
