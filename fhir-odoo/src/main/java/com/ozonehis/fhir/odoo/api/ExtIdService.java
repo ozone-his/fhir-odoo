@@ -40,13 +40,26 @@ public class ExtIdService extends BaseOdooService<ExtId> implements OdooService<
         ExtId extId = new ExtId();
         extId.setModel((String) row.get("model"));
         extId.setModule((String) row.get("module"));
-        extId.setResId((Integer) row.get("res_id"));
-        extId.setUpdatable((boolean) row.get("noupdate"));
+
+        var resId = get(row, "res_id");
+        if (resId != null) {
+            extId.setResId((Integer) resId);
+        }
+
+        var noupdate = get(row, "noupdate");
+        if (noupdate != null) {
+            extId.setUpdatable((boolean) noupdate);
+        }
+
         extId.setReference((String) row.get("reference"));
         extId.setCompleteName((String) row.get("complete_name"));
         extId.setName((String) row.get("name"));
         extId.setDisplayName((String) row.get("display_name"));
-        extId.setId((Integer) row.get("id"));
+
+        var id = get(row, "id");
+        if (id != null) {
+            extId.setId((Integer) row.get("id"));
+        }
         // Audit fields
         var createdOn = get(row, "create_date");
         if (createdOn != null) {

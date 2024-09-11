@@ -13,6 +13,8 @@ import com.ozonehis.fhir.odoo.model.Product;
 import java.util.Date;
 import org.springframework.stereotype.Service;
 
+import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
+
 @Service
 public class ProductService extends BaseOdooService<Product> implements OdooService<Product> {
 
@@ -37,15 +39,41 @@ public class ProductService extends BaseOdooService<Product> implements OdooServ
         product.setListPrice((Double) row.get("list_price"));
         product.setPublicPrice((Double) row.get("lst_price"));
         product.setStandardPrice((Double) row.get("standard_price"));
-        product.setActive((boolean) row.get("active"));
+
+        var active = row.get("active");
+        if (active != null) {
+            product.setActive((boolean) row.get("active"));
+        }
         product.setCode((String) row.get("code"));
-        product.setCurrencyId((Integer) row.get("currency_id"));
+
+        var currencyId = row.get("currency_id");
+        if (currencyId != null) {
+            product.setCurrencyId((Integer) row.get("currency_id"));
+        }
         // Audit fields
-        product.setCreatedOn((Date) row.get("create_date"));
-        product.setCreatedBy((Integer) row.get("create_uid"));
-        product.setLastUpdatedOn((Date) row.get("write_date"));
-        product.setLastUpdatedBy((Integer) row.get("write_uid"));
-        product.setLastModifiedOn((Date) row.get("__last_update"));
+        var createdOn = get(row, "create_date");
+        if (createdOn != null) {
+            product.setCreatedOn((Date) createdOn);
+        }
+        var createdBy = get(row, "create_uid");
+        if (createdBy != null) {
+            product.setCreatedBy((Integer) createdBy);
+        }
+
+        var lastUpdatedOn = get(row, "write_date");
+        if (lastUpdatedOn != null) {
+            product.setLastUpdatedOn((Date) lastUpdatedOn);
+        }
+
+        var lastUpdatedBy = get(row, "write_uid");
+        if (lastUpdatedBy != null) {
+            product.setLastUpdatedBy((Integer) lastUpdatedBy);
+        }
+
+        var lastModifiedOn = get(row, "__last_update");
+        if (lastModifiedOn != null) {
+            product.setLastModifiedOn((Date) lastModifiedOn);
+        }
 
         return product;
     }

@@ -40,7 +40,11 @@ public class CurrencyService extends BaseOdooService<Currency> implements OdooSe
         currency.setDisplayName(get(row, "display_name"));
         currency.setCurrencyUnitLabel(get(row, "currency_unit_label"));
         currency.setCurrencySubunitLabel(get(row, "currency_subunit_label"));
-        currency.setDecimalPlaces(get(row, "decimal_places"));
+
+        var decimalPlaces = get(row, "decimal_places");
+        if (decimalPlaces != null) {
+            currency.setDecimalPlaces((Integer) decimalPlaces);
+        }
 
         // Audit fields
         var createdOn = get(row, "create_date");
