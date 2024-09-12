@@ -19,12 +19,6 @@ public class FhirOdooConfig {
     @Value("${fhir.odoo.host}")
     private String OdooHost;
 
-    @Value("${fhir.odoo.username}")
-    private String OdooUsername;
-
-    @Value("${fhir.odoo.password}")
-    private String OdooPassword;
-
     @Value("${fhir.odoo.database}")
     private String OdooDatabase;
 
@@ -37,12 +31,6 @@ public class FhirOdooConfig {
     public void validateOdooProperties() {
         if (StringUtils.isEmpty(OdooHost) && StringUtils.isBlank(OdooHost)) {
             throw new IllegalArgumentException("OdooHost is required");
-        }
-        if (StringUtils.isEmpty(OdooUsername) && StringUtils.isBlank(OdooUsername)) {
-            throw new IllegalArgumentException("OdooUsername is required");
-        }
-        if (StringUtils.isEmpty(OdooPassword) && StringUtils.isBlank(OdooPassword)) {
-            throw new IllegalArgumentException("OdooPassword is required");
         }
         if (StringUtils.isEmpty(OdooDatabase) && StringUtils.isBlank(OdooDatabase)) {
             throw new IllegalArgumentException("OdooDatabase is required");
