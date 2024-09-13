@@ -7,13 +7,13 @@
  */
 package com.ozonehis.fhir.odoo.api;
 
+import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
+
 import com.odoojava.api.Row;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.Product;
 import java.util.Date;
 import org.springframework.stereotype.Service;
-
-import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 
 @Service
 public class ProductService extends BaseOdooService<Product> implements OdooService<Product> {

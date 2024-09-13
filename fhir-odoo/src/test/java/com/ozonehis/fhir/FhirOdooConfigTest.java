@@ -1,13 +1,20 @@
+/*
+ * Copyright © 2024, Ozone HIS <info@ozone-his.com>
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.ozonehis.fhir;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = FhirOdooConfig.class)
 class FhirOdooConfigTest {
@@ -38,7 +45,8 @@ class FhirOdooConfigTest {
         fhirOdooConfig.setOdooPort("8069");
         fhirOdooConfig.setOdooProtocol("http");
 
-        assertThrows(IllegalArgumentException.class, () -> fhirOdooConfig.validateOdooProperties(), "OdooHost is required");
+        assertThrows(
+                IllegalArgumentException.class, () -> fhirOdooConfig.validateOdooProperties(), "OdooHost is required");
     }
 
     @Test
@@ -49,7 +57,10 @@ class FhirOdooConfigTest {
         fhirOdooConfig.setOdooPort("8069");
         fhirOdooConfig.setOdooProtocol("http");
 
-        assertThrows(IllegalArgumentException.class, () -> fhirOdooConfig.validateOdooProperties(), "OdooDatabase is required");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> fhirOdooConfig.validateOdooProperties(),
+                "OdooDatabase is required");
     }
 
     @Test
@@ -60,7 +71,8 @@ class FhirOdooConfigTest {
         fhirOdooConfig.setOdooPort("");
         fhirOdooConfig.setOdooProtocol("http");
 
-        assertThrows(IllegalArgumentException.class, () -> fhirOdooConfig.validateOdooProperties(), "OdooPort is required");
+        assertThrows(
+                IllegalArgumentException.class, () -> fhirOdooConfig.validateOdooProperties(), "OdooPort is required");
     }
 
     @Test
@@ -71,6 +83,9 @@ class FhirOdooConfigTest {
         fhirOdooConfig.setOdooPort("8069");
         fhirOdooConfig.setOdooProtocol("");
 
-        assertThrows(IllegalArgumentException.class, () -> fhirOdooConfig.validateOdooProperties(), "OdooProtocol is required");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> fhirOdooConfig.validateOdooProperties(),
+                "OdooProtocol is required");
     }
 }
