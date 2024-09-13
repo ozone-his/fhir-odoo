@@ -13,7 +13,6 @@ import com.odoojava.api.Row;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.Currency;
 import java.util.Date;
-
 import org.springframework.stereotype.Service;
 
 @Service
