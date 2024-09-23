@@ -32,8 +32,8 @@
   </developers>
   <modules>
     <module>fhir-odoo</module>
+    <module>fhir-odoo-app</module>
     <module>fhir-odoo-mapper</module>
-    <module>development</module>
   </modules>
 
   <distributionManagement>
