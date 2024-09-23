@@ -44,6 +44,10 @@ public class BasicAuthenticationInterceptor {
 
             // Extract the credentials
             String[] credentials = new String(Base64.getDecoder().decode(authHeader.substring(6))).split(":");
+            if (credentials.length < 2) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid credentials format");
+                return false;
+            }
             String username = credentials[0];
             String password = credentials[1];
 

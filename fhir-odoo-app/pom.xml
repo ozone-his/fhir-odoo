@@ -17,8 +17,8 @@
   </parent>
 
   <artifactId>fhir-odoo-app</artifactId>
-  <name>FHIR Odoo Application</name>
-  <description>Spring Boot Application runner</description>
+  <name>FHIR Odoo App</name>
+  <description>FHIR Odoo App</description>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
