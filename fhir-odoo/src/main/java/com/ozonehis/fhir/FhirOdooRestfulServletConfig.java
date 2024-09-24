@@ -22,7 +22,7 @@ public class FhirOdooRestfulServletConfig {
 
     @Bean
     public ServletRegistrationBean<FhirOdooRestfulServlet> fhirOdooRestfulServletRegistrationBean() {
-        var servletRegistrationBean = new ServletRegistrationBean<>(fhirOdooRestfulServlet, "/odoo/R4/*");
+        var servletRegistrationBean = new ServletRegistrationBean<>(fhirOdooRestfulServlet, "/odoo/fhir/R4/*");
         servletRegistrationBean.setName(FHIR_ODOO_SERVLET_NAME);
         servletRegistrationBean.setLoadOnStartup(1);
         return servletRegistrationBean;

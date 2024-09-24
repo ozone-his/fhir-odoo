@@ -30,16 +30,16 @@ public class FhirOdooConfig {
     private String OdooProtocol;
 
     public void validateOdooProperties() {
-        if (StringUtils.isEmpty(OdooHost) && StringUtils.isBlank(OdooHost)) {
+        if (StringUtils.isEmpty(OdooHost) || StringUtils.isBlank(OdooHost)) {
             throw new IllegalArgumentException("OdooHost is required");
         }
-        if (StringUtils.isEmpty(OdooDatabase) && StringUtils.isBlank(OdooDatabase)) {
+        if (StringUtils.isEmpty(OdooDatabase) || StringUtils.isBlank(OdooDatabase)) {
             throw new IllegalArgumentException("OdooDatabase is required");
         }
-        if (StringUtils.isEmpty(OdooPort) && StringUtils.isBlank(OdooPort)) {
+        if (StringUtils.isEmpty(OdooPort) || StringUtils.isBlank(OdooPort)) {
             throw new IllegalArgumentException("OdooPort is required");
         }
-        if (StringUtils.isEmpty(OdooProtocol) && StringUtils.isBlank(OdooProtocol)) {
+        if (StringUtils.isEmpty(OdooProtocol) || StringUtils.isBlank(OdooProtocol)) {
             throw new IllegalArgumentException("OdooProtocol is required");
         }
     }

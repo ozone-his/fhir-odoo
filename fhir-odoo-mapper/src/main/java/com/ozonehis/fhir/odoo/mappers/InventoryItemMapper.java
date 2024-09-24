@@ -15,6 +15,7 @@ import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Product;
 import java.util.Map;
+import org.apache.commons.collections4.MapUtils;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Quantity;
@@ -26,7 +27,7 @@ public class InventoryItemMapper<O extends BaseOdooModel & OdooResource> impleme
 
     @Override
     public InventoryItem toFhir(Map<String, O> resourceMap) {
-        if (resourceMap == null || resourceMap.isEmpty()) {
+        if (MapUtils.isEmpty(resourceMap)) {
             return null;
         }
         InventoryItem inventoryItem = new InventoryItem();

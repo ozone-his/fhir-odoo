@@ -14,6 +14,7 @@ import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Product;
 import java.util.Map;
+import org.apache.commons.collections4.MapUtils;
 import org.hl7.fhir.r4.model.ChargeItemDefinition;
 import org.hl7.fhir.r4.model.Enumerations;
 import org.hl7.fhir.r4.model.Money;
@@ -25,10 +26,10 @@ public class ChargeItemDefinitionMapper<O extends BaseOdooModel & OdooResource>
 
     @Override
     public ChargeItemDefinition toFhir(Map<String, O> resourceMap) {
-        ChargeItemDefinition chargeItemDefinition = new ChargeItemDefinition();
-        if (resourceMap == null || resourceMap.isEmpty()) {
+        if (MapUtils.isEmpty(resourceMap)) {
             return null;
         }
+        ChargeItemDefinition chargeItemDefinition = new ChargeItemDefinition();
         Product product = (Product) resourceMap.get(OdooConstants.MODEL_PRODUCT);
         ExtId extId = (ExtId) resourceMap.get(OdooConstants.MODEL_EXTERNAL_IDENTIFIER);
         Currency currency = (Currency) resourceMap.get(OdooConstants.MODEL_CURRENCY);

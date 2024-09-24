@@ -14,5 +14,11 @@ import org.hl7.fhir.r4.model.ChargeItemDefinition;
 
 public interface ChargeItemDefinitionService extends FhirService<ChargeItemDefinition> {
 
+    /**
+     * Search for ChargeItemDefinitions by code
+     *
+     * @param code TokenAndListParam code to search for
+     * @return Bundle of ChargeItemDefinitions
+     */
     Bundle searchForChargeItemDefinitions(TokenAndListParam code);
 }
