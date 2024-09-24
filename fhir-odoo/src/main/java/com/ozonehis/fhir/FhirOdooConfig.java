@@ -7,6 +7,7 @@
  */
 package com.ozonehis.fhir;
 
+import com.odoojava.api.OdooXmlRpcProxy;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,16 @@ public class FhirOdooConfig {
         }
         if (StringUtils.isEmpty(OdooProtocol) && StringUtils.isBlank(OdooProtocol)) {
             throw new IllegalArgumentException("OdooProtocol is required");
+        }
+    }
+
+    public OdooXmlRpcProxy.RPCProtocol getRPCProtocol() {
+        if (OdooProtocol.equalsIgnoreCase("http")) {
+            return OdooXmlRpcProxy.RPCProtocol.RPC_HTTP;
+        } else if (OdooProtocol.equalsIgnoreCase("https")) {
+            return OdooXmlRpcProxy.RPCProtocol.RPC_HTTPS;
+        } else {
+            throw new IllegalArgumentException("Invalid OdooProtocol");
         }
     }
 }

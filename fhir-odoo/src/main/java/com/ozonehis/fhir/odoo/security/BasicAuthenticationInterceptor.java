@@ -63,6 +63,7 @@ public class BasicAuthenticationInterceptor {
 
     private boolean authenticateWithUsernameAndPassword(String username, String password) {
         Session odooSession = new Session(
+                fhirOdooConfig.getRPCProtocol(),
                 fhirOdooConfig.getOdooHost(),
                 Integer.parseInt(fhirOdooConfig.getOdooPort()),
                 fhirOdooConfig.getOdooDatabase(),

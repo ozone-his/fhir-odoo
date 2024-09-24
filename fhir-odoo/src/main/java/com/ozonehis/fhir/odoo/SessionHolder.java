@@ -8,9 +8,7 @@
 package com.ozonehis.fhir.odoo;
 
 import com.odoojava.api.Session;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 public class SessionHolder {
 
     public Session odooSession;
