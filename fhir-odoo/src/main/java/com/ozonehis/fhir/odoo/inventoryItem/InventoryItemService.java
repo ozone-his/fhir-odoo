@@ -14,5 +14,11 @@ import org.openmrs.fhir.InventoryItem;
 
 public interface InventoryItemService extends FhirService<InventoryItem> {
 
+    /**
+     * Search for InventoryItems by code
+     *
+     * @param code TokenAndListParam code to search for
+     * @return Bundle of InventoryItems
+     */
     Bundle searchForInventoryItems(TokenAndListParam code);
 }

@@ -28,12 +28,12 @@ class FhirOdooRestfulServletConfigTest {
     ServletRegistrationBean<FhirOdooRestfulServlet> fhirOdooRestfulServletRegistrationBean;
 
     @Test
-    @DisplayName("Should register FhirOdooRestfulServlet with URL mapping /odoo/R4/*")
+    @DisplayName("Should register FhirOdooRestfulServlet with URL mapping /odoo/fhir/R4/*")
     void shouldReturnFhirOdooRestfulServletRegistrationBeanWithCorrectMappings() {
         // Assert
         assertNotNull(fhirOdooRestfulServletRegistrationBean);
         assertNotNull(fhirOdooRestfulServletRegistrationBean.getServlet());
-        assertTrue(fhirOdooRestfulServletRegistrationBean.getUrlMappings().contains("/odoo/R4/*"));
+        assertTrue(fhirOdooRestfulServletRegistrationBean.getUrlMappings().contains("/odoo/fhir/R4/*"));
         assertEquals("FhirOdooRestfulServlet", fhirOdooRestfulServletRegistrationBean.getServletName());
     }
 }
