@@ -27,15 +27,22 @@ jobs:
     if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'release' }}
     needs: spotless
     uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-publish.yml@main
+    with:
+      artifact-name: "fhir-odoo"
+      artifact-path: "fhir-odoo-app/target/*.jar"
+      upload-artifacts: true
     secrets:
       NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
       NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
   docker-publish:
     if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'release' }}
-    needs: spotless
+    needs: maven-publish
     uses: mekomsolutions/shared-github-workflow/.github/workflows/docker-build-publish.yml@main
     with:
+      artifact-name: "fhir-odoo"
+      artifact-path: "fhir-odoo-app/target"
+      download-artifacts: true
       image-name: "fhir-odoo"
     secrets:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_REGISTRY_USERNAME }}

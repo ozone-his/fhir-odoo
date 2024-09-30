@@ -21,7 +21,7 @@ COPY fhir-odoo-mapper/ fhir-odoo-mapper/
 RUN mvn clean package -DskipTests --no-transfer-progress --batch-mode
 
 # Copy the built JAR file to the container
-COPY fhir-odoo-app/target/fhir-odoo-app-*.jar fhir-odoo.jar
+COPY /fhir-odoo-app/target/fhir-odoo-app-*.jar fhir-odoo.jar
 
 # Expose the port the application runs on
 EXPOSE 8080
