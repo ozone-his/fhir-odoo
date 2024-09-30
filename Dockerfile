@@ -9,6 +9,17 @@
 # Use the Maven image with OpenJDK 17 as the base image
 FROM maven:3.9-eclipse-temurin-17
 
+# Set the working directory in the container
+WORKDIR /app
+# Copy the Maven build files to the container
+COPY pom.xml ./
+COPY fhir-odoo-app/ fhir-odoo-app/
+COPY fhir-odoo/ fhir-odoo/
+COPY fhir-odoo-mapper/ fhir-odoo-mapper/
+
+# Build the application
+RUN mvn clean package -DskipTests --no-transfer-progress --batch-mode
+
 # Copy the built JAR file to the container
 COPY fhir-odoo-app/target/fhir-odoo-app-*.jar fhir-odoo.jar
 
