@@ -69,7 +69,7 @@ class ChargeItemDefinitionMapperTest {
         when(product.isActive()).thenReturn(true);
         when(product.getStandardPrice()).thenReturn(100.0);
         when(extId.getName()).thenReturn("TestID");
-        when(currency.getName()).thenReturn("USD");
+        when(currency.getSymbol()).thenReturn("$");
 
         resourceMap.put(OdooConstants.MODEL_PRODUCT, product);
         resourceMap.put(OdooConstants.MODEL_EXTERNAL_IDENTIFIER, extId);
@@ -94,7 +94,7 @@ class ChargeItemDefinitionMapperTest {
                         .getValue()
                         .doubleValue());
         assertEquals(
-                "USD",
+                "$",
                 result.getPropertyGroup()
                         .get(0)
                         .getPriceComponent()
@@ -118,6 +118,7 @@ class ChargeItemDefinitionMapperTest {
         when(product.getPrice()).thenReturn(100.0);
         when(extId.getName()).thenReturn("TestID");
         when(currency.getName()).thenReturn("USD");
+        when(currency.getSymbol()).thenReturn("$");
 
         resourceMap.put(OdooConstants.MODEL_PRODUCT, product);
         resourceMap.put(OdooConstants.MODEL_EXTERNAL_IDENTIFIER, extId);

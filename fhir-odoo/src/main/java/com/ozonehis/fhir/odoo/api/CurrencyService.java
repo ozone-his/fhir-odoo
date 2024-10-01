@@ -36,6 +36,7 @@ public class CurrencyService extends BaseOdooService<Currency> implements OdooSe
             currency.setActive((boolean) active);
         }
         currency.setName(get(row, "name"));
+        currency.setSymbol(get(row, "symbol"));
         currency.setDisplayName(get(row, "display_name"));
         currency.setCurrencyUnitLabel(get(row, "currency_unit_label"));
         currency.setCurrencySubunitLabel(get(row, "currency_subunit_label"));

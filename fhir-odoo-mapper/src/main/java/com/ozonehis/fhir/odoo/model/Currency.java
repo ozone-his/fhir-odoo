@@ -32,6 +32,9 @@ public class Currency extends BaseOdooModel {
     @JsonProperty("currency_subunit_label")
     private String currencySubunitLabel;
 
+    @JsonProperty("symbol")
+    private String symbol;
+
     @JsonProperty("decimal_places")
     private int decimalPlaces;
 }

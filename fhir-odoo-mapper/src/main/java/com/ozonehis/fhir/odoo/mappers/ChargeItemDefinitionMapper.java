@@ -65,7 +65,8 @@ public class ChargeItemDefinitionMapper<O extends BaseOdooModel & OdooResource>
         Money money = new Money();
         money.setValue(product.getStandardPrice());
         if (currency != null) {
-            money.setCurrency(currency.getName());
+            money.setCurrency(currency.getSymbol());
+
         }
         priceComponent.setAmount(money);
         // Base price
