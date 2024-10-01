@@ -26,9 +26,6 @@ public class FhirOdooConfig {
     @Value("${fhir.odoo.port}")
     private String OdooPort;
 
-    @Value("${fhir.odoo.protocol}")
-    private String OdooProtocol;
-
     public void validateOdooProperties() {
         if (StringUtils.isEmpty(OdooHost) || StringUtils.isBlank(OdooHost)) {
             throw new IllegalArgumentException("OdooHost is required");
@@ -39,18 +36,18 @@ public class FhirOdooConfig {
         if (StringUtils.isEmpty(OdooPort) || StringUtils.isBlank(OdooPort)) {
             throw new IllegalArgumentException("OdooPort is required");
         }
-        if (StringUtils.isEmpty(OdooProtocol) || StringUtils.isBlank(OdooProtocol)) {
-            throw new IllegalArgumentException("OdooProtocol is required");
-        }
     }
 
     public OdooXmlRpcProxy.RPCProtocol getRPCProtocol() {
-        if (OdooProtocol.equalsIgnoreCase("http")) {
-            return OdooXmlRpcProxy.RPCProtocol.RPC_HTTP;
-        } else if (OdooProtocol.equalsIgnoreCase("https")) {
-            return OdooXmlRpcProxy.RPCProtocol.RPC_HTTPS;
-        } else {
-            throw new IllegalArgumentException("Invalid OdooProtocol");
-        }
+        // OdooHost is expected to be in the format: http(s)://<host>
+        return OdooHost.startsWith("https")
+                ? OdooXmlRpcProxy.RPCProtocol.RPC_HTTPS
+                : OdooXmlRpcProxy.RPCProtocol.RPC_HTTP;
+    }
+
+    public String getOdooHostName() {
+        // OdooHost is expected to be in the format: http(s)://<host>
+        var hostname = OdooHost.substring(OdooHost.indexOf("://") + 3);
+        return hostname.endsWith("/") ? hostname.substring(0, hostname.length() - 1) : hostname;
     }
 }

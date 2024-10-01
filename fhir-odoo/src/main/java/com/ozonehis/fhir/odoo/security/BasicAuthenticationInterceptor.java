@@ -17,9 +17,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Base64;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @SuppressWarnings("unused")
 @Component
 @Interceptor
@@ -64,12 +66,11 @@ public class BasicAuthenticationInterceptor {
     private boolean authenticateWithUsernameAndPassword(String username, String password) {
         Session odooSession = new Session(
                 fhirOdooConfig.getRPCProtocol(),
-                fhirOdooConfig.getOdooHost(),
+                fhirOdooConfig.getOdooHostName(),
                 Integer.parseInt(fhirOdooConfig.getOdooPort()),
                 fhirOdooConfig.getOdooDatabase(),
                 username,
                 password);
-
         try {
             odooSession.startSession();
             if (odooSession.getUserID() != 0) {
