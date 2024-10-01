@@ -65,12 +65,24 @@ public class ChargeItemDefinitionMapper<O extends BaseOdooModel & OdooResource>
         Money money = new Money();
         money.setValue(product.getStandardPrice());
         if (currency != null) {
-            money.setCurrency(currency.getSymbol());
-
+            money.setCurrency(currency.getName());
+            addCurrencyExtension(money, currency);
         }
         priceComponent.setAmount(money);
         // Base price
         priceComponent.setType(ChargeItemDefinition.ChargeItemDefinitionPriceComponentType.BASE);
         return priceComponent;
+    }
+
+    private static void addCurrencyExtension(Money money, Currency currency) {
+        money.addExtension()
+                .setUrl(OdooConstants.FHIR_OPENMRS_EXT_CURRENCY_SYMBOL)
+                .setValue(new org.hl7.fhir.r4.model.StringType(currency.getSymbol()));
+        money.addExtension()
+                .setUrl(OdooConstants.FHIR_OPENMRS_EXT_CURRENCY_UNIT_LABEL)
+                .setValue(new org.hl7.fhir.r4.model.StringType(currency.getCurrencyUnitLabel()));
+        money.addExtension()
+                .setUrl(OdooConstants.FHIR_OPENMRS_EXT_CURRENCY_SUBUNIT_LABEL)
+                .setValue(new org.hl7.fhir.r4.model.StringType(currency.getCurrencySubunitLabel()));
     }
 }

@@ -69,7 +69,10 @@ class ChargeItemDefinitionMapperTest {
         when(product.isActive()).thenReturn(true);
         when(product.getStandardPrice()).thenReturn(100.0);
         when(extId.getName()).thenReturn("TestID");
+        when(currency.getName()).thenReturn("USD");
         when(currency.getSymbol()).thenReturn("$");
+        when(currency.getCurrencyUnitLabel()).thenReturn("Dollar");
+        when(currency.getCurrencySubunitLabel()).thenReturn("Cent");
 
         resourceMap.put(OdooConstants.MODEL_PRODUCT, product);
         resourceMap.put(OdooConstants.MODEL_EXTERNAL_IDENTIFIER, extId);
@@ -94,7 +97,7 @@ class ChargeItemDefinitionMapperTest {
                         .getValue()
                         .doubleValue());
         assertEquals(
-                "$",
+                "USD",
                 result.getPropertyGroup()
                         .get(0)
                         .getPriceComponent()
@@ -128,5 +131,46 @@ class ChargeItemDefinitionMapperTest {
 
         assertNotNull(result);
         assertEquals(Enumerations.PublicationStatus.RETIRED, result.getStatus());
+    }
+
+    @Test
+    @DisplayName("Should add currency symbol, unit label and subunit label to the money as extensions")
+    void shouldAddCurrencySymbolUnitLabelAndSubunitLabelToTheMoneyAsExtensions() {
+        var resourceMap = new HashMap<>();
+        Product product = mock(Product.class);
+        ExtId extId = mock(ExtId.class);
+        Currency currency = mock(Currency.class);
+
+        when(product.isActive()).thenReturn(true);
+        when(product.getName()).thenReturn("Test Product");
+        when(product.getDescription()).thenReturn("Test Description");
+        when(product.getLastModifiedOn()).thenReturn(new java.util.Date());
+        when(product.getStandardPrice()).thenReturn(100.0);
+        when(extId.getName()).thenReturn("TestID");
+        when(currency.getName()).thenReturn("USD");
+        when(currency.getSymbol()).thenReturn("$");
+        when(currency.getCurrencyUnitLabel()).thenReturn("Dollar");
+        when(currency.getCurrencySubunitLabel()).thenReturn("Cent");
+
+        resourceMap.put(OdooConstants.MODEL_PRODUCT, product);
+        resourceMap.put(OdooConstants.MODEL_EXTERNAL_IDENTIFIER, extId);
+        resourceMap.put(OdooConstants.MODEL_CURRENCY, currency);
+
+        ChargeItemDefinition result = mapper.toFhir(resourceMap);
+
+        assertNotNull(result);
+        assertEquals(1, result.getPropertyGroup().size());
+        assertEquals(1, result.getPropertyGroup().get(0).getPriceComponent().size());
+
+        var priceComponent =
+                result.getPropertyGroup().get(0).getPriceComponent().get(0);
+        assertEquals(100.0, priceComponent.getAmount().getValue().doubleValue());
+        assertEquals("USD", priceComponent.getAmount().getCurrency());
+
+        // Check the extensions
+        var extensions = priceComponent.getAmount().getExtension();
+        assertEquals("$", extensions.get(0).getValue().toString());
+        assertEquals("Dollar", extensions.get(1).getValue().toString());
+        assertEquals("Cent", extensions.get(2).getValue().toString());
     }
 }

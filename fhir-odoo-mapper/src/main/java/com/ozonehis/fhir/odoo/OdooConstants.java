@@ -14,6 +14,16 @@ public class OdooConstants {
 
     public static final String FHIR_OPENMRS_SYSTEM_PREFIX = "https://fhir.openmrs.org/";
 
+    public static final String FHIR_OPENMRS_EXT_PREFIX = FHIR_OPENMRS_SYSTEM_PREFIX + "ext/";
+
+    public static final String FHIR_OPENMRS_EXT_CURRENCY = FHIR_OPENMRS_EXT_PREFIX + "currency/";
+
+    public static final String FHIR_OPENMRS_EXT_CURRENCY_SYMBOL = FHIR_OPENMRS_EXT_CURRENCY + "symbol";
+
+    public static final String FHIR_OPENMRS_EXT_CURRENCY_UNIT_LABEL = FHIR_OPENMRS_EXT_CURRENCY + "unit-label";
+
+    public static final String FHIR_OPENMRS_EXT_CURRENCY_SUBUNIT_LABEL = FHIR_OPENMRS_EXT_CURRENCY + "subunit-label";
+
     public static final String FHIR_OPENMRS_CONCEPT_SYSTEM_PREFIX = FHIR_OPENMRS_SYSTEM_PREFIX + "concept-system/";
 
     public static final String FHIR_OPENMRS_INVENTORY_ITEM = FHIR_OPENMRS_CONCEPT_SYSTEM_PREFIX + "inventory-item";
