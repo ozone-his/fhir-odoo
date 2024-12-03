@@ -60,6 +60,12 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             log.warn("Inventory Item with ID {} missing a Product", id);
             return Optional.empty();
         }
+
+        // Only return stockable products
+        if (product.get().getType() == null || !product.get().getType().equals(OdooConstants.PRODUCT_TYPE_STORABLE)) {
+            return Optional.empty();
+        }
+
         Map<String, OdooResource> resourceMap = Map.of(
                 OdooConstants.MODEL_PRODUCT, product.get(),
                 OdooConstants.MODEL_EXTERNAL_IDENTIFIER, externalIdentifier.get());
@@ -78,7 +84,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             Collection<ExtId> extIds = extIdService.getResIdsByNameAndModel(codes, OdooConstants.MODEL_PRODUCT);
             extIds.forEach(externalIdentifier -> {
                 Optional<Product> product = productService.getById(String.valueOf(externalIdentifier.getResId()));
-                if (product.isPresent() && product.get().isActive()) {
+                if (product.isPresent()
+                        && product.get().isActive()
+                        && product.get().getType().equals(OdooConstants.PRODUCT_TYPE_STORABLE)) {
                     Map<String, OdooResource> resourceMap = Map.of(
                             OdooConstants.MODEL_PRODUCT,
                             product.get(),

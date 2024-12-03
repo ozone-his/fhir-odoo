@@ -33,4 +33,6 @@ public class OdooConstants {
     public static final String MODEL_PRODUCT = "product.product";
 
     public static final String MODEL_CURRENCY = "res.currency";
+
+    public static final String PRODUCT_TYPE_STORABLE = "product";
 }

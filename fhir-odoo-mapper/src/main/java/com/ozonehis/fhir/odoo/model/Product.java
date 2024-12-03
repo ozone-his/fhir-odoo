@@ -59,4 +59,7 @@ public class Product extends BaseOdooModel {
 
     @JsonProperty("currency_id")
     private Integer currencyId;
+
+    @JsonProperty("type")
+    private String type;
 }

@@ -40,6 +40,11 @@ public class ProductService extends BaseOdooService<Product> implements OdooServ
         product.setPublicPrice((Double) row.get("lst_price"));
         product.setStandardPrice((Double) row.get("standard_price"));
 
+        var type = row.get("type");
+        if (type != null) {
+            product.setType((String) row.get("type"));
+        }
+
         var active = row.get("active");
         if (active != null) {
             product.setActive((boolean) row.get("active"));
