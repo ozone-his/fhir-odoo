@@ -36,9 +36,6 @@ public class BaseOdooModel implements OdooResource {
     @JsonProperty("display_name")
     private String displayName;
 
-    @JsonProperty("__last_update")
-    private Date lastModifiedOn;
-
     @JsonProperty("create_date")
     private Date createdOn;
 

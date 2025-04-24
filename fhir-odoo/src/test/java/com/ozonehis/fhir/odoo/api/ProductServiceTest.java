@@ -61,7 +61,6 @@ class ProductServiceTest {
         when(row.get("create_uid")).thenReturn(1);
         when(row.get("write_date")).thenReturn(new Date());
         when(row.get("write_uid")).thenReturn(2);
-        when(row.get("__last_update")).thenReturn(new Date());
 
         Product product = productService.mapRowToResource(row);
 
@@ -70,7 +69,6 @@ class ProductServiceTest {
         assertEquals("PA", product.getName());
         assertEquals("Unit", product.getUomName());
         assertEquals(100.0, product.getQuantityAvailable());
-        assertEquals(50.0, product.getPrice());
         assertEquals(55.0, product.getListPrice());
         assertEquals(60.0, product.getPublicPrice());
         assertEquals(45.0, product.getStandardPrice());
@@ -81,7 +79,6 @@ class ProductServiceTest {
         assertEquals(1, product.getCreatedBy());
         assertNotNull(product.getLastUpdatedOn());
         assertEquals(2, product.getLastUpdatedBy());
-        assertNotNull(product.getLastModifiedOn());
     }
 
     @Test
@@ -103,7 +100,6 @@ class ProductServiceTest {
         when(row.get("create_uid")).thenReturn(null);
         when(row.get("write_date")).thenReturn(null);
         when(row.get("write_uid")).thenReturn(null);
-        when(row.get("__last_update")).thenReturn(null);
 
         Product product = productService.mapRowToResource(row);
 
@@ -112,7 +108,6 @@ class ProductServiceTest {
         assertNull(product.getName());
         assertNull(product.getUomName());
         assertNull(product.getQuantityAvailable());
-        assertNull(product.getPrice());
         assertNull(product.getListPrice());
         assertNull(product.getPublicPrice());
         assertNull(product.getStandardPrice());
@@ -123,6 +118,5 @@ class ProductServiceTest {
         assertEquals(0, product.getCreatedBy());
         assertNull(product.getLastUpdatedOn());
         assertEquals(0, product.getLastUpdatedBy());
-        assertNull(product.getLastModifiedOn());
     }
 }

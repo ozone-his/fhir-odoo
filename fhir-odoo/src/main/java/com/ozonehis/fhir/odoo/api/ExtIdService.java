@@ -80,11 +80,6 @@ public class ExtIdService extends BaseOdooService<ExtId> implements OdooService<
             extId.setLastUpdatedBy((Integer) lastUpdatedBy);
         }
 
-        var lastModifiedOn = get(row, "__last_update");
-        if (lastModifiedOn != null) {
-            extId.setLastModifiedOn((Date) lastModifiedOn);
-        }
-
         return extId;
     }
 

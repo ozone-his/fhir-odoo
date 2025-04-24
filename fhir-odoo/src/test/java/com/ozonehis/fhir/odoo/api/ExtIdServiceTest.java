@@ -59,7 +59,6 @@ class ExtIdServiceTest {
         when(row.get("create_uid")).thenReturn(1);
         when(row.get("write_date")).thenReturn(new Date());
         when(row.get("write_uid")).thenReturn(2);
-        when(row.get("__last_update")).thenReturn(new Date());
 
         ExtId extId = extIdService.mapRowToResource(row);
 
@@ -77,7 +76,6 @@ class ExtIdServiceTest {
         assertEquals(1, extId.getCreatedBy());
         assertNotNull(extId.getLastUpdatedOn());
         assertEquals(2, extId.getLastUpdatedBy());
-        assertNotNull(extId.getLastModifiedOn());
     }
 
     @Test
@@ -97,7 +95,6 @@ class ExtIdServiceTest {
         when(row.get("create_uid")).thenReturn(null);
         when(row.get("write_date")).thenReturn(null);
         when(row.get("write_uid")).thenReturn(null);
-        when(row.get("__last_update")).thenReturn(null);
 
         ExtId extId = extIdService.mapRowToResource(row);
 
@@ -115,6 +112,5 @@ class ExtIdServiceTest {
         assertEquals(0, extId.getCreatedBy());
         assertNull(extId.getLastUpdatedOn());
         assertEquals(0, extId.getLastUpdatedBy());
-        assertNull(extId.getLastModifiedOn());
     }
 }

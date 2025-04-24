@@ -56,7 +56,6 @@ class CurrencyServiceTest {
         when(row.get("create_uid")).thenReturn(1);
         when(row.get("write_date")).thenReturn(new Date());
         when(row.get("write_uid")).thenReturn(2);
-        when(row.get("__last_update")).thenReturn(new Date());
 
         Currency currency = currencyService.mapRowToResource(row);
 
@@ -71,7 +70,6 @@ class CurrencyServiceTest {
         assertEquals(1, currency.getCreatedBy());
         assertNotNull(currency.getLastUpdatedOn());
         assertEquals(2, currency.getLastUpdatedBy());
-        assertNotNull(currency.getLastModifiedOn());
     }
 
     @Test
@@ -88,7 +86,6 @@ class CurrencyServiceTest {
         when(row.get("create_uid")).thenReturn(null);
         when(row.get("write_date")).thenReturn(null);
         when(row.get("write_uid")).thenReturn(null);
-        when(row.get("__last_update")).thenReturn(null);
 
         Currency currency = currencyService.mapRowToResource(row);
 
@@ -103,6 +100,5 @@ class CurrencyServiceTest {
         assertEquals(0, currency.getCreatedBy());
         assertNull(currency.getLastUpdatedOn());
         assertEquals(0, currency.getLastUpdatedBy());
-        assertNull(currency.getLastModifiedOn());
     }
 }

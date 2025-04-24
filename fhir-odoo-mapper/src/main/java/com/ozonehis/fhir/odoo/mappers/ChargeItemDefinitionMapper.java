@@ -41,7 +41,7 @@ public class ChargeItemDefinitionMapper<O extends BaseOdooModel & OdooResource>
         chargeItemDefinition.setName(product.getName());
         chargeItemDefinition.setDescription(product.getDescription());
 
-        chargeItemDefinition.setDate(product.getLastModifiedOn());
+        chargeItemDefinition.setDate(product.getLastUpdatedOn());
 
         // Possibly, this is wrong
         if (product.isActive()) {
