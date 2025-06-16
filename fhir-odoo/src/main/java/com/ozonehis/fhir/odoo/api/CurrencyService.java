@@ -66,11 +66,6 @@ public class CurrencyService extends BaseOdooService<Currency> implements OdooSe
             currency.setLastUpdatedBy((Integer) lastUpdatedBy);
         }
 
-        var lastModifiedOn = get(row, "__last_update");
-        if (lastModifiedOn != null) {
-            currency.setLastModifiedOn((Date) lastModifiedOn);
-        }
-
         return currency;
     }
 }

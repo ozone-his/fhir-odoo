@@ -17,6 +17,7 @@ import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.Currency;
 import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Product;
+import java.util.Date;
 import java.util.HashMap;
 import org.hl7.fhir.r4.model.ChargeItemDefinition;
 import org.hl7.fhir.r4.model.Enumerations;
@@ -59,13 +60,14 @@ class ChargeItemDefinitionMapperTest {
     @DisplayName("Should map fields correctly")
     void shouldMapFieldsCorrectly() {
         var resourceMap = new HashMap<>();
+        final Date date = new Date();
         Product product = mock(Product.class);
         ExtId extId = mock(ExtId.class);
         Currency currency = mock(Currency.class);
 
         when(product.getName()).thenReturn("Test Product");
         when(product.getDescription()).thenReturn("Test Description");
-        when(product.getLastModifiedOn()).thenReturn(new java.util.Date());
+        when(product.getLastUpdatedOn()).thenReturn(date);
         when(product.isActive()).thenReturn(true);
         when(product.getStandardPrice()).thenReturn(100.0);
         when(extId.getName()).thenReturn("TestID");
@@ -104,6 +106,7 @@ class ChargeItemDefinitionMapperTest {
                         .get(0)
                         .getAmount()
                         .getCurrency());
+        assertEquals(date, result.getDate());
     }
 
     @Test
@@ -117,8 +120,7 @@ class ChargeItemDefinitionMapperTest {
         when(product.isActive()).thenReturn(false);
         when(product.getName()).thenReturn("Test Product");
         when(product.getDescription()).thenReturn("Test Description");
-        when(product.getLastModifiedOn()).thenReturn(new java.util.Date());
-        when(product.getPrice()).thenReturn(100.0);
+        when(product.getLastUpdatedOn()).thenReturn(new Date());
         when(extId.getName()).thenReturn("TestID");
         when(currency.getName()).thenReturn("USD");
         when(currency.getSymbol()).thenReturn("$");
@@ -144,7 +146,7 @@ class ChargeItemDefinitionMapperTest {
         when(product.isActive()).thenReturn(true);
         when(product.getName()).thenReturn("Test Product");
         when(product.getDescription()).thenReturn("Test Description");
-        when(product.getLastModifiedOn()).thenReturn(new java.util.Date());
+        when(product.getLastUpdatedOn()).thenReturn(new Date());
         when(product.getStandardPrice()).thenReturn(100.0);
         when(extId.getName()).thenReturn("TestID");
         when(currency.getName()).thenReturn("USD");

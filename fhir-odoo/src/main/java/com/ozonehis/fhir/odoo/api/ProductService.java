@@ -35,7 +35,6 @@ public class ProductService extends BaseOdooService<Product> implements OdooServ
         product.setName((String) row.get("name"));
         product.setUomName((String) row.get("uom_name"));
         product.setQuantityAvailable((Double) row.get("qty_available"));
-        product.setPrice((Double) row.get("price"));
         product.setListPrice((Double) row.get("list_price"));
         product.setPublicPrice((Double) row.get("lst_price"));
         product.setStandardPrice((Double) row.get("standard_price"));
@@ -73,11 +72,6 @@ public class ProductService extends BaseOdooService<Product> implements OdooServ
         var lastUpdatedBy = get(row, "write_uid");
         if (lastUpdatedBy != null) {
             product.setLastUpdatedBy((Integer) lastUpdatedBy);
-        }
-
-        var lastModifiedOn = get(row, "__last_update");
-        if (lastModifiedOn != null) {
-            product.setLastModifiedOn((Date) lastModifiedOn);
         }
 
         return product;

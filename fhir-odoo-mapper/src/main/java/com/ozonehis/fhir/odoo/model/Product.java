@@ -38,9 +38,6 @@ public class Product extends BaseOdooModel {
     @JsonProperty("qty_available")
     private Double quantityAvailable;
 
-    @JsonProperty("price")
-    private Double price;
-
     @JsonProperty("list_price")
     private Double listPrice;
 
