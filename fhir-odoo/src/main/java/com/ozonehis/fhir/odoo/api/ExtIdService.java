@@ -121,4 +121,30 @@ public class ExtIdService extends BaseOdooService<ExtId> implements OdooService<
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Gets an external identifier by resource id and model.
+     *
+     * @param resourceId the resource id
+     * @param model      the model
+     * @return the external identifier
+     */
+    public Optional<ExtId> getByResourceIdAndModel(int resourceId, String model) {
+        FilterCollection filters = new FilterCollection();
+        try {
+            filters.add("res_id", "=", resourceId);
+            filters.add("model", "=", model);
+            Collection<ExtId> results = this.search(filters);
+            if (results.size() > 1) {
+                throw new RuntimeException(
+                        "Multiple External Identifiers found for " + model + " with id " + resourceId);
+            } else if (results.size() == 1) {
+                results.stream().findFirst();
+            }
+
+            return Optional.empty();
+        } catch (OdooApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

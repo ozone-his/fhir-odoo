@@ -35,5 +35,4 @@ public class MedicationResourceProvider implements IResourceProvider {
     public Bundle getAllMedications() {
         return service.getAllMedications();
     }
-
 }

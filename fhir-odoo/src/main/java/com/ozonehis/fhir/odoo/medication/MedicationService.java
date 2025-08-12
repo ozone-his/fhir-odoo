@@ -22,5 +22,4 @@ public interface MedicationService extends FhirService<Medication> {
      * @return Bundle of medications.
      */
     Bundle getAllMedications();
-
 }

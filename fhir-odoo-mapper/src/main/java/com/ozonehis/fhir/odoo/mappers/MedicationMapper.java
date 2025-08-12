@@ -1,12 +1,9 @@
 /*
- * Copyright (C) Amiyul LLC - All Rights Reserved
+ * Copyright © 2024, Ozone HIS <info@ozone-his.com>
  *
- * This source code is protected under international copyright law. All rights
- * reserved and protected by the copyright holder.
- *
- * This file is confidential and only available to authorized individuals with the
- * permission of the copyright holder. If you encounter this file and do not have
- * permission, please contact the copyright holder and delete this file.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.ozonehis.fhir.odoo.mappers;
 
@@ -14,11 +11,10 @@ import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.BaseOdooModel;
 import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Product;
+import java.util.Map;
 import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.Medication.MedicationStatus;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 @Component
 public class MedicationMapper implements ToFhirMapping<BaseOdooModel, Medication> {
@@ -39,5 +35,4 @@ public class MedicationMapper implements ToFhirMapping<BaseOdooModel, Medication
         medication.setStatus(status);
         return medication;
     }
-
 }
