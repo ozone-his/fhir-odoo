@@ -139,7 +139,7 @@ public class ExtIdService extends BaseOdooService<ExtId> implements OdooService<
                 throw new RuntimeException(
                         "Multiple External Identifiers found for " + model + " with id " + resourceId);
             } else if (results.size() == 1) {
-                results.stream().findFirst();
+                return results.stream().findFirst();
             }
 
             return Optional.empty();
