@@ -12,6 +12,7 @@ import com.ozonehis.fhir.odoo.model.BaseOdooModel;
 import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Product;
 import java.util.Map;
+import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.Medication.MedicationStatus;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,9 @@ public class MedicationMapper implements ToFhirMapping<BaseOdooModel, Medication
         Product product = (Product) resourceMap.get(OdooConstants.MODEL_PRODUCT);
         ExtId extId = (ExtId) resourceMap.get(OdooConstants.MODEL_EXTERNAL_IDENTIFIER);
         medication.setId(extId.getName());
+        CodeableConcept code = new CodeableConcept();
+        code.addCoding().setCode(product.getConceptCode()).setSystem(product.getConceptSource());
+        medication.setCode(code);
         MedicationStatus status;
         if (product.isActive()) {
             status = MedicationStatus.ACTIVE;

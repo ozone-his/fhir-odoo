@@ -31,6 +31,7 @@ public class ProductService extends BaseOdooService<Product> implements OdooServ
     @Override
     protected Product mapRowToResource(Row row) {
         Product product = new Product();
+        product.setId(get(row, "id"));
         product.setDisplayName((String) row.get("display_name"));
         product.setName((String) row.get("name"));
         product.setUomName((String) row.get("uom_name"));
@@ -38,6 +39,12 @@ public class ProductService extends BaseOdooService<Product> implements OdooServ
         product.setListPrice((Double) row.get("list_price"));
         product.setPublicPrice((Double) row.get("lst_price"));
         product.setStandardPrice((Double) row.get("standard_price"));
+        if (row.get("x_concept_source") != null) {
+            product.setConceptSource(row.get("x_concept_source").toString());
+        }
+        if (row.get("x_concept_code") != null) {
+            product.setConceptCode(row.get("x_concept_code").toString());
+        }
 
         var type = row.get("type");
         if (type != null) {

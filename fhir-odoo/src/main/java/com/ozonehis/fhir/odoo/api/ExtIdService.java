@@ -99,6 +99,7 @@ public class ExtIdService extends BaseOdooService<ExtId> implements OdooService<
             if (results.size() > 1) {
                 log.warn("Multiple External Identifiers found for name: {} and model: {} ", name, model);
             }
+
             return results.stream().findFirst();
         } catch (OdooApiException e) {
             throw new RuntimeException(e);

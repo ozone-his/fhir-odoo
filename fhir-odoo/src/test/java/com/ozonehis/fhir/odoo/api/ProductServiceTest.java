@@ -46,6 +46,7 @@ class ProductServiceTest {
     @DisplayName("should map row to Product")
     void shouldMapRowToProduct() {
         Row row = mock(Row.class);
+        when(row.get("id")).thenReturn(1);
         when(row.get("display_name")).thenReturn("Product A");
         when(row.get("name")).thenReturn("PA");
         when(row.get("uom_name")).thenReturn("Unit");
@@ -65,6 +66,7 @@ class ProductServiceTest {
         Product product = productService.mapRowToResource(row);
 
         assertNotNull(product);
+        assertEquals(1, product.getId());
         assertEquals("Product A", product.getDisplayName());
         assertEquals("PA", product.getName());
         assertEquals("Unit", product.getUomName());
