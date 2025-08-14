@@ -28,6 +28,10 @@ public class OdooConstants {
 
     public static final String FHIR_OPENMRS_INVENTORY_ITEM = FHIR_OPENMRS_CONCEPT_SYSTEM_PREFIX + "inventory-item";
 
+    public static final String FHIR_OPENMRS_FHIR_EXT_MEDICINE = FHIR_OPENMRS_EXT_PREFIX + "medicine";
+
+    public static final String FHIR_OPENMRS_EXT_DRUG_NAME = FHIR_OPENMRS_FHIR_EXT_MEDICINE + "#drugName";
+
     public static final String MODEL_EXTERNAL_IDENTIFIER = "ir.model.data";
 
     public static final String MODEL_PRODUCT = "product.product";

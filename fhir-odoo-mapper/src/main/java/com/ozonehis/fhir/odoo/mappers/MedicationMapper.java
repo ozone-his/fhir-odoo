@@ -15,6 +15,7 @@ import java.util.Map;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.Medication.MedicationStatus;
+import org.hl7.fhir.r4.model.StringType;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -37,6 +38,11 @@ public class MedicationMapper implements ToFhirMapping<BaseOdooModel, Medication
         }
 
         medication.setStatus(status);
+        addExtension(medication, OdooConstants.FHIR_OPENMRS_EXT_DRUG_NAME, product.getName());
         return medication;
+    }
+
+    private static void addExtension(Medication medication, String uri, String value) {
+        medication.addExtension().setUrl(uri).setValue(new StringType(value));
     }
 }
