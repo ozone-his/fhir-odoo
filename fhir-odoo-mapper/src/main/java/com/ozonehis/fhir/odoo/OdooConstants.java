@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OdooConstants {
 
-    public static final String FHIR_OPENMRS_SYSTEM_PREFIX = "https://fhir.openmrs.org/";
+    public static final String FHIR_OPENMRS_SYSTEM_PREFIX = "http://fhir.openmrs.org/";
 
     public static final String FHIR_OPENMRS_EXT_PREFIX = FHIR_OPENMRS_SYSTEM_PREFIX + "ext/";
 

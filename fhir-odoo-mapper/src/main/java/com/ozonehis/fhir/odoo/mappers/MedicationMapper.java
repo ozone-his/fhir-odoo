@@ -13,6 +13,7 @@ import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Product;
 import java.util.Map;
 import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.Medication.MedicationStatus;
 import org.hl7.fhir.r4.model.StringType;
@@ -43,6 +44,12 @@ public class MedicationMapper implements ToFhirMapping<BaseOdooModel, Medication
     }
 
     private static void addExtension(Medication medication, String uri, String value) {
-        medication.addExtension().setUrl(uri).setValue(new StringType(value));
+        Extension ext = new Extension();
+        ext.setUrl(uri);
+        ext.setValue(new StringType(value));
+        medication
+                .addExtension()
+                .setUrl(OdooConstants.FHIR_OPENMRS_FHIR_EXT_MEDICINE)
+                .addExtension(ext);
     }
 }
