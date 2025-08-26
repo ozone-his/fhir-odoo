@@ -65,4 +65,7 @@ public class Product extends BaseOdooModel {
 
     @JsonProperty("x_concept_code")
     private String conceptCode;
+
+    @JsonProperty("x_drug_strength")
+    private String drugStrength;
 }

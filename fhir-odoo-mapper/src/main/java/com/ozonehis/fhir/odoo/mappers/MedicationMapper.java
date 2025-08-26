@@ -12,6 +12,7 @@ import com.ozonehis.fhir.odoo.model.BaseOdooModel;
 import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Product;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Medication;
@@ -40,6 +41,10 @@ public class MedicationMapper implements ToFhirMapping<BaseOdooModel, Medication
 
         medication.setStatus(status);
         addExtension(medication, OdooConstants.FHIR_OPENMRS_EXT_DRUG_NAME, product.getName());
+        if (StringUtils.isNotBlank(product.getDrugStrength())) {
+            addExtension(medication, OdooConstants.FHIR_OPENMRS_EXT_DRUG_STRENGTH, product.getDrugStrength());
+        }
+
         return medication;
     }
 

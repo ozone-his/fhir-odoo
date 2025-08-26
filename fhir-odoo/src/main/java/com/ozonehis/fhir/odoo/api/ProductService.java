@@ -41,6 +41,7 @@ public class ProductService extends BaseOdooService<Product> implements OdooServ
         product.setStandardPrice((Double) row.get("standard_price"));
         product.setConceptSource((String) row.get("x_concept_source"));
         product.setConceptCode((String) row.get("x_concept_code"));
+        product.setDrugStrength((String) row.get("x_drug_strength"));
 
         var type = row.get("type");
         if (type != null) {
