@@ -18,6 +18,7 @@ import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.xmlrpc.XmlRpcException;
@@ -103,6 +104,25 @@ public abstract class BaseOdooService<T extends OdooResource> implements OdooSer
             throw new RuntimeException("Error while searching Odoo resources", e);
         }
         return resources;
+    }
+
+    /**
+     * @see OdooService#create(Map)
+     */
+    @Override
+    public int create(Map<String, Object> resource) {
+        try {
+            ObjectAdapter objectAdapter = objectAdapter();
+            Row newModel = objectAdapter.getNewRow(resource.keySet().toArray(new String[0]));
+            for (Map.Entry<String, Object> e : resource.entrySet()) {
+                newModel.put(e.getKey(), e.getValue());
+            }
+
+            objectAdapter.createObject(newModel);
+            return newModel.getID();
+        } catch (Exception e) {
+            throw new RuntimeException("Encountered error while creating Odoo resource", e);
+        }
     }
 
     /**

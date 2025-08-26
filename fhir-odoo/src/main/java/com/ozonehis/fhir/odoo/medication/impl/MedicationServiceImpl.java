@@ -24,6 +24,7 @@ import jakarta.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Bundle;
@@ -78,7 +79,13 @@ public class MedicationServiceImpl implements MedicationService {
         products.forEach(product -> {
             Optional<ExtId> extIdOptional = extIdService.getByResourceIdAndModel(product.getId(), MODEL_PRODUCT);
             if (extIdOptional.isEmpty()) {
-                throw new RuntimeException("No external id found for product with id: " + product.getId());
+                log.info("Adding new external id for product with id {}", product.getId());
+                extIdService.createExternalId(
+                        MODEL_PRODUCT, product.getId(), UUID.randomUUID().toString());
+                extIdOptional = extIdService.getByResourceIdAndModel(product.getId(), MODEL_PRODUCT);
+                if (log.isDebugEnabled()) {
+                    log.debug("Successfully added new external id for product with id {}", product.getId());
+                }
             }
 
             ExtId extId = extIdOptional.get();

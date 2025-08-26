@@ -17,6 +17,7 @@ import com.ozonehis.fhir.odoo.model.ExtId;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -147,5 +148,27 @@ public class ExtIdService extends BaseOdooService<ExtId> implements OdooService<
         } catch (OdooApiException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Creates a new external identifier in the Odoo instance for the resource matching the specified model and id.
+     *
+     * @return the generated database id of the created external identifier
+     * @throws Exception
+     * @model the model name
+     * @resourceId the Odoo resource id
+     * @externalId the external identifier
+     */
+    public int createExternalId(String model, int resourceId, String externalId) {
+        if (log.isDebugEnabled()) {
+            log.debug("Adding external identifier {} in Odoo for {} with id {}", externalId, model, resourceId);
+        }
+
+        int id = this.create(Map.of("model", model, "res_id", resourceId, "name", externalId));
+        if (log.isDebugEnabled()) {
+            log.debug("Successfully added external identifier, generated database id ", id);
+        }
+
+        return id;
     }
 }
