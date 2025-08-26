@@ -78,17 +78,21 @@ public class MedicationServiceImpl implements MedicationService {
         Bundle bundle = new Bundle();
         products.forEach(product -> {
             Optional<ExtId> extIdOptional = extIdService.getByResourceIdAndModel(product.getId(), MODEL_PRODUCT);
+            ExtId extId;
             if (extIdOptional.isEmpty()) {
                 log.info("Adding new external id for product with id {}", product.getId());
-                extIdService.createExternalId(
-                        MODEL_PRODUCT, product.getId(), UUID.randomUUID().toString());
-                extIdOptional = extIdService.getByResourceIdAndModel(product.getId(), MODEL_PRODUCT);
+                final String identifier = UUID.randomUUID().toString();
+                extIdService.createExternalId(MODEL_PRODUCT, product.getId(), identifier);
                 if (log.isDebugEnabled()) {
                     log.debug("Successfully added new external id for product with id {}", product.getId());
                 }
+
+                extId = new ExtId();
+                extId.setName(identifier);
+            } else {
+                extId = extIdOptional.get();
             }
 
-            ExtId extId = extIdOptional.get();
             Map<String, BaseOdooModel> resourceMap = Map.of(MODEL_PRODUCT, product, MODEL_EXTERNAL_IDENTIFIER, extId);
             bundle.addEntry().setResource(mapper.toFhir(resourceMap));
         });
