@@ -49,12 +49,14 @@ public class MedicationMapper implements ToFhirMapping<BaseOdooModel, Medication
     }
 
     private static void addExtension(Medication medication, String uri, String value) {
+        Extension medExt = medication.getExtensionByUrl(OdooConstants.FHIR_OPENMRS_FHIR_EXT_MEDICINE);
+        if (medExt == null) {
+            medExt = medication.addExtension().setUrl(OdooConstants.FHIR_OPENMRS_FHIR_EXT_MEDICINE);
+        }
+
         Extension ext = new Extension();
         ext.setUrl(uri);
         ext.setValue(new StringType(value));
-        medication
-                .addExtension()
-                .setUrl(OdooConstants.FHIR_OPENMRS_FHIR_EXT_MEDICINE)
-                .addExtension(ext);
+        medExt.addExtension(ext);
     }
 }

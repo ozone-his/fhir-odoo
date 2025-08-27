@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MedicationServiceImpl implements MedicationService {
 
-    public static final String PROP_DRUG_CATEGORY_EXT_ID = "odoo.drugs.product.category.ext.id";
+    public static final String PROP_DRUG_CATEGORY_EXT_ID = "odoo.drugs.category.ext.id";
 
     @Value("${" + PROP_DRUG_CATEGORY_EXT_ID + ":}")
     private String drugsCategoryExtId;
