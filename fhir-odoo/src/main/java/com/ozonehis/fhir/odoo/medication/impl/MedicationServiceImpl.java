@@ -39,7 +39,7 @@ public class MedicationServiceImpl implements MedicationService {
 
     public static final String PROP_DRUG_CATEGORY_EXT_ID = "odoo.drugs.category.ext.id";
 
-    @Value("${" + PROP_DRUG_CATEGORY_EXT_ID + ":}")
+    @Value("${" + PROP_DRUG_CATEGORY_EXT_ID + "}")
     private String drugsCategoryExtId;
 
     private ExtIdService extIdService;
