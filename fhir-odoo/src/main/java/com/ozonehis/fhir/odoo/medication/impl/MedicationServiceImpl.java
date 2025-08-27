@@ -22,6 +22,7 @@ import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Product;
 import jakarta.annotation.Nonnull;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -66,6 +67,7 @@ public class MedicationServiceImpl implements MedicationService {
         FilterCollection filter = new FilterCollection();
         try {
             filter.add("categ_id", "=", getDrugsCategoryId());
+            filter.add("active", "in", List.of(true, false));
         } catch (OdooApiException e) {
             throw new RuntimeException(e);
         }
