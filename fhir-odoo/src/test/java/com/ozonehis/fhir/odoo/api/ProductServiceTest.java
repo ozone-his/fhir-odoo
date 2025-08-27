@@ -87,6 +87,7 @@ class ProductServiceTest {
     @DisplayName("should handle null values")
     void shouldHandleNullValues() {
         Row row = mock(Row.class);
+        when(row.get("id")).thenReturn(1);
         when(row.get("display_name")).thenReturn(null);
         when(row.get("name")).thenReturn(null);
         when(row.get("uom_name")).thenReturn(null);
