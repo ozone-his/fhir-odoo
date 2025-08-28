@@ -62,6 +62,9 @@ class ProductServiceTest {
         when(row.get("create_uid")).thenReturn(1);
         when(row.get("write_date")).thenReturn(new Date());
         when(row.get("write_uid")).thenReturn(2);
+        when(row.get("x_concept_source")).thenReturn("http://localhost");
+        when(row.get("x_concept_code")).thenReturn("12345");
+        when(row.get("x_drug_strength")).thenReturn("300mg");
 
         Product product = productService.mapRowToResource(row);
 
@@ -81,6 +84,9 @@ class ProductServiceTest {
         assertEquals(1, product.getCreatedBy());
         assertNotNull(product.getLastUpdatedOn());
         assertEquals(2, product.getLastUpdatedBy());
+        assertEquals("http://localhost", product.getConceptSource());
+        assertEquals("12345", product.getConceptCode());
+        assertEquals("300mg", product.getDrugStrength());
     }
 
     @Test
