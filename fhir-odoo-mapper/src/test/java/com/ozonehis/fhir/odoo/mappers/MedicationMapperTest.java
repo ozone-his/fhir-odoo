@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Medication;
+import org.hl7.fhir.r4.model.Medication.MedicationStatus;
 import org.junit.jupiter.api.Test;
 
 public class MedicationMapperTest {
@@ -53,7 +54,7 @@ public class MedicationMapperTest {
         assertEquals(1, m.getCode().getCoding().size());
         assertEquals(sourceUri, m.getCode().getCoding().get(0).getSystem());
         assertEquals(code, m.getCode().getCoding().get(0).getCode());
-        assertEquals(Medication.MedicationStatus.ACTIVE, m.getStatus());
+        assertEquals(MedicationStatus.ACTIVE, m.getStatus());
         Extension medExt = m.getExtensionByUrl(FHIR_OPENMRS_FHIR_EXT_MEDICINE);
         assertEquals(
                 name,
@@ -82,11 +83,31 @@ public class MedicationMapperTest {
 
         assertEquals(externalId, m.getIdElement().getIdPart());
         assertTrue(m.getCode().getCoding().isEmpty());
-        assertEquals(Medication.MedicationStatus.ACTIVE, m.getStatus());
+        assertEquals(MedicationStatus.ACTIVE, m.getStatus());
         Extension medExt = m.getExtensionByUrl(FHIR_OPENMRS_FHIR_EXT_MEDICINE);
         assertEquals(
                 name,
                 medExt.getExtensionByUrl(FHIR_OPENMRS_EXT_DRUG_NAME).getValue().toString());
         assertNull(medExt.getExtensionByUrl(FHIR_OPENMRS_EXT_DRUG_STRENGTH));
+    }
+
+    @Test
+    public void toFhir_shouldConvertAnInactiveDrugProduct() {
+        final String externalId = "some-uuid";
+        final String name = "Tylenol";
+        Map<String, BaseOdooModel> map = new HashMap<>();
+        Product product = new Product();
+        product.setName(name);
+        ExtId extId = new ExtId();
+        extId.setName(externalId);
+        map.put(OdooConstants.MODEL_PRODUCT, product);
+        map.put(OdooConstants.MODEL_EXTERNAL_IDENTIFIER, extId);
+
+        Medication m = mapper.toFhir(map);
+
+        assertEquals(externalId, m.getIdElement().getIdPart());
+        assertEquals(MedicationStatus.INACTIVE, m.getStatus());
+        Extension medExt = m.getExtensionByUrl(FHIR_OPENMRS_FHIR_EXT_MEDICINE);
+        assertEquals(name, medExt.getExtensionString(FHIR_OPENMRS_EXT_DRUG_NAME));
     }
 }
