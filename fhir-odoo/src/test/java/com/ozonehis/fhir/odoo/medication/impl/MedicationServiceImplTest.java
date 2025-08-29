@@ -13,6 +13,7 @@ import static com.ozonehis.fhir.odoo.OdooConstants.MODEL_PRODUCT;
 import static com.ozonehis.fhir.odoo.OdooConstants.MODEL_PRODUCT_CATEGORY;
 import static java.util.Optional.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.odoojava.api.FilterCollection;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
@@ -84,6 +86,7 @@ public class MedicationServiceImplTest {
         when(mockProductService.search(collArgCaptor.capture())).thenReturn(List.of(drug1, drug2));
 
         Bundle bundle = service.getAllMedications();
+
         Object[] filter1 = (Object[]) collArgCaptor.getValue().getFilters()[0];
         Object[] filter2 = (Object[]) collArgCaptor.getValue().getFilters()[1];
         assertEquals(filter1.length, 3);
@@ -103,5 +106,27 @@ public class MedicationServiceImplTest {
         assertEquals(externalId2, med2.getIdElement().getIdPart());
         final Extension medExt12 = med2.getExtensionByUrl(FHIR_OPENMRS_FHIR_EXT_MEDICINE);
         assertEquals(drug2.getName(), medExt12.getExtensionString(FHIR_OPENMRS_EXT_DRUG_NAME));
+    }
+
+    @Test
+    public void getAllMedications_shouldAddExternalIdForDrugIfMissing() {
+        final Integer id = 1;
+        Product drug = new Product();
+        drug.setId(id);
+        drug.setName("Tylenol");
+        drug.setActive(true);
+        ArgumentCaptor<String> argCaptor = ArgumentCaptor.forClass(String.class);
+        when(mockExtIdService.createExternalId(eq(MODEL_PRODUCT), eq(id), argCaptor.capture()))
+                .thenReturn(23);
+        when(mockProductService.search(ArgumentMatchers.any(FilterCollection.class)))
+                .thenReturn(List.of(drug));
+
+        Bundle bundle = service.getAllMedications();
+
+        assertEquals(1, bundle.getEntry().size());
+        Medication med = (Medication) bundle.getEntry().get(0).getResource();
+        assertEquals(argCaptor.getValue(), med.getIdElement().getIdPart());
+        final Extension medExt = med.getExtensionByUrl(FHIR_OPENMRS_FHIR_EXT_MEDICINE);
+        assertEquals(drug.getName(), medExt.getExtensionString(FHIR_OPENMRS_EXT_DRUG_NAME));
     }
 }
