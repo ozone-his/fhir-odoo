@@ -46,6 +46,7 @@ class ProductServiceTest {
     @DisplayName("should map row to Product")
     void shouldMapRowToProduct() {
         Row row = mock(Row.class);
+        when(row.get("id")).thenReturn(1);
         when(row.get("display_name")).thenReturn("Product A");
         when(row.get("name")).thenReturn("PA");
         when(row.get("uom_name")).thenReturn("Unit");
@@ -61,10 +62,14 @@ class ProductServiceTest {
         when(row.get("create_uid")).thenReturn(1);
         when(row.get("write_date")).thenReturn(new Date());
         when(row.get("write_uid")).thenReturn(2);
+        when(row.get("x_concept_source")).thenReturn("http://localhost");
+        when(row.get("x_concept_code")).thenReturn("12345");
+        when(row.get("x_drug_strength")).thenReturn("300mg");
 
         Product product = productService.mapRowToResource(row);
 
         assertNotNull(product);
+        assertEquals(1, product.getId());
         assertEquals("Product A", product.getDisplayName());
         assertEquals("PA", product.getName());
         assertEquals("Unit", product.getUomName());
@@ -79,12 +84,16 @@ class ProductServiceTest {
         assertEquals(1, product.getCreatedBy());
         assertNotNull(product.getLastUpdatedOn());
         assertEquals(2, product.getLastUpdatedBy());
+        assertEquals("http://localhost", product.getConceptSource());
+        assertEquals("12345", product.getConceptCode());
+        assertEquals("300mg", product.getDrugStrength());
     }
 
     @Test
     @DisplayName("should handle null values")
     void shouldHandleNullValues() {
         Row row = mock(Row.class);
+        when(row.get("id")).thenReturn(1);
         when(row.get("display_name")).thenReturn(null);
         when(row.get("name")).thenReturn(null);
         when(row.get("uom_name")).thenReturn(null);

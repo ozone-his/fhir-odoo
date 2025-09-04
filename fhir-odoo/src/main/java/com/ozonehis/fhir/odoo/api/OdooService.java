@@ -11,6 +11,7 @@ import com.odoojava.api.FilterCollection;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import jakarta.annotation.Nonnull;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -35,4 +36,12 @@ public interface OdooService<O extends OdooResource> {
      * @return the collection of {@link O}
      */
     Collection<O> search(FilterCollection filters);
+
+    /**
+     * Creates a new resource in Odoo.
+     *
+     * @param resource a map of field names and values for the resource
+     * @return the generated row id.
+     */
+    int create(Map<String, Object> resource);
 }

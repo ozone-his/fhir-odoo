@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OdooConstants {
 
-    public static final String FHIR_OPENMRS_SYSTEM_PREFIX = "https://fhir.openmrs.org/";
+    public static final String FHIR_OPENMRS_SYSTEM_PREFIX = "http://fhir.openmrs.org/";
 
     public static final String FHIR_OPENMRS_EXT_PREFIX = FHIR_OPENMRS_SYSTEM_PREFIX + "ext/";
 
@@ -28,9 +28,17 @@ public class OdooConstants {
 
     public static final String FHIR_OPENMRS_INVENTORY_ITEM = FHIR_OPENMRS_CONCEPT_SYSTEM_PREFIX + "inventory-item";
 
+    public static final String FHIR_OPENMRS_FHIR_EXT_MEDICINE = FHIR_OPENMRS_EXT_PREFIX + "medicine";
+
+    public static final String FHIR_OPENMRS_EXT_DRUG_NAME = FHIR_OPENMRS_FHIR_EXT_MEDICINE + "#drugName";
+
+    public static final String FHIR_OPENMRS_EXT_DRUG_STRENGTH = FHIR_OPENMRS_FHIR_EXT_MEDICINE + "#strength";
+
     public static final String MODEL_EXTERNAL_IDENTIFIER = "ir.model.data";
 
     public static final String MODEL_PRODUCT = "product.product";
+
+    public static final String MODEL_PRODUCT_CATEGORY = "product.category";
 
     public static final String MODEL_CURRENCY = "res.currency";
 

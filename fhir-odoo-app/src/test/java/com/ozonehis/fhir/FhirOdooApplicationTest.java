@@ -9,6 +9,8 @@ package com.ozonehis.fhir;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,16 @@ class FhirOdooApplicationTest {
 
     @Autowired
     ApplicationContext context;
+
+    @BeforeAll
+    public static void beforeAll() {
+        System.setProperty("EIP_ODOO_DRUGS_CATEGORY_EXT_ID", "test");
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        System.clearProperty("EIP_ODOO_DRUGS_CATEGORY_EXT_ID");
+    }
 
     @Test
     @DisplayName("Should load ApplicationContext")
