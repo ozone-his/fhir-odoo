@@ -11,6 +11,7 @@ import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.OdooUtils;
 import com.ozonehis.fhir.odoo.model.Country;
 import com.ozonehis.fhir.odoo.model.CountryState;
+import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Partner;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ import org.hl7.fhir.r4.model.Patient;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PartnerMapper<F extends IAnyResource> implements ToOdooMapping<F, Partner> {
+public class PartnerMapper<F extends IAnyResource & OdooResource> implements ToOdooMapping<F, Partner> {
 
     @Override
     public Partner toOdoo(Map<String, F> resourceMap) {

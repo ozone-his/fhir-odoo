@@ -7,12 +7,16 @@
  */
 package com.ozonehis.fhir.odoo.api;
 
+import static com.ozonehis.fhir.odoo.OdooConstants.MODEL_COUNTRY;
 import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 
+import com.odoojava.api.FilterCollection;
+import com.odoojava.api.OdooApiException;
 import com.odoojava.api.Row;
-import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.Country;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +24,7 @@ public class CountryService extends BaseOdooService<Country> implements OdooServ
 
     @Override
     protected String modelName() {
-        return OdooConstants.MODEL_COUNTRY;
+        return MODEL_COUNTRY;
     }
 
     @Override
@@ -57,5 +61,23 @@ public class CountryService extends BaseOdooService<Country> implements OdooServ
         }
 
         return country;
+    }
+
+    public Optional<Country> getByName(String name) {
+        FilterCollection filters = new FilterCollection();
+        try {
+            filters.add("name", "=", name);
+            filters.add("model", "=", MODEL_COUNTRY);
+            Collection<Country> results = this.search(filters);
+            if (results.size() > 1) {
+                throw new RuntimeException("Multiple countries found for " + MODEL_COUNTRY + " with name " + name);
+            } else if (results.size() == 1) {
+                return results.stream().findFirst();
+            }
+
+            return Optional.empty();
+        } catch (OdooApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

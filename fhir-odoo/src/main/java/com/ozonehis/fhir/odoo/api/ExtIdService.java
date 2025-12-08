@@ -154,10 +154,9 @@ public class ExtIdService extends BaseOdooService<ExtId> implements OdooService<
      * Creates a new external identifier in the Odoo instance for the resource matching the specified model and id.
      *
      * @return the generated database id of the created external identifier
-     * @throws Exception
-     * @model the model name
-     * @resourceId the Odoo resource id
-     * @externalId the external identifier
+     * @param model the model name
+     * @param resourceId the Odoo resource id
+     * @param externalId the external identifier
      */
     public int createExternalId(String model, int resourceId, String externalId) {
         if (log.isDebugEnabled()) {
@@ -166,7 +165,7 @@ public class ExtIdService extends BaseOdooService<ExtId> implements OdooService<
 
         int id = this.create(Map.of("model", model, "res_id", resourceId, "name", externalId));
         if (log.isDebugEnabled()) {
-            log.debug("Successfully added external identifier, generated database id ", id);
+            log.debug("Successfully added external identifier, generated database id {}", id);
         }
 
         return id;
