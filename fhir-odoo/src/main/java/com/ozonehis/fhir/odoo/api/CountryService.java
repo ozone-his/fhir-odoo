@@ -7,11 +7,11 @@
  */
 package com.ozonehis.fhir.odoo.api;
 
+import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
+
 import com.odoojava.api.Row;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.Country;
-import com.ozonehis.fhir.odoo.model.Product;
-import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 import java.util.Date;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ public class CountryService extends BaseOdooService<Country> implements OdooServ
 
     @Override
     protected Country mapRowToResource(Row row) {
-        Country country= new Country();
+        Country country = new Country();
         country.setId(get(row, "id"));
         country.setDisplayName((String) row.get("display_name"));
         country.setName((String) row.get("name"));
