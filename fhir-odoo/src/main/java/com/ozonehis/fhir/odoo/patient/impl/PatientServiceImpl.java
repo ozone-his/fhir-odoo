@@ -7,6 +7,8 @@
  */
 package com.ozonehis.fhir.odoo.patient.impl;
 
+import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
+import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.api.CountryService;
 import com.ozonehis.fhir.odoo.api.CountryStateService;
@@ -65,15 +67,16 @@ public class PatientServiceImpl implements PatientService {
         Partner partner = partnerMapper.toOdoo(resourceMap);
 
         if (partner == null) {
-            log.warn("Unable to create partner in Odoo because required patient data is missing");
-            return patient;
+            log.error("Unable to create partner in Odoo because required patient data is missing");
+            throw new UnprocessableEntityException("Fields missing in Patient payload");
         }
 
-        Map<String, Object> partnerResource = partnerService.convertPartnerToMap(partner);
+        Map<String, Object> partnerMap = partnerService.convertPartnerToMap(partner);
 
-        int id = partnerService.create(partnerResource);
-        if (id != 0) {
-            log.info("Partner created in Odoo with id {}", id);
+        int id = partnerService.create(partnerMap);
+        if (id == 0) {
+            log.error("Unable to create partner in Odoo");
+            throw new InvalidRequestException("Unable to create Partner in Odoo");
         }
         return patient;
     }
