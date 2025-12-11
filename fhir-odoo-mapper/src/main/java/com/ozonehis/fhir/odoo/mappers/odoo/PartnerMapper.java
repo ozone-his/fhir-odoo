@@ -38,7 +38,7 @@ public class PartnerMapper<F extends IAnyResource & OdooResource> implements ToO
         Country country = (Country) resourceMap.get(OdooConstants.MODEL_COUNTRY);
         CountryState countryState = (CountryState) resourceMap.get(OdooConstants.MODEL_COUNTRY_STATE);
 
-        if (patient == null || country == null || countryState == null) {
+        if (patient == null) {
             return null;
         }
         partner.setPartnerRef(patient.getIdPart());
@@ -49,7 +49,8 @@ public class PartnerMapper<F extends IAnyResource & OdooResource> implements ToO
         partner.setPartnerExternalId(patientIdentifier);
         partner.setName(patientName);
         partner.setPartnerBirthDate(
-                OdooUtils.convertEEEMMMddDateToOdooFormat(patient.getBirthDate().toString()));
+                OdooUtils.convertEEEMMMddDateToOdooFormat(patient.getBirthDate().toString())
+                        .orElse(""));
 
         addAddress(patient, partner, country, countryState);
         return partner;
@@ -72,9 +73,13 @@ public class PartnerMapper<F extends IAnyResource & OdooResource> implements ToO
         if (patient.hasAddress()) {
             patient.getAddress().forEach(fhirAddress -> {
                 partner.setPartnerCity(fhirAddress.getCity());
-                partner.setPartnerCountryId(country.getId());
+                if (country != null) {
+                    partner.setPartnerCountryId(country.getId());
+                }
+                if (countryState != null) {
+                    partner.setPartnerStateId(countryState.getId());
+                }
                 partner.setPartnerZip(fhirAddress.getPostalCode());
-                partner.setPartnerStateId(countryState.getId());
                 if (fhirAddress.getType() != null) {
                     partner.setPartnerType(fhirAddress.getType().getDisplay());
                 }

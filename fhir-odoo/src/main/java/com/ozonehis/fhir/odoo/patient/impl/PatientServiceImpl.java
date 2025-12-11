@@ -54,7 +54,6 @@ public class PatientServiceImpl implements PatientService {
     public Patient create(Patient patient) {
         Map<String, Object> resourceMap = new HashMap<>();
         resourceMap.put(OdooConstants.MODEL_FHIR_PATIENT, patient);
-
         Optional<Country> country =
                 countryService.getByName(patient.getAddress().get(0).getCountry());
         country.ifPresent(value -> resourceMap.put(OdooConstants.MODEL_COUNTRY, value));
@@ -65,7 +64,14 @@ public class PatientServiceImpl implements PatientService {
 
         Partner partner = partnerMapper.toOdoo(resourceMap);
 
-        int id = partnerService.create(Map.of()); // TODO: Add logic to convert Partner to Map and pass
+        if (partner == null) {
+            log.warn("Unable to create partner in Odoo because required patient data is missing");
+            return patient;
+        }
+
+        Map<String, Object> partnerResource = partnerService.convertPartnerToMap(partner);
+
+        int id = partnerService.create(partnerResource);
         if (id != 0) {
             log.info("Partner created in Odoo with id {}", id);
         }
@@ -74,6 +80,6 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Optional<Patient> getById(@Nonnull String id) {
-        return null; // TODO: Implement
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 }

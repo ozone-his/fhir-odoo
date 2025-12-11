@@ -37,7 +37,7 @@ public class PatientResourceProvider implements IResourceProvider {
     public MethodOutcome createPatient(@ResourceParam Patient patient) {
         Patient createdPatient = patientService.create(patient);
         MethodOutcome outcome = new MethodOutcome();
-        outcome.setId(new IdType("Patient", createdPatient.getIdPart(), "1"));
+        outcome.setId(new IdType("Patient", createdPatient.getIdPart()));
         outcome.setResource(createdPatient);
         return outcome;
     }

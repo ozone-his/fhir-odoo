@@ -13,12 +13,21 @@ import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 import com.odoojava.api.Row;
 import com.ozonehis.fhir.odoo.model.Partner;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class PartnerService extends BaseOdooService<Partner> implements OdooService<Partner> {
+
+    @Value("${odoo.customer.dob.field}")
+    private String odooCustomerDobField;
+
+    @Value("${odoo.customer.id.field}")
+    private String odooCustomerIdField;
 
     @Override
     protected String modelName() {
@@ -43,8 +52,8 @@ public class PartnerService extends BaseOdooService<Partner> implements OdooServ
         partner.setPartnerStateId((Integer) row.get("state_id"));
         partner.setPartnerActive((Boolean) row.get("active"));
         partner.setPartnerComment((String) row.get("comment"));
-        partner.setPartnerBirthDate((String) row.get("odoo.customer.dob.field"));
-        partner.setPartnerExternalId((String) row.get("odoo.customer.id.field"));
+        partner.setPartnerBirthDate((String) row.get(odooCustomerDobField));
+        partner.setPartnerExternalId((String) row.get(odooCustomerIdField));
 
         partner.setName((String) row.get("name"));
         partner.setDisplayName((String) row.get("display_name"));
@@ -74,5 +83,49 @@ public class PartnerService extends BaseOdooService<Partner> implements OdooServ
         }
 
         return partner;
+    }
+
+    public Map<String, Object> convertPartnerToMap(Partner partner) {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("ref", partner.getPartnerRef());
+        map.put("type", partner.getPartnerType());
+        map.put("street", partner.getPartnerStreet());
+        map.put("street2", partner.getPartnerStreet2());
+        map.put("city", partner.getPartnerCity());
+        map.put("zip", partner.getPartnerZip());
+        map.put("country_id", partner.getPartnerCountryId());
+        map.put("state_id", partner.getPartnerStateId());
+        map.put("active", partner.getPartnerActive());
+        map.put("comment", partner.getPartnerComment());
+
+        map.put("name", partner.getName());
+        map.put("display_name", partner.getDisplayName());
+        map.put(odooCustomerDobField, partner.getPartnerBirthDate());
+        map.put(odooCustomerIdField, partner.getPartnerExternalId());
+
+        // ID field
+        if (partner.getId() != 0) {
+            map.put("id", partner.getId());
+        }
+
+        // Audit fields
+        if (partner.getCreatedOn() != null) {
+            map.put("create_date", partner.getCreatedOn());
+        }
+
+        if (partner.getCreatedBy() != 0) {
+            map.put("create_uid", partner.getCreatedBy());
+        }
+
+        if (partner.getLastUpdatedOn() != null) {
+            map.put("write_date", partner.getLastUpdatedOn());
+        }
+
+        if (partner.getLastUpdatedBy() != 0) {
+            map.put("write_uid", partner.getLastUpdatedBy());
+        }
+
+        return map;
     }
 }

@@ -17,8 +17,10 @@ import com.ozonehis.fhir.odoo.model.Country;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class CountryService extends BaseOdooService<Country> implements OdooService<Country> {
 
@@ -67,7 +69,6 @@ public class CountryService extends BaseOdooService<Country> implements OdooServ
         FilterCollection filters = new FilterCollection();
         try {
             filters.add("name", "=", name);
-            filters.add("model", "=", MODEL_COUNTRY);
             Collection<Country> results = this.search(filters);
             if (results.size() > 1) {
                 throw new RuntimeException("Multiple countries found for " + MODEL_COUNTRY + " with name " + name);
@@ -77,7 +78,8 @@ public class CountryService extends BaseOdooService<Country> implements OdooServ
 
             return Optional.empty();
         } catch (OdooApiException e) {
-            throw new RuntimeException(e);
+            log.warn("Error while searching country with name {} error {}", name, e.getMessage());
+            return Optional.empty();
         }
     }
 }
