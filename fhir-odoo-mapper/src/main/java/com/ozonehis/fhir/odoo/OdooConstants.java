@@ -34,6 +34,12 @@ public class OdooConstants {
 
     public static final String FHIR_OPENMRS_EXT_DRUG_STRENGTH = FHIR_OPENMRS_FHIR_EXT_MEDICINE + "#strength";
 
+    public static final String FHIR_OPENMRS_EXT_ADDRESS = FHIR_OPENMRS_SYSTEM_PREFIX + "/address";
+
+    public static final String FHIR_OPENMRS_EXT_ADDRESS1 = FHIR_OPENMRS_EXT_ADDRESS + "#address1";
+
+    public static final String FHIR_OPENMRS_EXT_ADDRESS2 = FHIR_OPENMRS_EXT_ADDRESS + "#address2";
+
     public static final String MODEL_EXTERNAL_IDENTIFIER = "ir.model.data";
 
     public static final String MODEL_PRODUCT = "product.product";
@@ -43,4 +49,12 @@ public class OdooConstants {
     public static final String MODEL_CURRENCY = "res.currency";
 
     public static final String PRODUCT_TYPE_STORABLE = "product";
+
+    public static final String MODEL_PARTNER = "res.partner";
+
+    public static final String MODEL_FHIR_PATIENT = "patient";
+
+    public static final String MODEL_COUNTRY_STATE = "res.country.state";
+
+    public static final String MODEL_COUNTRY = "res.country";
 }
