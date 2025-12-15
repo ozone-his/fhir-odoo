@@ -17,7 +17,7 @@ import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import com.ozonehis.fhir.odoo.api.CountryService;
 import com.ozonehis.fhir.odoo.api.CountryStateService;
 import com.ozonehis.fhir.odoo.api.PartnerService;
-import com.ozonehis.fhir.odoo.mappers.odoo.PartnerMapper;
+import com.ozonehis.fhir.odoo.mappers.PatientMapper;
 import com.ozonehis.fhir.odoo.model.Country;
 import com.ozonehis.fhir.odoo.model.CountryState;
 import com.ozonehis.fhir.odoo.model.Partner;
@@ -47,13 +47,13 @@ class PatientServiceImplTest {
     private PartnerService partnerService;
 
     @Mock
-    private PartnerMapper partnerMapper;
+    private PatientMapper patientMapper;
 
     private PatientServiceImpl patientService;
 
     @BeforeEach
     void setUp() {
-        patientService = new PatientServiceImpl(countryService, countryStateService, partnerService, partnerMapper);
+        patientService = new PatientServiceImpl(countryService, countryStateService, partnerService, patientMapper);
     }
 
     @Test
@@ -83,7 +83,7 @@ class PatientServiceImplTest {
 
         when(countryService.getByName("United States")).thenReturn(Optional.of(country));
         when(countryStateService.getByName("California")).thenReturn(Optional.of(countryState));
-        when(partnerMapper.toOdoo(any())).thenReturn(partner);
+        when(patientMapper.toOdoo(any())).thenReturn(partner);
         when(partnerService.convertPartnerToMap(partner)).thenReturn(partnerMap);
         when(partnerService.create(partnerMap)).thenReturn(100);
 
@@ -92,7 +92,7 @@ class PatientServiceImplTest {
         assertNotNull(result);
         verify(countryService).getByName("United States");
         verify(countryStateService).getByName("California");
-        verify(partnerMapper).toOdoo(any());
+        verify(patientMapper).toOdoo(any());
         verify(partnerService).convertPartnerToMap(partner);
         verify(partnerService).create(partnerMap);
     }
@@ -116,7 +116,7 @@ class PatientServiceImplTest {
 
         when(countryService.getByName("Unknown Country")).thenReturn(Optional.empty());
         when(countryStateService.getByName("Unknown State")).thenReturn(Optional.empty());
-        when(partnerMapper.toOdoo(any())).thenReturn(partner);
+        when(patientMapper.toOdoo(any())).thenReturn(partner);
         when(partnerService.convertPartnerToMap(partner)).thenReturn(partnerMap);
         when(partnerService.create(partnerMap)).thenReturn(100);
 
@@ -125,7 +125,7 @@ class PatientServiceImplTest {
         assertNotNull(result);
         verify(countryService).getByName("Unknown Country");
         verify(countryStateService).getByName("Unknown State");
-        verify(partnerMapper).toOdoo(any());
+        verify(patientMapper).toOdoo(any());
         verify(partnerService).convertPartnerToMap(partner);
         verify(partnerService).create(partnerMap);
     }
@@ -141,7 +141,7 @@ class PatientServiceImplTest {
         patient.addAddress(address);
 
         when(countryService.getByName("United States")).thenReturn(Optional.empty());
-        when(partnerMapper.toOdoo(any())).thenReturn(null);
+        when(patientMapper.toOdoo(any())).thenReturn(null);
 
         Assertions.assertThrows(UnprocessableEntityException.class, () -> patientService.create(patient));
     }
@@ -165,7 +165,7 @@ class PatientServiceImplTest {
 
         when(countryService.getByName("Unknown Country")).thenReturn(Optional.empty());
         when(countryStateService.getByName("Unknown State")).thenReturn(Optional.empty());
-        when(partnerMapper.toOdoo(any())).thenReturn(partner);
+        when(patientMapper.toOdoo(any())).thenReturn(partner);
         when(partnerService.convertPartnerToMap(partner)).thenReturn(partnerMap);
         when(partnerService.create(partnerMap)).thenReturn(0);
 

@@ -36,8 +36,8 @@ class PartnerServiceTest {
     @BeforeEach
     void setUp() {
         mockCloser = openMocks(this);
-        ReflectionTestUtils.setField(partnerService, "odooCustomerDobField", "x_dob");
-        ReflectionTestUtils.setField(partnerService, "odooCustomerIdField", "x_external_id");
+        ReflectionTestUtils.setField(partnerService, "odooPartnerDobField", "x_dob");
+        ReflectionTestUtils.setField(partnerService, "odooPartnerIdField", "x_external_id");
     }
 
     @AfterAll

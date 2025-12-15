@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import ca.uhn.fhir.rest.api.MethodOutcome;
+import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.Patient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,5 +68,27 @@ class PatientResourceProviderTest {
         assertEquals("Patient", outcome.getId().getResourceType());
         assertEquals("123", outcome.getId().getIdPart());
         assertEquals(createdPatient, outcome.getResource());
+    }
+
+    @Test
+    @DisplayName("Should update patient and return MethodOutcome")
+    void createPatient_shouldUpdatePatientAndReturnMethodOutcome() {
+        Patient inputPatient = new Patient();
+        inputPatient.setId("123");
+
+        Patient updatedPatient = new Patient();
+        updatedPatient.setId("123");
+        updatedPatient.setActive(false);
+
+        when(patientService.create(inputPatient)).thenReturn(updatedPatient);
+
+        MethodOutcome outcome =
+                patientResourceProvider.update(new IdType("Patient", inputPatient.getIdPart()), inputPatient);
+
+        assertNotNull(outcome);
+        assertNotNull(outcome.getId());
+        assertEquals("Patient", outcome.getId().getResourceType());
+        assertEquals("123", outcome.getId().getIdPart());
+        assertEquals(updatedPatient, outcome.getResource());
     }
 }

@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.ozonehis.fhir.odoo.mappers.odoo;
+package com.ozonehis.fhir.odoo.mappers;
 
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.OdooUtils;
@@ -26,7 +26,7 @@ import org.hl7.fhir.r4.model.Patient;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PartnerMapper<F extends IAnyResource & OdooResource> implements ToOdooMapping<F, Partner> {
+public class PatientMapper<F extends IAnyResource & OdooResource> implements ToOdooMapping<F, Partner> {
 
     @Override
     public Partner toOdoo(Map<String, F> resourceMap) {

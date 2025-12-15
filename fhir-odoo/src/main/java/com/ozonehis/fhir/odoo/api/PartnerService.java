@@ -23,11 +23,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class PartnerService extends BaseOdooService<Partner> implements OdooService<Partner> {
 
-    @Value("${odoo.customer.dob.field}")
-    private String odooCustomerDobField;
+    @Value("${odoo.partner.dob.field}")
+    private String odooPartnerDobField;
 
-    @Value("${odoo.customer.id.field}")
-    private String odooCustomerIdField;
+    @Value("${odoo.partner.id.field}")
+    private String odooPartnerIdField;
 
     @Override
     protected String modelName() {
@@ -52,8 +52,8 @@ public class PartnerService extends BaseOdooService<Partner> implements OdooServ
         partner.setPartnerStateId((Integer) row.get("state_id"));
         partner.setPartnerActive((Boolean) row.get("active"));
         partner.setPartnerComment((String) row.get("comment"));
-        partner.setPartnerBirthDate((String) row.get(odooCustomerDobField));
-        partner.setPartnerExternalId((String) row.get(odooCustomerIdField));
+        partner.setPartnerBirthDate((String) row.get(odooPartnerDobField));
+        partner.setPartnerExternalId((String) row.get(odooPartnerIdField));
 
         partner.setName((String) row.get("name"));
         partner.setDisplayName((String) row.get("display_name"));
@@ -101,8 +101,8 @@ public class PartnerService extends BaseOdooService<Partner> implements OdooServ
 
         map.put("name", partner.getName());
         map.put("display_name", partner.getDisplayName());
-        map.put(odooCustomerDobField, partner.getPartnerBirthDate());
-        map.put(odooCustomerIdField, partner.getPartnerExternalId());
+        map.put(odooPartnerDobField, partner.getPartnerBirthDate());
+        map.put(odooPartnerIdField, partner.getPartnerExternalId());
 
         // ID field
         if (partner.getId() != 0) {

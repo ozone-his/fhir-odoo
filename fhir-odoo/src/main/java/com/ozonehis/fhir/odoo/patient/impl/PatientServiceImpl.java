@@ -13,7 +13,7 @@ import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.api.CountryService;
 import com.ozonehis.fhir.odoo.api.CountryStateService;
 import com.ozonehis.fhir.odoo.api.PartnerService;
-import com.ozonehis.fhir.odoo.mappers.odoo.PartnerMapper;
+import com.ozonehis.fhir.odoo.mappers.PatientMapper;
 import com.ozonehis.fhir.odoo.model.Country;
 import com.ozonehis.fhir.odoo.model.CountryState;
 import com.ozonehis.fhir.odoo.model.Partner;
@@ -38,18 +38,18 @@ public class PatientServiceImpl implements PatientService {
 
     private final PartnerService partnerService;
 
-    private final PartnerMapper partnerMapper;
+    private final PatientMapper patientMapper;
 
     @Autowired
     public PatientServiceImpl(
             CountryService countryService,
             CountryStateService countryStateService,
             PartnerService partnerService,
-            PartnerMapper partnerMapper) {
+            PatientMapper patientMapper) {
         this.countryService = countryService;
         this.countryStateService = countryStateService;
         this.partnerService = partnerService;
-        this.partnerMapper = partnerMapper;
+        this.patientMapper = patientMapper;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class PatientServiceImpl implements PatientService {
                 countryStateService.getByName(patient.getAddress().get(0).getState());
         countryState.ifPresent(value -> resourceMap.put(OdooConstants.MODEL_COUNTRY_STATE, value));
 
-        Partner partner = partnerMapper.toOdoo(resourceMap);
+        Partner partner = patientMapper.toOdoo(resourceMap);
 
         if (partner == null) {
             log.error("Unable to create partner in Odoo because required patient data is missing");

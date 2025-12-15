@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.ozonehis.fhir.odoo.OdooConstants;
+import com.ozonehis.fhir.odoo.mappers.PatientMapper;
 import com.ozonehis.fhir.odoo.model.Country;
 import com.ozonehis.fhir.odoo.model.CountryState;
 import com.ozonehis.fhir.odoo.model.Partner;
@@ -29,13 +30,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-class PartnerMapperTest {
+class PatientMapperTest {
 
-    private PartnerMapper mapper;
+    private PatientMapper mapper;
 
     @BeforeEach
     void setUp() {
-        mapper = new PartnerMapper<>();
+        mapper = new PatientMapper<>();
     }
 
     @Test

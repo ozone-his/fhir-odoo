@@ -53,9 +53,9 @@ public class Partner extends BaseOdooModel {
     @JsonProperty("comment")
     private String partnerComment; // Stores Patient Identifier
 
-    @JsonProperty("odoo.customer.dob.field")
+    @JsonProperty("odoo.partner.dob.field")
     private String partnerBirthDate;
 
-    @JsonProperty("odoo.customer.id.field")
+    @JsonProperty("odoo.partner.id.field")
     private String partnerExternalId;
 }
