@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.hl7.fhir.instance.model.api.IAnyResource;
 import org.hl7.fhir.r4.model.Element;
@@ -25,6 +26,7 @@ import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Patient;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class PartnerMapper<F extends IAnyResource & OdooResource> implements ToOdooMapping<F, Partner> {
 

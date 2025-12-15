@@ -61,7 +61,7 @@ class PatientResourceProviderTest {
 
         when(patientService.create(inputPatient)).thenReturn(createdPatient);
 
-        MethodOutcome outcome = patientResourceProvider.createPatient(inputPatient);
+        MethodOutcome outcome = patientResourceProvider.update(inputPatient);
 
         assertNotNull(outcome);
         assertNotNull(outcome.getId());

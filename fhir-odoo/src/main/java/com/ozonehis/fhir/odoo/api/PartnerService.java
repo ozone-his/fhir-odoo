@@ -10,11 +10,15 @@ package com.ozonehis.fhir.odoo.api;
 import static com.ozonehis.fhir.odoo.OdooConstants.MODEL_PARTNER;
 import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 
+import com.odoojava.api.FilterCollection;
+import com.odoojava.api.OdooApiException;
 import com.odoojava.api.Row;
 import com.ozonehis.fhir.odoo.model.Partner;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -52,7 +56,10 @@ public class PartnerService extends BaseOdooService<Partner> implements OdooServ
         partner.setPartnerStateId((Integer) row.get("state_id"));
         partner.setPartnerActive((Boolean) row.get("active"));
         partner.setPartnerComment((String) row.get("comment"));
-        partner.setPartnerBirthDate((String) row.get(odooPartnerDobField));
+        partner.setPartnerBirthDate(
+                row.get(odooPartnerDobField) != null
+                        ? row.get(odooPartnerDobField).toString()
+                        : null);
         partner.setPartnerExternalId((String) row.get(odooPartnerIdField));
 
         partner.setName((String) row.get("name"));
@@ -127,5 +134,23 @@ public class PartnerService extends BaseOdooService<Partner> implements OdooServ
         }
 
         return map;
+    }
+
+    public Optional<Partner> getByRef(String ref) {
+        FilterCollection filters = new FilterCollection();
+        try {
+            filters.add("ref", "=", ref);
+            //            filters.add("model", "=", MODEL_PARTNER);
+            Collection<Partner> results = this.search(filters);
+            if (results.size() > 1) {
+                throw new RuntimeException("Multiple Partners found for " + MODEL_PARTNER + " with ref " + ref);
+            } else if (results.size() == 1) {
+                return results.stream().findFirst();
+            }
+
+            return Optional.empty();
+        } catch (OdooApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
