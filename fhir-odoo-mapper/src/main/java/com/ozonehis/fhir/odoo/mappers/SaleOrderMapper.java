@@ -32,21 +32,21 @@ public class SaleOrderMapper<F extends IAnyResource & OdooResource> implements T
         if (serviceRequest == null || partner == null) {
             return null;
         }
-        if (serviceRequest.hasEncounter()) {
-            String encounterUuid = serviceRequest.getEncounter().getReference().split("/")[1];
-            saleOrder.setOrderClientOrderRef(encounterUuid);
+        if (serviceRequest.hasRequisition()) {
+            String requisitionValue = serviceRequest.getRequisition().getValue();
+            saleOrder.setOrderClientOrderRef(requisitionValue);
             saleOrder.setOrderTypeName("Sales Order");
             saleOrder.setOrderState("draft"); // Default value is always `draft`
 
             saleOrder.setOrderPartnerId(partner.getId());
             // Add Partner DOB to Odoo Quotation
             saleOrder.setPartnerBirthDate(partner.getPartnerBirthDate());
-            // Add Partner partner id to Odoo Quotation
+            // Add Partner id to Odoo Quotation
             saleOrder.setOdooPartnerId(partner.getPartnerExternalId().replaceAll("(?i)</?p>", ""));
             saleOrder.setName("Test Order");
         } else {
             throw new IllegalArgumentException(
-                    "The ServiceRequest does not have a encounter reference. Cannot map to Sale Order.");
+                    "The ServiceRequest does not have a requisition value. Cannot map to Sale Order.");
         }
         return saleOrder;
     }

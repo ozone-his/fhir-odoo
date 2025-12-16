@@ -11,7 +11,6 @@ import static com.ozonehis.fhir.odoo.OdooConstants.MODEL_SALE_ORDER_LINE;
 import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 
 import com.odoojava.api.Row;
-import com.ozonehis.fhir.odoo.model.Partner;
 import com.ozonehis.fhir.odoo.model.SaleOrderLine;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,7 +29,7 @@ public class SaleOrderLineService extends BaseOdooService<SaleOrderLine> impleme
 
     @Override
     protected String[] modelFields() {
-        return new Partner().fields();
+        return new SaleOrderLine().fields();
     }
 
     @Override

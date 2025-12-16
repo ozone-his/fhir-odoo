@@ -37,9 +37,10 @@ public class SaleOrderLineMapper<F extends IAnyResource & OdooResource> implemen
             return null;
         }
         saleOrderLine.setSaleOrderLineProductUomQty(1.0f); // default quantity is 1 for serviceRequests.
-        String requesterDisplay = serviceRequest.getRequester().getDisplay();
-        String serviceDisplay = serviceRequest.getCode().getText();
-        saleOrderLine.setName(serviceDisplay + " | Orderer: " + requesterDisplay);
+        String categoryDisplay =
+                serviceRequest.getCategory().get(0).getCodingFirstRep().getDisplay();
+        String serviceDisplay = serviceRequest.getCode().getCodingFirstRep().getDisplay();
+        saleOrderLine.setName(serviceDisplay + " (" + categoryDisplay + ")");
 
         saleOrderLine.setSaleOrderLineProductId(product.getId());
         saleOrderLine.setSaleOrderLineOrderId(saleOrder.getId());

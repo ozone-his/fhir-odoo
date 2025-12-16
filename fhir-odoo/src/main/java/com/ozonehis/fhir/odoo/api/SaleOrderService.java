@@ -11,7 +11,6 @@ import static com.ozonehis.fhir.odoo.OdooConstants.MODEL_SALE_ORDER;
 import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 
 import com.odoojava.api.Row;
-import com.ozonehis.fhir.odoo.model.Partner;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,7 +39,7 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
 
     @Override
     protected String[] modelFields() {
-        return new Partner().fields();
+        return new SaleOrder().fields();
     }
 
     @Override
@@ -49,7 +48,6 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         saleOrder.setOrderClientOrderRef((String) row.get("client_order_ref"));
         saleOrder.setOrderState((String) row.get("state"));
         saleOrder.setOrderPartnerId((int) row.get("partner_id"));
-        //        saleOrder.setOrderLine((List<Integer>) row.get("order_line"));
         saleOrder.setOrderTypeName((String) row.get("type_name"));
 
         saleOrder.setPartnerWeight((String) row.get(odooPartnerWeightField));
@@ -92,7 +90,6 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         map.put("client_order_ref", saleOrder.getOrderClientOrderRef());
         map.put("state", saleOrder.getOrderState());
         map.put("partner_id", saleOrder.getOrderPartnerId());
-        //        map.put("order_line", saleOrder.getOrderLine());
         map.put("type_name", saleOrder.getOrderTypeName());
 
         map.put(odooPartnerWeightField, saleOrder.getPartnerWeight());

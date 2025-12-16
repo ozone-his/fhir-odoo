@@ -8,7 +8,9 @@
 package com.ozonehis.fhir.odoo.serviceRequest;
 
 import ca.uhn.fhir.rest.annotation.Create;
+import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
+import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.ozonehis.fhir.annotations.FhirOdooProvider;
@@ -39,6 +41,15 @@ public class ServiceRequestResourceProvider implements IResourceProvider {
         MethodOutcome outcome = new MethodOutcome();
         outcome.setId(new IdType("ServiceRequest", createdServiceRequest.getIdPart()));
         outcome.setResource(createdServiceRequest);
+        return outcome;
+    }
+
+    @Update
+    public MethodOutcome update(@IdParam IdType idType, @ResourceParam ServiceRequest serviceRequest) {
+        ServiceRequest updatedServiceRequest = serviceRequestService.create(serviceRequest);
+        MethodOutcome outcome = new MethodOutcome();
+        outcome.setId(idType);
+        outcome.setResource(updatedServiceRequest);
         return outcome;
     }
 }
