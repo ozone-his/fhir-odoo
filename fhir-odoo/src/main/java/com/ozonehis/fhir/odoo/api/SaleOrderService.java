@@ -24,14 +24,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class SaleOrderService extends BaseOdooService<SaleOrder> implements OdooService<SaleOrder> {
 
-    @Value("${odoo.customer.weight.field}")
-    private String odooCustomerWeightField;
+    @Value("${odoo.partner.weight.field}")
+    private String odooPartnerWeightField;
 
-    @Value("${odoo.customer.dob.field}")
-    private String odooCustomerDobField;
+    @Value("${odoo.partner.dob.field}")
+    private String odooPartnerDobField;
 
-    @Value("${odoo.customer.id.field}")
-    private String odooCustomerIdField;
+    @Value("${odoo.partner.id.field}")
+    private String odooPartnerIdField;
 
     @Override
     protected String modelName() {
@@ -52,9 +52,9 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         //        saleOrder.setOrderLine((List<Integer>) row.get("order_line"));
         saleOrder.setOrderTypeName((String) row.get("type_name"));
 
-        saleOrder.setPartnerWeight((String) row.get(odooCustomerWeightField));
-        saleOrder.setPartnerBirthDate((String) row.get(odooCustomerDobField));
-        saleOrder.setOdooCustomerId((String) row.get(odooCustomerIdField));
+        saleOrder.setPartnerWeight((String) row.get(odooPartnerWeightField));
+        saleOrder.setPartnerBirthDate((String) row.get(odooPartnerDobField));
+        saleOrder.setOdooPartnerId((String) row.get(odooPartnerIdField));
 
         saleOrder.setName((String) row.get("name"));
         saleOrder.setDisplayName((String) row.get("display_name"));
@@ -95,9 +95,9 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         //        map.put("order_line", saleOrder.getOrderLine());
         map.put("type_name", saleOrder.getOrderTypeName());
 
-        map.put(odooCustomerWeightField, saleOrder.getPartnerWeight());
-        map.put(odooCustomerDobField, saleOrder.getPartnerBirthDate());
-        map.put(odooCustomerIdField, saleOrder.getOdooCustomerId());
+        map.put(odooPartnerWeightField, saleOrder.getPartnerWeight());
+        map.put(odooPartnerDobField, saleOrder.getPartnerBirthDate());
+        map.put(odooPartnerIdField, saleOrder.getOdooPartnerId());
 
         map.put("name", saleOrder.getName());
         map.put("display_name", saleOrder.getDisplayName());

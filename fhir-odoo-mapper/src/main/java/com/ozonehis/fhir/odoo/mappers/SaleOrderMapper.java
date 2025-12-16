@@ -41,8 +41,8 @@ public class SaleOrderMapper<F extends IAnyResource & OdooResource> implements T
             saleOrder.setOrderPartnerId(partner.getId());
             // Add Partner DOB to Odoo Quotation
             saleOrder.setPartnerBirthDate(partner.getPartnerBirthDate());
-            // Add Partner customer id to Odoo Quotation
-            saleOrder.setOdooCustomerId(partner.getPartnerExternalId().replaceAll("(?i)</?p>", ""));
+            // Add Partner partner id to Odoo Quotation
+            saleOrder.setOdooPartnerId(partner.getPartnerExternalId().replaceAll("(?i)</?p>", ""));
             saleOrder.setName("Test Order");
         } else {
             throw new IllegalArgumentException(

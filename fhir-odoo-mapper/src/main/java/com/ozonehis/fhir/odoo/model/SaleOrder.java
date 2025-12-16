@@ -45,5 +45,5 @@ public class SaleOrder extends BaseOdooModel {
     private String partnerBirthDate;
 
     @JsonProperty("x_external_identifier")
-    private String odooCustomerId;
+    private String odooPartnerId;
 }
