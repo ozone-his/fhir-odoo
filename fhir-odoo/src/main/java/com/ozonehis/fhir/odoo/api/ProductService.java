@@ -7,12 +7,17 @@
  */
 package com.ozonehis.fhir.odoo.api;
 
+import static com.ozonehis.fhir.odoo.OdooConstants.MODEL_PRODUCT;
 import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 
+import com.odoojava.api.FilterCollection;
+import com.odoojava.api.OdooApiException;
 import com.odoojava.api.Row;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.Product;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -79,5 +84,22 @@ public class ProductService extends BaseOdooService<Product> implements OdooServ
         }
 
         return product;
+    }
+
+    public Optional<Product> getByName(String name) {
+        FilterCollection filters = new FilterCollection();
+        try {
+            filters.add("name", "=", name);
+            Collection<Product> results = this.search(filters);
+            if (results.size() > 1) {
+                throw new RuntimeException("Multiple Products found for " + MODEL_PRODUCT + " with name " + name);
+            } else if (results.size() == 1) {
+                return results.stream().findFirst();
+            }
+
+            return Optional.empty();
+        } catch (OdooApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

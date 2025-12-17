@@ -21,41 +21,26 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Partner extends BaseOdooModel {
+public class SaleOrder extends BaseOdooModel {
 
-    @JsonProperty("ref")
-    private String partnerRef;
+    @JsonProperty("client_order_ref")
+    private String orderClientOrderRef;
 
-    @JsonProperty("type")
-    private String partnerType;
+    @JsonProperty("state")
+    private String orderState;
 
-    @JsonProperty("street")
-    private String partnerStreet;
+    @JsonProperty("partner_id")
+    private int orderPartnerId; // Can be used as a list or Integer
 
-    @JsonProperty("street2")
-    private String partnerStreet2;
+    @JsonProperty("type_name")
+    private String orderTypeName;
 
-    @JsonProperty("city")
-    private String partnerCity;
-
-    @JsonProperty("zip")
-    private String partnerZip;
-
-    @JsonProperty("country_id")
-    private Integer partnerCountryId;
-
-    @JsonProperty("state_id")
-    private Integer partnerStateId;
-
-    @JsonProperty("active")
-    private Boolean partnerActive;
-
-    @JsonProperty("comment")
-    private String partnerComment; // Stores Patient Identifier
+    @JsonProperty("x_customer_weight")
+    private String partnerWeight;
 
     @JsonProperty("x_customer_dob")
     private String partnerBirthDate;
 
     @JsonProperty("x_external_identifier")
-    private String partnerExternalId;
+    private String odooPartnerId;
 }

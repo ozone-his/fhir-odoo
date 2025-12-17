@@ -42,7 +42,7 @@ public class PatientMapper<F extends IAnyResource & OdooResource> implements ToO
             return null;
         }
         partner.setPartnerRef(patient.getIdPart());
-        partner.setPartnerActive(patient.getActive());
+        partner.setPartnerActive(true);
         String patientName = getPatientName(patient).orElse("");
         String patientIdentifier = getPreferredPatientIdentifier(patient).orElse("");
         partner.setPartnerComment(patientIdentifier);
@@ -52,7 +52,9 @@ public class PatientMapper<F extends IAnyResource & OdooResource> implements ToO
                 OdooUtils.convertEEEMMMddDateToOdooFormat(patient.getBirthDate().toString())
                         .orElse(""));
 
-        addAddress(patient, partner, country, countryState);
+        if (patient.hasAddress()) {
+            addAddress(patient, partner, country, countryState);
+        }
         return partner;
     }
 
@@ -72,15 +74,19 @@ public class PatientMapper<F extends IAnyResource & OdooResource> implements ToO
     protected void addAddress(Patient patient, Partner partner, Country country, CountryState countryState) {
         if (patient.hasAddress()) {
             patient.getAddress().forEach(fhirAddress -> {
-                partner.setPartnerCity(fhirAddress.getCity());
+                if (fhirAddress.hasCity()) {
+                    partner.setPartnerCity(fhirAddress.getCity());
+                }
                 if (country != null) {
                     partner.setPartnerCountryId(country.getId());
                 }
                 if (countryState != null) {
                     partner.setPartnerStateId(countryState.getId());
                 }
-                partner.setPartnerZip(fhirAddress.getPostalCode());
-                if (fhirAddress.getType() != null) {
+                if (fhirAddress.hasPostalCode()) {
+                    partner.setPartnerZip(fhirAddress.getPostalCode());
+                }
+                if (fhirAddress.hasType()) {
                     partner.setPartnerType(fhirAddress.getType().getDisplay());
                 }
 

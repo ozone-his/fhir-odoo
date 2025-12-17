@@ -57,4 +57,12 @@ public class OdooConstants {
     public static final String MODEL_COUNTRY_STATE = "res.country.state";
 
     public static final String MODEL_COUNTRY = "res.country";
+
+    public static final String MODEL_FHIR_ENCOUNTER = "encounter";
+
+    public static final String MODEL_FHIR_SERVICE_REQUEST = "servicerequest";
+
+    public static final String MODEL_SALE_ORDER = "sale.order";
+
+    public static final String MODEL_SALE_ORDER_LINE = "sale.order.line";
 }
