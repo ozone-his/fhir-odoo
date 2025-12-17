@@ -59,7 +59,7 @@ public class PatientServiceImpl implements PatientService {
             Partner partner = partnerService.getByRef(patientId).orElse(null);
             if (partner != null) {
                 log.error("Partner with reference id {} already exists", patientId);
-                throw new UnprocessableEntityException("Partner with reference id {} already exists", patientId);
+                throw new UnprocessableEntityException("Partner with reference id " + patientId + " already exists");
             }
         }
 

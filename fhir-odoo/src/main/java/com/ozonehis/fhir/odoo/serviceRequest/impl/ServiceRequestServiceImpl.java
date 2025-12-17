@@ -93,7 +93,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
         String patientIdReference = serviceRequest.getSubject().getReference().split("/")[1];
         Partner partner = partnerService.getByRef(patientIdReference).orElse(null);
         if (partner == null) {
-            throw new UnprocessableEntityException("Partner with id {} doesn't exists in Odoo", patientIdReference);
+            throw new UnprocessableEntityException("Partner with id " + patientIdReference + " doesn't exists in Odoo");
         }
         resourceMap.put(OdooConstants.MODEL_PARTNER, partner);
         SaleOrder saleOrder = saleOrderMapper.toOdoo(resourceMap);
@@ -121,7 +121,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
         String productName = serviceRequest.getCode().getCodingFirstRep().getDisplay();
         Product product = productService.getByName(productName).orElse(null);
         if (product == null) {
-            throw new UnprocessableEntityException("Product with externalId {} doesn't exists in Odoo", productName);
+            throw new UnprocessableEntityException(
+                    "Product with externalId " + productName + " doesn't exists in Odoo");
         }
 
         SaleOrderLine saleOrderLine = saleOrderLineService
@@ -129,7 +130,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
                 .orElse(null);
         if (saleOrderLine != null) {
             throw new UnprocessableEntityException(
-                    "Sale order line already exists for product {} in Odoo", productName);
+                    "Sale order line already exists for product " + productName + " in Odoo");
         }
 
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
