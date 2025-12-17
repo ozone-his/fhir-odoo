@@ -10,11 +10,15 @@ package com.ozonehis.fhir.odoo.api;
 import static com.ozonehis.fhir.odoo.OdooConstants.MODEL_SALE_ORDER;
 import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 
+import com.odoojava.api.FilterCollection;
+import com.odoojava.api.OdooApiException;
 import com.odoojava.api.Row;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -51,7 +55,10 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         saleOrder.setOrderTypeName((String) row.get("type_name"));
 
         saleOrder.setPartnerWeight((String) row.get(odooPartnerWeightField));
-        saleOrder.setPartnerBirthDate((String) row.get(odooPartnerDobField));
+        saleOrder.setPartnerBirthDate(
+                row.get(odooPartnerDobField) != null
+                        ? row.get(odooPartnerDobField).toString()
+                        : null);
         saleOrder.setOdooPartnerId((String) row.get(odooPartnerIdField));
 
         saleOrder.setName((String) row.get("name"));
@@ -122,5 +129,23 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         }
 
         return map;
+    }
+
+    public Optional<SaleOrder> getByOrderRef(String ref) {
+        FilterCollection filters = new FilterCollection();
+        try {
+            filters.add("client_order_ref", "=", ref);
+            Collection<SaleOrder> results = this.search(filters);
+            if (results.size() > 1) {
+                throw new RuntimeException(
+                        "Multiple Sale order found for " + MODEL_SALE_ORDER + " with reference " + ref);
+            } else if (results.size() == 1) {
+                return results.stream().findFirst();
+            }
+
+            return Optional.empty();
+        } catch (OdooApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

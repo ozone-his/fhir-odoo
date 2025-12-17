@@ -54,6 +54,15 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient create(Patient patient) {
+        if (patient.hasId()) {
+            String patientId = patient.getIdPart();
+            Partner partner = partnerService.getByRef(patientId).orElse(null);
+            if (partner != null) {
+                log.error("Partner with reference id {} already exists", patientId);
+                throw new UnprocessableEntityException("Partner with reference id {} already exists", patientId);
+            }
+        }
+
         Map<String, Object> resourceMap = new HashMap<>();
         resourceMap.put(OdooConstants.MODEL_FHIR_PATIENT, patient);
         Optional<Country> country =

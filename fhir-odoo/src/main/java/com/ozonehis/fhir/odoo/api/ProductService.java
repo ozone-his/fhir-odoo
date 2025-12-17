@@ -90,7 +90,6 @@ public class ProductService extends BaseOdooService<Product> implements OdooServ
         FilterCollection filters = new FilterCollection();
         try {
             filters.add("name", "=", name);
-            //            filters.add("model", "=", MODEL_PRODUCT);
             Collection<Product> results = this.search(filters);
             if (results.size() > 1) {
                 throw new RuntimeException("Multiple Products found for " + MODEL_PRODUCT + " with name " + name);

@@ -65,7 +65,29 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
     @Override
     public ServiceRequest create(ServiceRequest serviceRequest) {
-        // Create Sale order in Odoo
+        SaleOrder saleOrder;
+        if (serviceRequest.hasRequisition()) {
+            String requisitionValue = serviceRequest.getRequisition().getValue();
+            saleOrder = saleOrderService.getByOrderRef(requisitionValue).orElse(null);
+            if (saleOrder == null) {
+                saleOrder = createSaleOrder(serviceRequest);
+                log.info("Created sale order with id {}", saleOrder.getId());
+                SaleOrderLine saleOrderLine = createSaleOrderLine(serviceRequest, saleOrder);
+                log.info("Created sale order line with id {}", saleOrderLine.getId());
+            } else {
+                log.info(
+                        "Sale order already exists with id {} and ref {}",
+                        saleOrder.getId(),
+                        saleOrder.getOrderClientOrderRef());
+                SaleOrderLine saleOrderLine = createSaleOrderLine(serviceRequest, saleOrder);
+                log.info("Created sale order line with id {}", saleOrderLine.getId());
+            }
+        }
+
+        return serviceRequest;
+    }
+
+    private SaleOrder createSaleOrder(ServiceRequest serviceRequest) {
         Map<String, Object> resourceMap = new HashMap<>();
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
 
@@ -92,13 +114,16 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
         }
         saleOrder.setId(id);
 
-        // Create Sale order line in Odoo
+        return saleOrder;
+    }
+
+    private SaleOrderLine createSaleOrderLine(ServiceRequest serviceRequest, SaleOrder saleOrder) {
+        Map<String, Object> resourceMap = new HashMap<>();
         String productName = serviceRequest.getCode().getCodingFirstRep().getDisplay();
         Product product = productService.getByName(productName).orElse(null);
         if (product == null) {
             throw new UnprocessableEntityException("Product with externalId {} doesn't exists in Odoo", productName);
         }
-        resourceMap = new HashMap<>();
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
         resourceMap.put(OdooConstants.MODEL_SALE_ORDER, saleOrder);
         resourceMap.put(OdooConstants.MODEL_PRODUCT, product);
@@ -112,13 +137,12 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
         Map<String, Object> saleOrderLineMap = saleOrderLineService.convertSaleOrderLineToMap(saleOrderLine);
 
-        id = saleOrderLineService.create(saleOrderLineMap);
+        int id = saleOrderLineService.create(saleOrderLineMap);
         if (id == 0) {
             log.error("Unable to create saleOrderLine in Odoo");
             throw new InvalidRequestException("Unable to create saleOrderLine in Odoo");
         }
-
-        return serviceRequest;
+        return saleOrderLine;
     }
 
     @Override

@@ -140,7 +140,6 @@ public class PartnerService extends BaseOdooService<Partner> implements OdooServ
         FilterCollection filters = new FilterCollection();
         try {
             filters.add("ref", "=", ref);
-            //            filters.add("model", "=", MODEL_PARTNER);
             Collection<Partner> results = this.search(filters);
             if (results.size() > 1) {
                 throw new RuntimeException("Multiple Partners found for " + MODEL_PARTNER + " with ref " + ref);
