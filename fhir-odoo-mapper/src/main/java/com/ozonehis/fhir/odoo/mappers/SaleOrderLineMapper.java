@@ -36,7 +36,7 @@ public class SaleOrderLineMapper<F extends IAnyResource & OdooResource> implemen
         if (serviceRequest == null || product == null || saleOrder == null) {
             return null;
         }
-        saleOrderLine.setSaleOrderLineProductUomQty(1.0f); // default quantity is 1 for serviceRequests.
+        saleOrderLine.setSaleOrderLineProductUomQty(1.0); // default quantity is 1 for serviceRequests.
         String categoryDisplay =
                 serviceRequest.getCategory().get(0).getCodingFirstRep().getDisplay();
         String serviceDisplay = serviceRequest.getCode().getCodingFirstRep().getDisplay();

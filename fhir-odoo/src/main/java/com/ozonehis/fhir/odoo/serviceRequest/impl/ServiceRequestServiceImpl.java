@@ -72,16 +72,15 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
             if (saleOrder == null) {
                 saleOrder = createSaleOrder(serviceRequest);
                 log.info("Created sale order with id {}", saleOrder.getId());
-                SaleOrderLine saleOrderLine = createSaleOrderLine(serviceRequest, saleOrder);
-                log.info("Created sale order line with id {}", saleOrderLine.getId());
             } else {
                 log.info(
                         "Sale order already exists with id {} and ref {}",
                         saleOrder.getId(),
                         saleOrder.getOrderClientOrderRef());
-                SaleOrderLine saleOrderLine = createSaleOrderLine(serviceRequest, saleOrder);
-                log.info("Created sale order line with id {}", saleOrderLine.getId());
             }
+
+            SaleOrderLine saleOrderLine = createSaleOrderLine(serviceRequest, saleOrder);
+            log.info("Created sale order line with id {}", saleOrderLine.getId());
         }
 
         return serviceRequest;
@@ -124,11 +123,20 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
         if (product == null) {
             throw new UnprocessableEntityException("Product with externalId {} doesn't exists in Odoo", productName);
         }
+
+        SaleOrderLine saleOrderLine = saleOrderLineService
+                .getBySaleOrderIdAndProductId(saleOrder.getId(), product.getId())
+                .orElse(null);
+        if (saleOrderLine != null) {
+            throw new UnprocessableEntityException(
+                    "Sale order line already exists for product {} in Odoo", productName);
+        }
+
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
         resourceMap.put(OdooConstants.MODEL_SALE_ORDER, saleOrder);
         resourceMap.put(OdooConstants.MODEL_PRODUCT, product);
 
-        SaleOrderLine saleOrderLine = saleOrderLineMapper.toOdoo(resourceMap);
+        saleOrderLine = saleOrderLineMapper.toOdoo(resourceMap);
 
         if (saleOrderLine == null) {
             log.error("Unable to create saleOrderLine in Odoo because required ServiceRequest data is missing");

@@ -10,11 +10,15 @@ package com.ozonehis.fhir.odoo.api;
 import static com.ozonehis.fhir.odoo.OdooConstants.MODEL_SALE_ORDER_LINE;
 import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 
+import com.odoojava.api.FilterCollection;
+import com.odoojava.api.OdooApiException;
 import com.odoojava.api.Row;
 import com.ozonehis.fhir.odoo.model.SaleOrderLine;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -37,8 +41,8 @@ public class SaleOrderLineService extends BaseOdooService<SaleOrderLine> impleme
         SaleOrderLine saleOrderLine = new SaleOrderLine();
         saleOrderLine.setSaleOrderLineOrderId(row.get("order_id"));
         saleOrderLine.setSaleOrderLineProductId(row.get("product_id"));
-        saleOrderLine.setSaleOrderLineProductUomQty((Float) row.get("product_uom_qty"));
-        saleOrderLine.setSaleOrderLineProductUom(row.get("product_uom"));
+        saleOrderLine.setSaleOrderLineProductUomQty((Double) row.get("product_uom_qty"));
+        saleOrderLine.setSaleOrderLineProductUom((int) row.get("product_uom"));
 
         saleOrderLine.setName((String) row.get("name"));
         saleOrderLine.setDisplayName((String) row.get("display_name"));
@@ -103,5 +107,24 @@ public class SaleOrderLineService extends BaseOdooService<SaleOrderLine> impleme
             map.put("write_uid", saleOrderLine.getLastUpdatedBy());
         }
         return map;
+    }
+
+    public Optional<SaleOrderLine> getBySaleOrderIdAndProductId(int saleOrderId, int productId) {
+        FilterCollection filters = new FilterCollection();
+        try {
+            filters.add("order_id", "=", saleOrderId);
+            filters.add("product_id", "=", productId);
+            Collection<SaleOrderLine> results = this.search(filters);
+            if (results.size() > 1) {
+                throw new RuntimeException("Multiple Sale order lines found for " + MODEL_SALE_ORDER_LINE
+                        + " for sale order id " + saleOrderId + " product id " + productId);
+            } else if (results.size() == 1) {
+                return results.stream().findFirst();
+            }
+
+            return Optional.empty();
+        } catch (OdooApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -30,8 +30,8 @@ public class SaleOrderLine extends BaseOdooModel {
     private Object saleOrderLineProductId;
 
     @JsonProperty("product_uom_qty")
-    private Float saleOrderLineProductUomQty;
+    private Double saleOrderLineProductUomQty;
 
     @JsonProperty("product_uom")
-    private Object saleOrderLineProductUom; // Can be used as a list or Integer, Stores code of product or product name
+    private int saleOrderLineProductUom;
 }
