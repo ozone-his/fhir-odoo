@@ -32,9 +32,9 @@ public class SaleOrderMapper<F extends IAnyResource & OdooResource> implements T
         if (serviceRequest == null || partner == null) {
             return null;
         }
-        if (serviceRequest.hasRequisition()) {
-            String requisitionValue = serviceRequest.getRequisition().getValue();
-            saleOrder.setOrderClientOrderRef(requisitionValue);
+        if (serviceRequest.hasId()) {
+            String serviceRequestId = serviceRequest.getIdPart();
+            saleOrder.setOrderClientOrderRef(serviceRequestId);
             saleOrder.setOrderTypeName("Sales Order");
             saleOrder.setOrderState("draft"); // Default value is always `draft`
 
@@ -43,10 +43,9 @@ public class SaleOrderMapper<F extends IAnyResource & OdooResource> implements T
             saleOrder.setPartnerBirthDate(partner.getPartnerBirthDate());
             // Add Partner id to Odoo Quotation
             saleOrder.setOdooPartnerId(partner.getPartnerExternalId().replaceAll("(?i)</?p>", ""));
-            saleOrder.setName("Test Order");
         } else {
             throw new IllegalArgumentException(
-                    "The ServiceRequest does not have a requisition value. Cannot map to Sale Order.");
+                    "The ServiceRequest does not have a identifier. Cannot map to Sale Order.");
         }
         return saleOrder;
     }

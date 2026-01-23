@@ -66,9 +66,9 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
     @Override
     public ServiceRequest create(ServiceRequest serviceRequest) {
         SaleOrder saleOrder;
-        if (serviceRequest.hasRequisition()) {
-            String requisitionValue = serviceRequest.getRequisition().getValue();
-            saleOrder = saleOrderService.getByOrderRef(requisitionValue).orElse(null);
+        if (serviceRequest.hasId()) {
+            String serviceRequestId = serviceRequest.getIdPart();
+            saleOrder = saleOrderService.getByOrderRef(serviceRequestId).orElse(null);
             if (saleOrder == null) {
                 saleOrder = createSaleOrder(serviceRequest);
                 log.info("Created sale order with id {}", saleOrder.getId());
