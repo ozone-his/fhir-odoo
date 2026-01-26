@@ -118,11 +118,11 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
     private SaleOrderLine createSaleOrderLine(ServiceRequest serviceRequest, SaleOrder saleOrder) {
         Map<String, Object> resourceMap = new HashMap<>();
-        String productName = serviceRequest.getCode().getCodingFirstRep().getDisplay();
-        Product product = productService.getByName(productName).orElse(null);
+        String productCode = serviceRequest.getCode().getCodingFirstRep().getCode();
+        Product product = productService.getByConceptCode(productCode).orElse(null);
         if (product == null) {
             throw new UnprocessableEntityException(
-                    "Product with externalId " + productName + " doesn't exists in Odoo");
+                    "Product with concept code " + productCode + " doesn't exists in Odoo");
         }
 
         SaleOrderLine saleOrderLine = saleOrderLineService
@@ -130,7 +130,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
                 .orElse(null);
         if (saleOrderLine != null) {
             throw new UnprocessableEntityException(
-                    "Sale order line already exists for product " + productName + " in Odoo");
+                    "Sale order line already exists for product " + productCode + " in Odoo");
         }
 
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);

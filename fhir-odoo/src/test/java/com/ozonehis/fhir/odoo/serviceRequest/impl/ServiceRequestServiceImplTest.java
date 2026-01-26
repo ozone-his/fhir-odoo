@@ -80,8 +80,8 @@ class ServiceRequestServiceImplTest {
     @Test
     @DisplayName("Should create ServiceRequest with new SaleOrder and SaleOrderLine")
     void create_shouldCreateServiceRequestWithNewSaleOrderAndSaleOrderLine() {
-        ServiceRequest serviceRequest =
-                createServiceRequest("7b968d19-7324-43d7-af3a-e5ab5ff100ff", "REQ-001", "Patient/123", "Blood Test");
+        ServiceRequest serviceRequest = createServiceRequest(
+                "7b968d19-7324-43d7-af3a-e5ab5ff100ff", "REQ-001", "Patient/123", "Blood Test", "26464-8");
 
         Partner partner = new Partner();
         partner.setId(100);
@@ -91,6 +91,7 @@ class ServiceRequestServiceImplTest {
         Product product = new Product();
         product.setId(50);
         product.setName("Blood Test");
+        product.setConceptCode("26464-8");
 
         SaleOrder saleOrder = new SaleOrder();
         saleOrder.setId(200);
@@ -111,7 +112,7 @@ class ServiceRequestServiceImplTest {
         when(saleOrderMapper.toOdoo(any())).thenReturn(saleOrder);
         when(saleOrderService.convertSaleOrderToMap(saleOrder)).thenReturn(saleOrderMap);
         when(saleOrderService.create(saleOrderMap)).thenReturn(200);
-        when(productService.getByName("Blood Test")).thenReturn(Optional.of(product));
+        when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
         when(saleOrderLineService.getBySaleOrderIdAndProductId(200, 50)).thenReturn(Optional.empty());
         when(saleOrderLineMapper.toOdoo(any())).thenReturn(saleOrderLine);
         when(saleOrderLineService.convertSaleOrderLineToMap(saleOrderLine)).thenReturn(saleOrderLineMap);
@@ -124,7 +125,7 @@ class ServiceRequestServiceImplTest {
         verify(partnerService).getByRef("123");
         verify(saleOrderMapper).toOdoo(any());
         verify(saleOrderService).create(saleOrderMap);
-        verify(productService).getByName("Blood Test");
+        verify(productService).getByConceptCode("26464-8");
         verify(saleOrderLineService).getBySaleOrderIdAndProductId(200, 50);
         verify(saleOrderLineMapper).toOdoo(any());
         verify(saleOrderLineService).create(saleOrderLineMap);
@@ -133,8 +134,8 @@ class ServiceRequestServiceImplTest {
     @Test
     @DisplayName("Should create ServiceRequest with existing SaleOrder")
     void create_shouldCreateServiceRequestWithExistingSaleOrder() {
-        ServiceRequest serviceRequest =
-                createServiceRequest("da981cff-b3ef-4032-9082-a296e17e7e70", "REQ-002", "Patient/456", "X-Ray");
+        ServiceRequest serviceRequest = createServiceRequest(
+                "da981cff-b3ef-4032-9082-a296e17e7e70", "REQ-002", "Patient/456", "X-Ray", "26464-8");
 
         SaleOrder existingSaleOrder = new SaleOrder();
         existingSaleOrder.setId(250);
@@ -143,6 +144,7 @@ class ServiceRequestServiceImplTest {
         Product product = new Product();
         product.setId(60);
         product.setName("X-Ray");
+        product.setCode("26464-8");
 
         SaleOrderLine saleOrderLine = new SaleOrderLine();
         saleOrderLine.setId(350);
@@ -152,7 +154,7 @@ class ServiceRequestServiceImplTest {
 
         when(saleOrderService.getByOrderRef("da981cff-b3ef-4032-9082-a296e17e7e70"))
                 .thenReturn(Optional.of(existingSaleOrder));
-        when(productService.getByName("X-Ray")).thenReturn(Optional.of(product));
+        when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
         when(saleOrderLineService.getBySaleOrderIdAndProductId(250, 60)).thenReturn(Optional.empty());
         when(saleOrderLineMapper.toOdoo(any())).thenReturn(saleOrderLine);
         when(saleOrderLineService.convertSaleOrderLineToMap(saleOrderLine)).thenReturn(saleOrderLineMap);
@@ -165,7 +167,7 @@ class ServiceRequestServiceImplTest {
         verify(partnerService, never()).getByRef(anyString());
         verify(saleOrderMapper, never()).toOdoo(any());
         verify(saleOrderService, never()).create(any());
-        verify(productService).getByName("X-Ray");
+        verify(productService).getByConceptCode("26464-8");
         verify(saleOrderLineService).getBySaleOrderIdAndProductId(250, 60);
         verify(saleOrderLineService).create(saleOrderLineMap);
     }
@@ -173,8 +175,8 @@ class ServiceRequestServiceImplTest {
     @Test
     @DisplayName("Should throw UnprocessableEntityException when partner does not exist")
     void create_shouldThrowUnprocessableEntityExceptionWhenPartnerDoesNotExist() {
-        ServiceRequest serviceRequest =
-                createServiceRequest("d30d786d-645f-464a-95a6-b295fdd087f1", "REQ-003", "Patient/999", "CT Scan");
+        ServiceRequest serviceRequest = createServiceRequest(
+                "d30d786d-645f-464a-95a6-b295fdd087f1", "REQ-003", "Patient/999", "CT Scan", "26464-8");
 
         when(saleOrderService.getByOrderRef("d30d786d-645f-464a-95a6-b295fdd087f1"))
                 .thenReturn(Optional.empty());
@@ -188,8 +190,8 @@ class ServiceRequestServiceImplTest {
     @Test
     @DisplayName("Should throw UnprocessableEntityException when product does not exist")
     void create_shouldThrowUnprocessableEntityExceptionWhenProductDoesNotExist() {
-        ServiceRequest serviceRequest =
-                createServiceRequest("50cc7ede-0dec-46d4-bb9e-1674f1c78664", "REQ-004", "Patient/123", "Unknown Test");
+        ServiceRequest serviceRequest = createServiceRequest(
+                "50cc7ede-0dec-46d4-bb9e-1674f1c78664", "REQ-004", "Patient/123", "Unknown Test", "26464-8");
 
         Partner partner = new Partner();
         partner.setId(100);
@@ -206,7 +208,7 @@ class ServiceRequestServiceImplTest {
         when(saleOrderMapper.toOdoo(any())).thenReturn(saleOrder);
         when(saleOrderService.convertSaleOrderToMap(saleOrder)).thenReturn(saleOrderMap);
         when(saleOrderService.create(saleOrderMap)).thenReturn(200);
-        when(productService.getByName("Unknown Test")).thenReturn(Optional.empty());
+        when(productService.getByConceptCode("26464-8")).thenReturn(Optional.empty());
 
         assertThrows(UnprocessableEntityException.class, () -> serviceRequestService.create(serviceRequest));
         verify(saleOrderLineService, never()).getBySaleOrderIdAndProductId(anyInt(), anyInt());
@@ -215,8 +217,8 @@ class ServiceRequestServiceImplTest {
     @Test
     @DisplayName("Should throw UnprocessableEntityException when saleOrderLine already exists")
     void create_shouldThrowUnprocessableEntityExceptionWhenSaleOrderLineAlreadyExists() {
-        ServiceRequest serviceRequest =
-                createServiceRequest("06a7e887-c407-4bb7-8f5b-97d802538fe7", "REQ-005", "Patient/123", "MRI");
+        ServiceRequest serviceRequest = createServiceRequest(
+                "06a7e887-c407-4bb7-8f5b-97d802538fe7", "REQ-005", "Patient/123", "MRI", "26464-8");
 
         SaleOrder existingSaleOrder = new SaleOrder();
         existingSaleOrder.setId(300);
@@ -224,13 +226,14 @@ class ServiceRequestServiceImplTest {
         Product product = new Product();
         product.setId(70);
         product.setName("MRI");
+        product.setConceptCode("26464-8");
 
         SaleOrderLine existingSaleOrderLine = new SaleOrderLine();
         existingSaleOrderLine.setId(400);
 
         when(saleOrderService.getByOrderRef("06a7e887-c407-4bb7-8f5b-97d802538fe7"))
                 .thenReturn(Optional.of(existingSaleOrder));
-        when(productService.getByName("MRI")).thenReturn(Optional.of(product));
+        when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
         when(saleOrderLineService.getBySaleOrderIdAndProductId(300, 70)).thenReturn(Optional.of(existingSaleOrderLine));
 
         assertThrows(UnprocessableEntityException.class, () -> serviceRequestService.create(serviceRequest));
@@ -239,7 +242,7 @@ class ServiceRequestServiceImplTest {
     }
 
     private ServiceRequest createServiceRequest(
-            String id, String requisitionValue, String patientRef, String serviceDisplay) {
+            String id, String requisitionValue, String patientRef, String serviceDisplay, String conceptCode) {
         ServiceRequest serviceRequest = new ServiceRequest();
 
         serviceRequest.setId(id);
@@ -255,6 +258,7 @@ class ServiceRequestServiceImplTest {
         CodeableConcept code = new CodeableConcept();
         Coding codeCoding = new Coding();
         codeCoding.setDisplay(serviceDisplay);
+        codeCoding.setCode(conceptCode);
         code.addCoding(codeCoding);
         serviceRequest.setCode(code);
 
