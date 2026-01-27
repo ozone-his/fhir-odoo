@@ -43,6 +43,7 @@ public class SaleOrderMapper<F extends IAnyResource & OdooResource> implements T
             saleOrder.setPartnerBirthDate(partner.getPartnerBirthDate());
             // Add Partner id to Odoo Quotation
             saleOrder.setOdooPartnerId(partner.getPartnerExternalId().replaceAll("(?i)</?p>", ""));
+            saleOrder.setName("Test Order");
         } else {
             throw new IllegalArgumentException(
                     "The ServiceRequest does not have a identifier. Cannot map to Sale Order.");
