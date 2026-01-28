@@ -12,11 +12,13 @@ import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Partner;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.hl7.fhir.instance.model.api.IAnyResource;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class SaleOrderMapper<F extends IAnyResource & OdooResource> implements ToOdooMapping<F, SaleOrder> {
 
@@ -43,7 +45,16 @@ public class SaleOrderMapper<F extends IAnyResource & OdooResource> implements T
             saleOrder.setPartnerBirthDate(partner.getPartnerBirthDate());
             // Add Partner id to Odoo Quotation
             saleOrder.setOdooPartnerId(partner.getPartnerExternalId().replaceAll("(?i)</?p>", ""));
-            saleOrder.setName("Test Order");
+            if (serviceRequest.hasRequisition()) {
+                saleOrder.setName(serviceRequest.getRequisition().getValue());
+            } else {
+                int randomFiveDigitNumber = (int) (Math.random() * 90000) + 10000;
+                log.error(
+                        "ServiceRequest with id {} does not have a requisition value using random number for sale order {}",
+                        serviceRequestId,
+                        randomFiveDigitNumber);
+                saleOrder.setName("S" + randomFiveDigitNumber);
+            }
         } else {
             throw new IllegalArgumentException(
                     "The ServiceRequest does not have a identifier. Cannot map to Sale Order.");
