@@ -71,20 +71,20 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
                     "ServiceRequest with id {} does not have a requisition value", serviceRequest.getIdPart());
         }
 
-        String requisitionValue = serviceRequest.getRequisition().getValue();
-        SaleOrder saleOrder = saleOrderService.getByName(requisitionValue).orElse(null);
-        if (saleOrder == null) {
-            saleOrder = createSaleOrder(serviceRequest);
-            log.info("Created sale order with id {}", saleOrder.getId());
-        } else {
-            log.info(
-                    "Sale order already exists with id {} and ref {}",
-                    saleOrder.getId(),
-                    saleOrder.getOrderClientOrderRef());
+        if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)) {
+            // Create Sale order and Sale order line
+            SaleOrder saleOrder = createSaleOrder(serviceRequest);
+            SaleOrderLine saleOrderLine = createSaleOrderLine(serviceRequest, saleOrder);
+        } else if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.REVOKED)
+                || serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ENTEREDINERROR)) {
+            // Delete sale order line and check if sale order is empty delete sale order also
+            deleteSaleOrderLine(serviceRequest);
+            cancelSaleOrder(serviceRequest);
+        } else if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.COMPLETED)) {
+            // Mark sale order as confirmed if all sale order lines (tests) are completed
+        } else if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.UNKNOWN)) {
+            // Do nothing
         }
-
-        SaleOrderLine saleOrderLine = createSaleOrderLine(serviceRequest, saleOrder);
-        log.info("Created sale order line with id {}", saleOrderLine.getId());
 
         return serviceRequest;
     }
@@ -108,13 +108,24 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
         Map<String, Object> saleOrderMap = saleOrderService.convertSaleOrderToMap(saleOrder);
 
-        log.error("saleOrderMap {}", saleOrderMap);
+        SaleOrder existingSaleOrder = saleOrderService
+                .getByName(serviceRequest.getRequisition().getValue())
+                .orElse(null);
+        if (existingSaleOrder != null) {
+            log.info(
+                    "Sale order already exists with id {} and ref {}",
+                    saleOrder.getId(),
+                    saleOrder.getOrderClientOrderRef());
+            return existingSaleOrder;
+        }
+
         int id = saleOrderService.create(saleOrderMap);
         if (id == 0) {
             log.error("Unable to create saleOrder in Odoo");
             throw new InvalidRequestException("Unable to create saleOrder in Odoo");
         }
         saleOrder.setId(id);
+        log.info("Created sale order with id {}", saleOrder.getId());
 
         return saleOrder;
     }
@@ -154,7 +165,65 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
             log.error("Unable to create saleOrderLine in Odoo");
             throw new InvalidRequestException("Unable to create saleOrderLine in Odoo");
         }
+        log.info("Created sale order line with id {}", saleOrderLine.getId());
+
         return saleOrderLine;
+    }
+
+    private void cancelSaleOrder(ServiceRequest serviceRequest) {
+        SaleOrder existingSaleOrder = saleOrderService
+                .getByName(serviceRequest.getRequisition().getValue())
+                .orElse(null);
+        if (existingSaleOrder == null) {
+            log.error("Sale order doesn't exist for ServiceRequest with id {} ", serviceRequest.getId());
+            throw new UnprocessableEntityException(
+                    "Sale order doesn't exist for ServiceRequest with id {} ", serviceRequest.getId());
+        }
+
+        //        if (existingSaleOrder.getOrderLine() == null || existingSaleOrder.getOrderLine().isEmpty()) {}
+        //            log.debug("SaleOrderHandler: Count of sale order line {}", existingSaleOrder.getOrderLine());
+        existingSaleOrder.setOrderState("cancel");
+
+        Map<String, Object> saleOrderMap = saleOrderService.convertSaleOrderToMap(existingSaleOrder);
+        int id = saleOrderService.update(String.valueOf(existingSaleOrder.getId()), saleOrderMap);
+        if (id == 0) {
+            log.error("Unable to cancel saleOrder in Odoo");
+            throw new InvalidRequestException("Unable to cancel saleOrder in Odoo");
+        }
+
+        log.info("Cancelled sale order with id {}", existingSaleOrder.getId());
+    }
+
+    private void deleteSaleOrderLine(ServiceRequest serviceRequest) {
+        SaleOrder existingSaleOrder = saleOrderService
+                .getByName(serviceRequest.getRequisition().getValue())
+                .orElse(null);
+        if (existingSaleOrder == null) {
+            log.error("Sale order doesn't exist for ServiceRequest with id {} ", serviceRequest.getId());
+            throw new UnprocessableEntityException(
+                    "Sale order doesn't exist for ServiceRequest with id {} ", serviceRequest.getId());
+        }
+
+        String productCode = serviceRequest.getCode().getCodingFirstRep().getCode();
+        Product product = productService.getByConceptCode(productCode).orElse(null);
+        if (product == null) {
+            throw new UnprocessableEntityException(
+                    "Product with concept code " + productCode + " doesn't exists in Odoo");
+        }
+
+        SaleOrderLine saleOrderLine = saleOrderLineService
+                .getBySaleOrderIdAndProductId(existingSaleOrder.getId(), product.getId())
+                .orElse(null);
+        if (saleOrderLine == null) {
+            throw new UnprocessableEntityException(
+                    "Sale order line doesn't exists for product " + productCode + " in Odoo");
+        }
+
+        saleOrderLineService.delete(String.valueOf(saleOrderLine.getId()));
+        log.info(
+                "Deleted sale order line with id {} from sale order with id {}",
+                saleOrderLine.getId(),
+                existingSaleOrder.getId());
     }
 
     @Override

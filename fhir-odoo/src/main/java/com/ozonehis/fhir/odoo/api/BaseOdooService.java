@@ -155,6 +155,28 @@ public abstract class BaseOdooService<T extends OdooResource> implements OdooSer
     }
 
     /**
+     * @see OdooService#delete(String)
+     */
+    @Override
+    public void delete(@Nonnull String id) {
+        try {
+            ObjectAdapter objectAdapter = objectAdapter();
+            FilterCollection filters = new FilterCollection();
+            filters.add("id", "=", id);
+            RowCollection rows = objectAdapter.searchAndReadObject(filters, modelFields());
+
+            if (rows.isEmpty()) {
+                throw new RuntimeException("Resource with id " + id + " not found");
+            }
+
+            Row rowToDelete = rows.get(0);
+            objectAdapter.unlinkObject(rowToDelete);
+        } catch (Exception e) {
+            throw new RuntimeException("Encountered error while deleting Odoo resource with id " + id, e);
+        }
+    }
+
+    /**
      * Maps a Row object to a resource.
      *
      * @param row the Row object
