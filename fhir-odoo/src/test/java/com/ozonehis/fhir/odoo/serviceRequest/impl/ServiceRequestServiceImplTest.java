@@ -106,8 +106,7 @@ class ServiceRequestServiceImplTest {
         Map<String, Object> saleOrderLineMap = new HashMap<>();
         saleOrderLineMap.put("order_id", 200);
 
-        when(saleOrderService.getByOrderRef("7b968d19-7324-43d7-af3a-e5ab5ff100ff"))
-                .thenReturn(Optional.empty());
+        when(saleOrderService.getByName("REQ-001")).thenReturn(Optional.empty());
         when(partnerService.getByRef("123")).thenReturn(Optional.of(partner));
         when(saleOrderMapper.toOdoo(any())).thenReturn(saleOrder);
         when(saleOrderService.convertSaleOrderToMap(saleOrder)).thenReturn(saleOrderMap);
@@ -121,7 +120,7 @@ class ServiceRequestServiceImplTest {
         ServiceRequest result = serviceRequestService.create(serviceRequest);
 
         assertNotNull(result);
-        verify(saleOrderService).getByOrderRef("7b968d19-7324-43d7-af3a-e5ab5ff100ff");
+        verify(saleOrderService).getByName("REQ-001");
         verify(partnerService).getByRef("123");
         verify(saleOrderMapper).toOdoo(any());
         verify(saleOrderService).create(saleOrderMap);
@@ -152,8 +151,7 @@ class ServiceRequestServiceImplTest {
         Map<String, Object> saleOrderLineMap = new HashMap<>();
         saleOrderLineMap.put("order_id", 250);
 
-        when(saleOrderService.getByOrderRef("da981cff-b3ef-4032-9082-a296e17e7e70"))
-                .thenReturn(Optional.of(existingSaleOrder));
+        when(saleOrderService.getByName("REQ-002")).thenReturn(Optional.of(existingSaleOrder));
         when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
         when(saleOrderLineService.getBySaleOrderIdAndProductId(250, 60)).thenReturn(Optional.empty());
         when(saleOrderLineMapper.toOdoo(any())).thenReturn(saleOrderLine);
@@ -163,7 +161,7 @@ class ServiceRequestServiceImplTest {
         ServiceRequest result = serviceRequestService.create(serviceRequest);
 
         assertNotNull(result);
-        verify(saleOrderService).getByOrderRef("da981cff-b3ef-4032-9082-a296e17e7e70");
+        verify(saleOrderService).getByName("REQ-002");
         verify(partnerService, never()).getByRef(anyString());
         verify(saleOrderMapper, never()).toOdoo(any());
         verify(saleOrderService, never()).create(any());
@@ -178,8 +176,7 @@ class ServiceRequestServiceImplTest {
         ServiceRequest serviceRequest = createServiceRequest(
                 "d30d786d-645f-464a-95a6-b295fdd087f1", "REQ-003", "Patient/999", "CT Scan", "26464-8");
 
-        when(saleOrderService.getByOrderRef("d30d786d-645f-464a-95a6-b295fdd087f1"))
-                .thenReturn(Optional.empty());
+        when(saleOrderService.getByName("REQ-003")).thenReturn(Optional.empty());
         when(partnerService.getByRef("999")).thenReturn(Optional.empty());
 
         assertThrows(UnprocessableEntityException.class, () -> serviceRequestService.create(serviceRequest));
@@ -202,8 +199,7 @@ class ServiceRequestServiceImplTest {
         Map<String, Object> saleOrderMap = new HashMap<>();
         saleOrderMap.put("client_order_ref", "50cc7ede-0dec-46d4-bb9e-1674f1c78664");
 
-        when(saleOrderService.getByOrderRef("50cc7ede-0dec-46d4-bb9e-1674f1c78664"))
-                .thenReturn(Optional.empty());
+        when(saleOrderService.getByName("REQ-004")).thenReturn(Optional.empty());
         when(partnerService.getByRef("123")).thenReturn(Optional.of(partner));
         when(saleOrderMapper.toOdoo(any())).thenReturn(saleOrder);
         when(saleOrderService.convertSaleOrderToMap(saleOrder)).thenReturn(saleOrderMap);
@@ -231,8 +227,7 @@ class ServiceRequestServiceImplTest {
         SaleOrderLine existingSaleOrderLine = new SaleOrderLine();
         existingSaleOrderLine.setId(400);
 
-        when(saleOrderService.getByOrderRef("06a7e887-c407-4bb7-8f5b-97d802538fe7"))
-                .thenReturn(Optional.of(existingSaleOrder));
+        when(saleOrderService.getByName("REQ-005")).thenReturn(Optional.of(existingSaleOrder));
         when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
         when(saleOrderLineService.getBySaleOrderIdAndProductId(300, 70)).thenReturn(Optional.of(existingSaleOrderLine));
 

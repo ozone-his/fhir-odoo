@@ -7,6 +7,7 @@
  */
 package com.ozonehis.fhir.odoo.mappers;
 
+import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Partner;
@@ -34,31 +35,30 @@ public class SaleOrderMapper<F extends IAnyResource & OdooResource> implements T
         if (serviceRequest == null || partner == null) {
             return null;
         }
-        if (serviceRequest.hasId()) {
-            String serviceRequestId = serviceRequest.getIdPart();
-            saleOrder.setOrderClientOrderRef(serviceRequestId);
-            saleOrder.setOrderTypeName("Sales Order");
-            saleOrder.setOrderState("draft"); // Default value is always `draft`
-
-            saleOrder.setOrderPartnerId(partner.getId());
-            // Add Partner DOB to Odoo Quotation
-            saleOrder.setPartnerBirthDate(partner.getPartnerBirthDate());
-            // Add Partner id to Odoo Quotation
-            saleOrder.setOdooPartnerId(partner.getPartnerExternalId().replaceAll("(?i)</?p>", ""));
-            if (serviceRequest.hasRequisition()) {
-                saleOrder.setName(serviceRequest.getRequisition().getValue());
-            } else {
-                int randomFiveDigitNumber = (int) (Math.random() * 90000) + 10000;
-                log.error(
-                        "ServiceRequest with id {} does not have a requisition value using random number for sale order {}",
-                        serviceRequestId,
-                        randomFiveDigitNumber);
-                saleOrder.setName("S" + randomFiveDigitNumber);
-            }
-        } else {
-            throw new IllegalArgumentException(
-                    "The ServiceRequest does not have a identifier. Cannot map to Sale Order.");
+        if (!serviceRequest.hasId()) {
+            throw new IllegalArgumentException("The ServiceRequest does not have an id, cannot map to sale order");
         }
+        if (!serviceRequest.hasRequisition()) {
+            log.error(
+                    "ServiceRequest with id {} does not have a requisition value, cannot map to sale order",
+                    serviceRequest.getIdPart());
+            throw new UnprocessableEntityException(
+                    "ServiceRequest with id {} does not have a requisition value, cannot map to sale order",
+                    serviceRequest.getIdPart());
+        }
+
+        String serviceRequestId = serviceRequest.getIdPart();
+        saleOrder.setOrderClientOrderRef(serviceRequestId);
+        saleOrder.setOrderTypeName("Sales Order");
+        saleOrder.setOrderState("draft"); // Default value is always `draft`
+
+        saleOrder.setOrderPartnerId(partner.getId());
+        // Add Partner DOB to Odoo Quotation
+        saleOrder.setPartnerBirthDate(partner.getPartnerBirthDate());
+        // Add Partner id to Odoo Quotation
+        saleOrder.setOdooPartnerId(partner.getPartnerExternalId().replaceAll("(?i)</?p>", ""));
+        saleOrder.setName(serviceRequest.getRequisition().getValue());
+
         return saleOrder;
     }
 }

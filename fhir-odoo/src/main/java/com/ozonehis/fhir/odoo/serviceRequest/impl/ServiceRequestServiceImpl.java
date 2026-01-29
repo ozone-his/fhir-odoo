@@ -65,23 +65,26 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
     @Override
     public ServiceRequest create(ServiceRequest serviceRequest) {
-        SaleOrder saleOrder;
-        if (serviceRequest.hasId()) {
-            String serviceRequestId = serviceRequest.getIdPart();
-            saleOrder = saleOrderService.getByOrderRef(serviceRequestId).orElse(null);
-            if (saleOrder == null) {
-                saleOrder = createSaleOrder(serviceRequest);
-                log.info("Created sale order with id {}", saleOrder.getId());
-            } else {
-                log.info(
-                        "Sale order already exists with id {} and ref {}",
-                        saleOrder.getId(),
-                        saleOrder.getOrderClientOrderRef());
-            }
-
-            SaleOrderLine saleOrderLine = createSaleOrderLine(serviceRequest, saleOrder);
-            log.info("Created sale order line with id {}", saleOrderLine.getId());
+        if (!serviceRequest.hasRequisition()) {
+            log.error("ServiceRequest with id {} does not have a requisition value", serviceRequest.getIdPart());
+            throw new UnprocessableEntityException(
+                    "ServiceRequest with id {} does not have a requisition value", serviceRequest.getIdPart());
         }
+
+        String requisitionValue = serviceRequest.getRequisition().getValue();
+        SaleOrder saleOrder = saleOrderService.getByName(requisitionValue).orElse(null);
+        if (saleOrder == null) {
+            saleOrder = createSaleOrder(serviceRequest);
+            log.info("Created sale order with id {}", saleOrder.getId());
+        } else {
+            log.info(
+                    "Sale order already exists with id {} and ref {}",
+                    saleOrder.getId(),
+                    saleOrder.getOrderClientOrderRef());
+        }
+
+        SaleOrderLine saleOrderLine = createSaleOrderLine(serviceRequest, saleOrder);
+        log.info("Created sale order line with id {}", saleOrderLine.getId());
 
         return serviceRequest;
     }
