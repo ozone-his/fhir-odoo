@@ -180,11 +180,13 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
                     "Sale order doesn't exist for ServiceRequest with id {} ", serviceRequest.getId());
         }
 
-        if (existingSaleOrder.getOrderLine() == null
-                || existingSaleOrder.getOrderLine().isEmpty()) {
-            log.debug("SaleOrderHandler: Count of sale order line {}", existingSaleOrder.getOrderLine());
-            existingSaleOrder.setOrderState("cancel");
+        if (existingSaleOrder.getOrderLine() != null
+                && !existingSaleOrder.getOrderLine().isEmpty()) {
+            log.info("Sale order has {} sale order lines, not cancelling sale order", existingSaleOrder.getOrderLine());
+            return;
         }
+
+        existingSaleOrder.setOrderState("cancel");
 
         Map<String, Object> saleOrderMap = saleOrderService.convertSaleOrderToMap(existingSaleOrder);
         int id = saleOrderService.update(String.valueOf(existingSaleOrder.getId()), saleOrderMap);

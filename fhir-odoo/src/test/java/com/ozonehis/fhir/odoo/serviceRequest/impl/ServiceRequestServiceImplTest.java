@@ -11,10 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import com.ozonehis.fhir.odoo.api.PartnerService;
 import com.ozonehis.fhir.odoo.api.ProductService;
@@ -26,7 +29,9 @@ import com.ozonehis.fhir.odoo.model.Partner;
 import com.ozonehis.fhir.odoo.model.Product;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
 import com.ozonehis.fhir.odoo.model.SaleOrderLine;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.hl7.fhir.r4.model.CodeableConcept;
@@ -267,6 +272,188 @@ class ServiceRequestServiceImplTest {
         verify(saleOrderLineService).getBySaleOrderIdAndProductId(300, 70);
         verify(saleOrderLineMapper, never()).toOdoo(any());
         verify(saleOrderLineService, never()).create(any());
+    }
+
+    @Test
+    @DisplayName(
+            "Should delete SaleOrderLine and cancel SaleOrder when ServiceRequest status is REVOKED with empty order lines")
+    void create_shouldDeleteSaleOrderLineAndCancelSaleOrderWhenStatusIsRevokedWithEmptyOrderLines() {
+        ServiceRequest serviceRequest =
+                createServiceRequest("revoked-001", "REQ-REVOKED-001", "Patient/123", "Blood Test", "26464-8");
+        serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
+
+        SaleOrder existingSaleOrder = new SaleOrder();
+        existingSaleOrder.setId(400);
+        existingSaleOrder.setOrderClientOrderRef("revoked-001");
+        existingSaleOrder.setOrderLine(new ArrayList<>()); // Empty order lines
+
+        Product product = new Product();
+        product.setId(80);
+        product.setName("Blood Test");
+        product.setConceptCode("26464-8");
+
+        SaleOrderLine saleOrderLine = new SaleOrderLine();
+        saleOrderLine.setId(500);
+
+        Map<String, Object> saleOrderMap = new HashMap<>();
+        saleOrderMap.put("client_order_ref", "revoked-001");
+        saleOrderMap.put("state", "cancel");
+
+        when(saleOrderService.getByName("REQ-REVOKED-001")).thenReturn(Optional.of(existingSaleOrder));
+        when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
+        when(saleOrderLineService.getBySaleOrderIdAndProductId(400, 80)).thenReturn(Optional.of(saleOrderLine));
+        when(saleOrderService.convertSaleOrderToMap(existingSaleOrder)).thenReturn(saleOrderMap);
+        when(saleOrderService.update("400", saleOrderMap)).thenReturn(400);
+
+        ServiceRequest result = serviceRequestService.create(serviceRequest);
+
+        assertNotNull(result);
+        verify(saleOrderService, times(2)).getByName("REQ-REVOKED-001");
+        verify(productService).getByConceptCode("26464-8");
+        verify(saleOrderLineService).getBySaleOrderIdAndProductId(400, 80);
+        verify(saleOrderLineService).delete("500");
+        verify(saleOrderService).convertSaleOrderToMap(existingSaleOrder);
+        verify(saleOrderService).update("400", saleOrderMap);
+    }
+
+    @Test
+    @DisplayName(
+            "Should delete SaleOrderLine and not cancel SaleOrder when ServiceRequest status is REVOKED with remaining order lines")
+    void create_shouldDeleteSaleOrderLineAndCancelSaleOrderWhenStatusIsRevokedWithRemainingOrderLines() {
+        ServiceRequest serviceRequest =
+                createServiceRequest("revoked-002", "REQ-REVOKED-002", "Patient/123", "Blood Test", "26464-8");
+        serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
+
+        SaleOrder existingSaleOrder = new SaleOrder();
+        existingSaleOrder.setId(401);
+        existingSaleOrder.setOrderClientOrderRef("revoked-002");
+        List<Integer> remainingOrderLines = new ArrayList<>();
+        remainingOrderLines.add(501);
+        existingSaleOrder.setOrderLine(remainingOrderLines); // Has remaining order lines
+
+        Product product = new Product();
+        product.setId(81);
+        product.setName("Blood Test");
+        product.setConceptCode("26464-8");
+
+        SaleOrderLine saleOrderLine = new SaleOrderLine();
+        saleOrderLine.setId(502);
+
+        Map<String, Object> saleOrderMap = new HashMap<>();
+        saleOrderMap.put("client_order_ref", "revoked-002");
+
+        when(saleOrderService.getByName("REQ-REVOKED-002")).thenReturn(Optional.of(existingSaleOrder));
+        when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
+        when(saleOrderLineService.getBySaleOrderIdAndProductId(401, 81)).thenReturn(Optional.of(saleOrderLine));
+
+        ServiceRequest result = serviceRequestService.create(serviceRequest);
+
+        assertNotNull(result);
+        verify(saleOrderService, times(2)).getByName("REQ-REVOKED-002");
+        verify(productService).getByConceptCode("26464-8");
+        verify(saleOrderLineService).getBySaleOrderIdAndProductId(401, 81);
+        verify(saleOrderLineService).delete("502");
+    }
+
+    @Test
+    @DisplayName("Should throw UnprocessableEntityException when sale order doesn't exist for REVOKED status")
+    void create_shouldThrowUnprocessableEntityExceptionWhenSaleOrderDoesNotExistForRevokedStatus() {
+        ServiceRequest serviceRequest =
+                createServiceRequest("revoked-003", "REQ-REVOKED-003", "Patient/123", "Blood Test", "26464-8");
+        serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
+
+        when(saleOrderService.getByName("REQ-REVOKED-003")).thenReturn(Optional.empty());
+
+        assertThrows(UnprocessableEntityException.class, () -> serviceRequestService.create(serviceRequest));
+        verify(saleOrderService).getByName("REQ-REVOKED-003");
+        verify(productService, never()).getByConceptCode(anyString());
+        verify(saleOrderLineService, never()).delete(anyString());
+    }
+
+    @Test
+    @DisplayName("Should throw UnprocessableEntityException when product doesn't exist for REVOKED status")
+    void create_shouldThrowUnprocessableEntityExceptionWhenProductDoesNotExistForRevokedStatus() {
+        ServiceRequest serviceRequest =
+                createServiceRequest("revoked-004", "REQ-REVOKED-004", "Patient/123", "Unknown Test", "99999-9");
+        serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
+
+        SaleOrder existingSaleOrder = new SaleOrder();
+        existingSaleOrder.setId(404);
+        existingSaleOrder.setOrderClientOrderRef("revoked-004");
+
+        when(saleOrderService.getByName("REQ-REVOKED-004")).thenReturn(Optional.of(existingSaleOrder));
+        when(productService.getByConceptCode("99999-9")).thenReturn(Optional.empty());
+
+        assertThrows(UnprocessableEntityException.class, () -> serviceRequestService.create(serviceRequest));
+        verify(saleOrderService).getByName("REQ-REVOKED-004");
+        verify(productService).getByConceptCode("99999-9");
+        verify(saleOrderLineService, never()).getBySaleOrderIdAndProductId(anyInt(), anyInt());
+        verify(saleOrderLineService, never()).delete(anyString());
+    }
+
+    @Test
+    @DisplayName("Should throw UnprocessableEntityException when sale order line doesn't exist for REVOKED status")
+    void create_shouldThrowUnprocessableEntityExceptionWhenSaleOrderLineDoesNotExistForRevokedStatus() {
+        ServiceRequest serviceRequest =
+                createServiceRequest("revoked-005", "REQ-REVOKED-005", "Patient/123", "Blood Test", "26464-8");
+        serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
+
+        SaleOrder existingSaleOrder = new SaleOrder();
+        existingSaleOrder.setId(406);
+        existingSaleOrder.setOrderClientOrderRef("revoked-005");
+
+        Product product = new Product();
+        product.setId(84);
+        product.setName("Blood Test");
+        product.setConceptCode("26464-8");
+
+        when(saleOrderService.getByName("REQ-REVOKED-005")).thenReturn(Optional.of(existingSaleOrder));
+        when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
+        when(saleOrderLineService.getBySaleOrderIdAndProductId(406, 84)).thenReturn(Optional.empty());
+
+        assertThrows(UnprocessableEntityException.class, () -> serviceRequestService.create(serviceRequest));
+        verify(saleOrderService).getByName("REQ-REVOKED-005");
+        verify(productService).getByConceptCode("26464-8");
+        verify(saleOrderLineService).getBySaleOrderIdAndProductId(406, 84);
+        verify(saleOrderLineService, never()).delete(anyString());
+    }
+
+    @Test
+    @DisplayName("Should throw InvalidRequestException when sale order update fails for REVOKED status")
+    void create_shouldThrowInvalidRequestExceptionWhenSaleOrderUpdateFailsForRevokedStatus() {
+        ServiceRequest serviceRequest =
+                createServiceRequest("revoked-006", "REQ-REVOKED-006", "Patient/123", "Blood Test", "26464-8");
+        serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
+
+        SaleOrder existingSaleOrder = new SaleOrder();
+        existingSaleOrder.setId(408);
+        existingSaleOrder.setOrderClientOrderRef("revoked-006");
+        existingSaleOrder.setOrderLine(new ArrayList<>());
+
+        Product product = new Product();
+        product.setId(86);
+        product.setName("Blood Test");
+        product.setConceptCode("26464-8");
+
+        SaleOrderLine saleOrderLine = new SaleOrderLine();
+        saleOrderLine.setId(506);
+
+        Map<String, Object> saleOrderMap = new HashMap<>();
+        saleOrderMap.put("client_order_ref", "revoked-006");
+        saleOrderMap.put("state", "cancel");
+
+        when(saleOrderService.getByName("REQ-REVOKED-006")).thenReturn(Optional.of(existingSaleOrder));
+        when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
+        when(saleOrderLineService.getBySaleOrderIdAndProductId(408, 86)).thenReturn(Optional.of(saleOrderLine));
+        when(saleOrderService.convertSaleOrderToMap(existingSaleOrder)).thenReturn(saleOrderMap);
+        when(saleOrderService.update("408", saleOrderMap)).thenReturn(0); // Update fails
+
+        assertThrows(InvalidRequestException.class, () -> serviceRequestService.create(serviceRequest));
+        verify(saleOrderService, times(2)).getByName("REQ-REVOKED-006");
+        verify(productService).getByConceptCode("26464-8");
+        verify(saleOrderLineService).getBySaleOrderIdAndProductId(408, 86);
+        verify(saleOrderLineService).delete("506");
+        verify(saleOrderService).update("408", saleOrderMap);
     }
 
     private ServiceRequest createServiceRequest(
