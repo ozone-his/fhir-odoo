@@ -10,6 +10,7 @@ package com.ozonehis.fhir.odoo.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,6 +35,9 @@ public class SaleOrder extends BaseOdooModel {
 
     @JsonProperty("type_name")
     private String orderTypeName;
+
+    @JsonProperty("order_line")
+    private List<Integer> orderLine;
 
     @JsonProperty("x_customer_weight")
     private String partnerWeight;

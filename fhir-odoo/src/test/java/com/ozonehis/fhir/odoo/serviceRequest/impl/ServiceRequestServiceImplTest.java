@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -136,14 +135,26 @@ class ServiceRequestServiceImplTest {
         ServiceRequest serviceRequest = createServiceRequest(
                 "da981cff-b3ef-4032-9082-a296e17e7e70", "REQ-002", "Patient/456", "X-Ray", "26464-8");
 
+        Partner partner = new Partner();
+        partner.setId(200);
+        partner.setPartnerBirthDate("1985-05-15");
+        partner.setPartnerExternalId("EXT-002");
+
         SaleOrder existingSaleOrder = new SaleOrder();
         existingSaleOrder.setId(250);
         existingSaleOrder.setOrderClientOrderRef("da981cff-b3ef-4032-9082-a296e17e7e70");
 
+        SaleOrder mappedSaleOrder = new SaleOrder();
+        mappedSaleOrder.setId(0);
+        mappedSaleOrder.setOrderClientOrderRef("da981cff-b3ef-4032-9082-a296e17e7e70");
+
         Product product = new Product();
         product.setId(60);
         product.setName("X-Ray");
-        product.setCode("26464-8");
+        product.setConceptCode("26464-8");
+
+        Map<String, Object> saleOrderMap = new HashMap<>();
+        saleOrderMap.put("client_order_ref", "da981cff-b3ef-4032-9082-a296e17e7e70");
 
         SaleOrderLine saleOrderLine = new SaleOrderLine();
         saleOrderLine.setId(350);
@@ -151,6 +162,9 @@ class ServiceRequestServiceImplTest {
         Map<String, Object> saleOrderLineMap = new HashMap<>();
         saleOrderLineMap.put("order_id", 250);
 
+        when(partnerService.getByRef("456")).thenReturn(Optional.of(partner));
+        when(saleOrderMapper.toOdoo(any())).thenReturn(mappedSaleOrder);
+        when(saleOrderService.convertSaleOrderToMap(mappedSaleOrder)).thenReturn(saleOrderMap);
         when(saleOrderService.getByName("REQ-002")).thenReturn(Optional.of(existingSaleOrder));
         when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
         when(saleOrderLineService.getBySaleOrderIdAndProductId(250, 60)).thenReturn(Optional.empty());
@@ -162,8 +176,9 @@ class ServiceRequestServiceImplTest {
 
         assertNotNull(result);
         verify(saleOrderService).getByName("REQ-002");
-        verify(partnerService, never()).getByRef(anyString());
-        verify(saleOrderMapper, never()).toOdoo(any());
+        verify(partnerService).getByRef("456");
+        verify(saleOrderMapper).toOdoo(any());
+        verify(saleOrderService).convertSaleOrderToMap(mappedSaleOrder);
         verify(saleOrderService, never()).create(any());
         verify(productService).getByConceptCode("26464-8");
         verify(saleOrderLineService).getBySaleOrderIdAndProductId(250, 60);
@@ -176,7 +191,6 @@ class ServiceRequestServiceImplTest {
         ServiceRequest serviceRequest = createServiceRequest(
                 "d30d786d-645f-464a-95a6-b295fdd087f1", "REQ-003", "Patient/999", "CT Scan", "26464-8");
 
-        when(saleOrderService.getByName("REQ-003")).thenReturn(Optional.empty());
         when(partnerService.getByRef("999")).thenReturn(Optional.empty());
 
         assertThrows(UnprocessableEntityException.class, () -> serviceRequestService.create(serviceRequest));
@@ -216,8 +230,16 @@ class ServiceRequestServiceImplTest {
         ServiceRequest serviceRequest = createServiceRequest(
                 "06a7e887-c407-4bb7-8f5b-97d802538fe7", "REQ-005", "Patient/123", "MRI", "26464-8");
 
+        Partner partner = new Partner();
+        partner.setId(150);
+
         SaleOrder existingSaleOrder = new SaleOrder();
         existingSaleOrder.setId(300);
+        existingSaleOrder.setOrderClientOrderRef("06a7e887-c407-4bb7-8f5b-97d802538fe7");
+
+        SaleOrder mappedSaleOrder = new SaleOrder();
+        mappedSaleOrder.setId(0);
+        mappedSaleOrder.setOrderClientOrderRef("06a7e887-c407-4bb7-8f5b-97d802538fe7");
 
         Product product = new Product();
         product.setId(70);
@@ -227,11 +249,22 @@ class ServiceRequestServiceImplTest {
         SaleOrderLine existingSaleOrderLine = new SaleOrderLine();
         existingSaleOrderLine.setId(400);
 
+        Map<String, Object> saleOrderMap = new HashMap<>();
+        saleOrderMap.put("client_order_ref", "06a7e887-c407-4bb7-8f5b-97d802538fe7");
+
+        when(partnerService.getByRef("123")).thenReturn(Optional.of(partner));
+        when(saleOrderMapper.toOdoo(any())).thenReturn(mappedSaleOrder);
+        when(saleOrderService.convertSaleOrderToMap(mappedSaleOrder)).thenReturn(saleOrderMap);
         when(saleOrderService.getByName("REQ-005")).thenReturn(Optional.of(existingSaleOrder));
         when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
         when(saleOrderLineService.getBySaleOrderIdAndProductId(300, 70)).thenReturn(Optional.of(existingSaleOrderLine));
 
         assertThrows(UnprocessableEntityException.class, () -> serviceRequestService.create(serviceRequest));
+        verify(partnerService).getByRef("123");
+        verify(saleOrderMapper).toOdoo(any());
+        verify(saleOrderService).getByName("REQ-005");
+        verify(productService).getByConceptCode("26464-8");
+        verify(saleOrderLineService).getBySaleOrderIdAndProductId(300, 70);
         verify(saleOrderLineMapper, never()).toOdoo(any());
         verify(saleOrderLineService, never()).create(any());
     }
@@ -262,6 +295,8 @@ class ServiceRequestServiceImplTest {
         categoryCoding.setDisplay("Laboratory");
         category.addCoding(categoryCoding);
         serviceRequest.addCategory(category);
+
+        serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.ACTIVE);
 
         return serviceRequest;
     }

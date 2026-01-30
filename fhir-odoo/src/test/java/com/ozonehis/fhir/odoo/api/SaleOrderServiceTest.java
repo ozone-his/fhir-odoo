@@ -16,6 +16,7 @@ import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.odoojava.api.Row;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
@@ -54,6 +55,7 @@ class SaleOrderServiceTest {
         when(row.get("state")).thenReturn("draft");
         when(row.get("partner_id")).thenReturn(100);
         when(row.get("type_name")).thenReturn("Sales Order");
+        when(row.get("order_line")).thenReturn(Collections.singletonList(1));
         when(row.get("x_customer_weight")).thenReturn("70kg");
         when(row.get("x_customer_dob")).thenReturn("1990-01-01");
         when(row.get("x_external_identifier")).thenReturn("EXT-001");
@@ -72,6 +74,7 @@ class SaleOrderServiceTest {
         assertEquals("draft", saleOrder.getOrderState());
         assertEquals(100, saleOrder.getOrderPartnerId());
         assertEquals("Sales Order", saleOrder.getOrderTypeName());
+        assertEquals(1, saleOrder.getOrderLine().size());
         assertEquals("70kg", saleOrder.getPartnerWeight());
         assertEquals("1990-01-01", saleOrder.getPartnerBirthDate());
         assertEquals("EXT-001", saleOrder.getOdooPartnerId());
@@ -92,6 +95,7 @@ class SaleOrderServiceTest {
         when(row.get("state")).thenReturn(null);
         when(row.get("partner_id")).thenReturn(0);
         when(row.get("type_name")).thenReturn(null);
+        when(row.get("order_line")).thenReturn(null);
         when(row.get("x_customer_weight")).thenReturn(null);
         when(row.get("x_customer_dob")).thenReturn(null);
         when(row.get("x_external_identifier")).thenReturn(null);
@@ -110,6 +114,7 @@ class SaleOrderServiceTest {
         assertNull(saleOrder.getOrderState());
         assertEquals(0, saleOrder.getOrderPartnerId());
         assertNull(saleOrder.getOrderTypeName());
+        assertNull(saleOrder.getOrderLine());
         assertNull(saleOrder.getPartnerWeight());
         assertNull(saleOrder.getPartnerBirthDate());
         assertNull(saleOrder.getOdooPartnerId());
