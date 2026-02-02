@@ -29,9 +29,7 @@ import com.ozonehis.fhir.odoo.model.Partner;
 import com.ozonehis.fhir.odoo.model.Product;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
 import com.ozonehis.fhir.odoo.model.SaleOrderLine;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.hl7.fhir.r4.model.CodeableConcept;
@@ -285,7 +283,7 @@ class ServiceRequestServiceImplTest {
         SaleOrder existingSaleOrder = new SaleOrder();
         existingSaleOrder.setId(400);
         existingSaleOrder.setOrderClientOrderRef("revoked-001");
-        existingSaleOrder.setOrderLine(new ArrayList<>()); // Empty order lines
+        existingSaleOrder.setOrderLine(null); // Empty order lines
 
         Product product = new Product();
         product.setId(80);
@@ -327,9 +325,7 @@ class ServiceRequestServiceImplTest {
         SaleOrder existingSaleOrder = new SaleOrder();
         existingSaleOrder.setId(401);
         existingSaleOrder.setOrderClientOrderRef("revoked-002");
-        List<Integer> remainingOrderLines = new ArrayList<>();
-        remainingOrderLines.add(501);
-        existingSaleOrder.setOrderLine(remainingOrderLines); // Has remaining order lines
+        existingSaleOrder.setOrderLine(new Object[] {1, 2}); // Has remaining order lines
 
         Product product = new Product();
         product.setId(81);
@@ -428,7 +424,7 @@ class ServiceRequestServiceImplTest {
         SaleOrder existingSaleOrder = new SaleOrder();
         existingSaleOrder.setId(408);
         existingSaleOrder.setOrderClientOrderRef("revoked-006");
-        existingSaleOrder.setOrderLine(new ArrayList<>());
+        existingSaleOrder.setOrderLine(null); // Empty order lines
 
         Product product = new Product();
         product.setId(86);

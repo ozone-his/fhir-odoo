@@ -16,7 +16,6 @@ import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.odoojava.api.Row;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
@@ -55,7 +54,7 @@ class SaleOrderServiceTest {
         when(row.get("state")).thenReturn("draft");
         when(row.get("partner_id")).thenReturn(100);
         when(row.get("type_name")).thenReturn("Sales Order");
-        when(row.get("order_line")).thenReturn(Collections.singletonList(1));
+        when(row.get("order_line")).thenReturn(new Object[] {1, 2, 3});
         when(row.get("x_customer_weight")).thenReturn("70kg");
         when(row.get("x_customer_dob")).thenReturn("1990-01-01");
         when(row.get("x_external_identifier")).thenReturn("EXT-001");
@@ -74,7 +73,9 @@ class SaleOrderServiceTest {
         assertEquals("draft", saleOrder.getOrderState());
         assertEquals(100, saleOrder.getOrderPartnerId());
         assertEquals("Sales Order", saleOrder.getOrderTypeName());
-        assertEquals(1, saleOrder.getOrderLine().size());
+        assertNotNull(saleOrder.getOrderLine());
+        Object[] orderLines = (Object[]) saleOrder.getOrderLine();
+        assertEquals(3, orderLines.length);
         assertEquals("70kg", saleOrder.getPartnerWeight());
         assertEquals("1990-01-01", saleOrder.getPartnerBirthDate());
         assertEquals("EXT-001", saleOrder.getOdooPartnerId());

@@ -180,9 +180,15 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
                     "Sale order doesn't exist for ServiceRequest with id {} ", serviceRequest.getId());
         }
 
-        if (existingSaleOrder.getOrderLine() != null
-                && !existingSaleOrder.getOrderLine().isEmpty()) {
-            log.info("Sale order has {} sale order lines, not cancelling sale order", existingSaleOrder.getOrderLine());
+        Object orderLine = existingSaleOrder.getOrderLine();
+        boolean hasOrderLines = false;
+        if (orderLine != null) {
+            if (orderLine instanceof Object[]) {
+                hasOrderLines = ((Object[]) orderLine).length > 0;
+            }
+        }
+        if (hasOrderLines) {
+            log.info("Sale order has order lines, not cancelling sale order");
             return;
         }
 

@@ -17,7 +17,6 @@ import com.ozonehis.fhir.odoo.model.SaleOrder;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +53,8 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         saleOrder.setOrderState((String) row.get("state"));
         saleOrder.setOrderPartnerId((int) row.get("partner_id"));
         saleOrder.setOrderTypeName((String) row.get("type_name"));
-        saleOrder.setOrderLine((List<Integer>) row.get("order_line"));
+        Object orderLineValue = row.get("order_line");
+        saleOrder.setOrderLine(orderLineValue);
 
         saleOrder.setPartnerWeight((String) row.get(odooPartnerWeightField));
         saleOrder.setPartnerBirthDate(
@@ -100,7 +100,6 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         map.put("state", saleOrder.getOrderState());
         map.put("partner_id", saleOrder.getOrderPartnerId());
         map.put("type_name", saleOrder.getOrderTypeName());
-        map.put("order_line", saleOrder.getOrderLine());
 
         map.put(odooPartnerWeightField, saleOrder.getPartnerWeight());
         map.put(odooPartnerDobField, saleOrder.getPartnerBirthDate());
