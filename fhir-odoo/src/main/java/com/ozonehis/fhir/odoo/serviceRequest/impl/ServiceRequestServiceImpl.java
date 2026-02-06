@@ -7,6 +7,8 @@
  */
 package com.ozonehis.fhir.odoo.serviceRequest.impl;
 
+import static com.ozonehis.fhir.odoo.OdooConstants.LOINC_SOURCE;
+
 import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import com.ozonehis.fhir.odoo.OdooConstants;
@@ -132,7 +134,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
     private SaleOrderLine createSaleOrderLine(ServiceRequest serviceRequest, SaleOrder saleOrder) {
         Map<String, Object> resourceMap = new HashMap<>();
-        String productCode = serviceRequest.getCode().getCodingFirstRep().getCode();
+
+        String productCode = getProductCode(serviceRequest);
         Product product = productService.getByConceptCode(productCode).orElse(null);
         if (product == null) {
             throw new UnprocessableEntityException(
@@ -168,6 +171,20 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
         log.info("Created sale order line with id {}", saleOrderLine.getId());
 
         return saleOrderLine;
+    }
+
+    private String getProductCode(ServiceRequest serviceRequest) {
+        String productCode = null;
+        for (int i = 0; i < serviceRequest.getCode().getCoding().size(); i++) {
+            if (serviceRequest.getCode().getCoding().get(i).getSystem().equals(LOINC_SOURCE)) {
+                productCode = serviceRequest.getCode().getCodingFirstRep().getCode();
+                break;
+            }
+        }
+        if (productCode == null || productCode.isEmpty()) {
+            throw new UnprocessableEntityException("ServiceRequest doesn't have LOINC mapping for product");
+        }
+        return productCode;
     }
 
     private void cancelSaleOrder(ServiceRequest serviceRequest) {
@@ -214,7 +231,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
                     "Sale order doesn't exist for ServiceRequest with id {} ", serviceRequest.getId());
         }
 
-        String productCode = serviceRequest.getCode().getCodingFirstRep().getCode();
+        String productCode = getProductCode(serviceRequest);
         Product product = productService.getByConceptCode(productCode).orElse(null);
         if (product == null) {
             throw new UnprocessableEntityException(

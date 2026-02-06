@@ -65,4 +65,6 @@ public class OdooConstants {
     public static final String MODEL_SALE_ORDER = "sale.order";
 
     public static final String MODEL_SALE_ORDER_LINE = "sale.order.line";
+
+    public static final String LOINC_SOURCE = "http://loinc.org";
 }

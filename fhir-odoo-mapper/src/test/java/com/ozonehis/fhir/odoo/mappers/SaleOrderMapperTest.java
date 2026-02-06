@@ -27,6 +27,8 @@ class SaleOrderMapperTest {
 
     private SaleOrderMapper mapper;
 
+    private static final String SERVICE_REQUEST_ID = "cd0ab3d3-557b-4c22-9bd1-e41f6b821fde";
+
     @BeforeEach
     void setUp() {
         mapper = new SaleOrderMapper();
@@ -61,7 +63,7 @@ class SaleOrderMapperTest {
     void toOdoo_shouldReturnNullWhenPartnerIsNull() {
         Map<String, Object> resourceMap = new HashMap<>();
         ServiceRequest serviceRequest = new ServiceRequest();
-        serviceRequest.setId("cd0ab3d3-557b-4c22-9bd1-e41f6b821fde");
+        serviceRequest.setId(SERVICE_REQUEST_ID);
         Identifier requisition = new Identifier();
         requisition.setValue("REQ-001");
         serviceRequest.setRequisition(requisition);
@@ -91,7 +93,7 @@ class SaleOrderMapperTest {
         Map<String, Object> resourceMap = new HashMap<>();
 
         ServiceRequest serviceRequest = new ServiceRequest();
-        serviceRequest.setId("cd0ab3d3-557b-4c22-9bd1-e41f6b821fde");
+        serviceRequest.setId(SERVICE_REQUEST_ID);
         Identifier requisition = new Identifier();
         requisition.setValue("REQ-12345");
         serviceRequest.setRequisition(requisition);
@@ -106,7 +108,7 @@ class SaleOrderMapperTest {
 
         SaleOrder result = mapper.toOdoo(resourceMap);
 
-        assertEquals("cd0ab3d3-557b-4c22-9bd1-e41f6b821fde", result.getOrderClientOrderRef());
+        assertEquals(SERVICE_REQUEST_ID, result.getOrderClientOrderRef());
         assertEquals("Sales Order", result.getOrderTypeName());
         assertEquals("draft", result.getOrderState());
         assertEquals(100, result.getOrderPartnerId());
@@ -120,7 +122,7 @@ class SaleOrderMapperTest {
         Map<String, Object> resourceMap = new HashMap<>();
 
         ServiceRequest serviceRequest = new ServiceRequest();
-        serviceRequest.setId("cd0ab3d3-557b-4c22-9bd1-e41f6b821fde");
+        serviceRequest.setId(SERVICE_REQUEST_ID);
         Identifier requisition = new Identifier();
         requisition.setValue("REQ-999");
         serviceRequest.setRequisition(requisition);
@@ -143,7 +145,7 @@ class SaleOrderMapperTest {
         Map<String, Object> resourceMap = new HashMap<>();
 
         ServiceRequest serviceRequest = new ServiceRequest();
-        serviceRequest.setId("cd0ab3d3-557b-4c22-9bd1-e41f6b821fde");
+        serviceRequest.setId(SERVICE_REQUEST_ID);
         Identifier requisition = new Identifier();
         requisition.setValue("REQ-888");
         serviceRequest.setRequisition(requisition);
@@ -166,7 +168,7 @@ class SaleOrderMapperTest {
         Map<String, Object> resourceMap = new HashMap<>();
 
         ServiceRequest serviceRequest = new ServiceRequest();
-        serviceRequest.setId("cd0ab3d3-557b-4c22-9bd1-e41f6b821fde");
+        serviceRequest.setId(SERVICE_REQUEST_ID);
         Identifier requisition = new Identifier();
         requisition.setValue("REQ-777");
         serviceRequest.setRequisition(requisition);
