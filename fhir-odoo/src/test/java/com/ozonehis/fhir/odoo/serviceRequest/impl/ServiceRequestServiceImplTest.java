@@ -7,6 +7,7 @@
  */
 package com.ozonehis.fhir.odoo.serviceRequest.impl;
 
+import static com.ozonehis.fhir.odoo.OdooConstants.LOINC_SOURCE;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -469,6 +470,7 @@ class ServiceRequestServiceImplTest {
         CodeableConcept code = new CodeableConcept();
         Coding codeCoding = new Coding();
         codeCoding.setDisplay(serviceDisplay);
+        codeCoding.setSystem(LOINC_SOURCE);
         codeCoding.setCode(conceptCode);
         code.addCoding(codeCoding);
         serviceRequest.setCode(code);
