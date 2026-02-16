@@ -44,4 +44,20 @@ public interface OdooService<O extends OdooResource> {
      * @return the generated row id.
      */
     int create(Map<String, Object> resource);
+
+    /**
+     * Updates an existing resource in Odoo.
+     *
+     * @param id the id of the resource to update
+     * @param resource a map of field names and values to update
+     * @return the row id of the updated resource
+     */
+    int update(@Nonnull String id, Map<String, Object> resource);
+
+    /**
+     * Deletes a resource from Odoo.
+     *
+     * @param id the id of the resource to delete
+     */
+    void delete(@Nonnull String id);
 }

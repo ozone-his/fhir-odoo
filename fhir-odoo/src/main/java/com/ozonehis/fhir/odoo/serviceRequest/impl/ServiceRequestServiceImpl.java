@@ -7,6 +7,8 @@
  */
 package com.ozonehis.fhir.odoo.serviceRequest.impl;
 
+import static com.ozonehis.fhir.odoo.OdooConstants.LOINC_SOURCE;
+
 import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import com.ozonehis.fhir.odoo.OdooConstants;
@@ -65,22 +67,25 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
     @Override
     public ServiceRequest create(ServiceRequest serviceRequest) {
-        SaleOrder saleOrder;
-        if (serviceRequest.hasRequisition()) {
-            String requisitionValue = serviceRequest.getRequisition().getValue();
-            saleOrder = saleOrderService.getByOrderRef(requisitionValue).orElse(null);
-            if (saleOrder == null) {
-                saleOrder = createSaleOrder(serviceRequest);
-                log.info("Created sale order with id {}", saleOrder.getId());
-            } else {
-                log.info(
-                        "Sale order already exists with id {} and ref {}",
-                        saleOrder.getId(),
-                        saleOrder.getOrderClientOrderRef());
-            }
+        if (!serviceRequest.hasRequisition()) {
+            log.error("ServiceRequest with id {} does not have a requisition value", serviceRequest.getIdPart());
+            throw new UnprocessableEntityException(
+                    "ServiceRequest with id {} does not have a requisition value", serviceRequest.getIdPart());
+        }
 
+        if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)) {
+            // Create Sale order and Sale order line
+            SaleOrder saleOrder = createSaleOrder(serviceRequest);
             SaleOrderLine saleOrderLine = createSaleOrderLine(serviceRequest, saleOrder);
-            log.info("Created sale order line with id {}", saleOrderLine.getId());
+        } else if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.REVOKED)
+                || serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ENTEREDINERROR)) {
+            // Delete sale order line and check if sale order is empty delete sale order also
+            deleteSaleOrderLine(serviceRequest);
+            cancelSaleOrder(serviceRequest);
+        } else if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.COMPLETED)) {
+            // Mark sale order as confirmed if all sale order lines (tests) are completed
+        } else if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.UNKNOWN)) {
+            // Do nothing
         }
 
         return serviceRequest;
@@ -105,24 +110,36 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
         Map<String, Object> saleOrderMap = saleOrderService.convertSaleOrderToMap(saleOrder);
 
-        log.error("saleOrderMap {}", saleOrderMap);
+        SaleOrder existingSaleOrder = saleOrderService
+                .getByName(serviceRequest.getRequisition().getValue())
+                .orElse(null);
+        if (existingSaleOrder != null) {
+            log.info(
+                    "Sale order already exists with id {} and ref {}",
+                    saleOrder.getId(),
+                    saleOrder.getOrderClientOrderRef());
+            return existingSaleOrder;
+        }
+
         int id = saleOrderService.create(saleOrderMap);
         if (id == 0) {
             log.error("Unable to create saleOrder in Odoo");
             throw new InvalidRequestException("Unable to create saleOrder in Odoo");
         }
         saleOrder.setId(id);
+        log.info("Created sale order with id {}", saleOrder.getId());
 
         return saleOrder;
     }
 
     private SaleOrderLine createSaleOrderLine(ServiceRequest serviceRequest, SaleOrder saleOrder) {
         Map<String, Object> resourceMap = new HashMap<>();
-        String productName = serviceRequest.getCode().getCodingFirstRep().getDisplay();
-        Product product = productService.getByName(productName).orElse(null);
+
+        String productCode = getProductCode(serviceRequest);
+        Product product = productService.getByConceptCode(productCode).orElse(null);
         if (product == null) {
             throw new UnprocessableEntityException(
-                    "Product with externalId " + productName + " doesn't exists in Odoo");
+                    "Product with concept code " + productCode + " doesn't exists in Odoo");
         }
 
         SaleOrderLine saleOrderLine = saleOrderLineService
@@ -130,7 +147,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
                 .orElse(null);
         if (saleOrderLine != null) {
             throw new UnprocessableEntityException(
-                    "Sale order line already exists for product " + productName + " in Odoo");
+                    "Sale order line already exists for product " + productCode + " in Odoo");
         }
 
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
@@ -151,7 +168,89 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
             log.error("Unable to create saleOrderLine in Odoo");
             throw new InvalidRequestException("Unable to create saleOrderLine in Odoo");
         }
+        log.info("Created sale order line with id {}", saleOrderLine.getId());
+
         return saleOrderLine;
+    }
+
+    private String getProductCode(ServiceRequest serviceRequest) {
+        String productCode = null;
+        for (int i = 0; i < serviceRequest.getCode().getCoding().size(); i++) {
+            if (serviceRequest.getCode().getCoding().get(i).getSystem().equals(LOINC_SOURCE)) {
+                productCode = serviceRequest.getCode().getCodingFirstRep().getCode();
+                break;
+            }
+        }
+        if (productCode == null || productCode.isEmpty()) {
+            throw new UnprocessableEntityException("ServiceRequest doesn't have LOINC mapping for product");
+        }
+        return productCode;
+    }
+
+    private void cancelSaleOrder(ServiceRequest serviceRequest) {
+        SaleOrder existingSaleOrder = saleOrderService
+                .getByName(serviceRequest.getRequisition().getValue())
+                .orElse(null);
+        if (existingSaleOrder == null) {
+            log.error("Sale order doesn't exist for ServiceRequest with id {} ", serviceRequest.getId());
+            throw new UnprocessableEntityException(
+                    "Sale order doesn't exist for ServiceRequest with id {} ", serviceRequest.getId());
+        }
+
+        Object orderLine = existingSaleOrder.getOrderLine();
+        boolean hasOrderLines = false;
+        if (orderLine != null) {
+            if (orderLine instanceof Object[]) {
+                hasOrderLines = ((Object[]) orderLine).length > 0;
+            }
+        }
+        if (hasOrderLines) {
+            log.info("Sale order has order lines, not cancelling sale order");
+            return;
+        }
+
+        existingSaleOrder.setOrderState("cancel");
+
+        Map<String, Object> saleOrderMap = saleOrderService.convertSaleOrderToMap(existingSaleOrder);
+        int id = saleOrderService.update(String.valueOf(existingSaleOrder.getId()), saleOrderMap);
+        if (id == 0) {
+            log.error("Unable to cancel saleOrder in Odoo");
+            throw new InvalidRequestException("Unable to cancel saleOrder in Odoo");
+        }
+
+        log.info("Cancelled sale order with id {}", existingSaleOrder.getId());
+    }
+
+    private void deleteSaleOrderLine(ServiceRequest serviceRequest) {
+        SaleOrder existingSaleOrder = saleOrderService
+                .getByName(serviceRequest.getRequisition().getValue())
+                .orElse(null);
+        if (existingSaleOrder == null) {
+            log.error("Sale order doesn't exist for ServiceRequest with id {} ", serviceRequest.getId());
+            throw new UnprocessableEntityException(
+                    "Sale order doesn't exist for ServiceRequest with id {} ", serviceRequest.getId());
+        }
+
+        String productCode = getProductCode(serviceRequest);
+        Product product = productService.getByConceptCode(productCode).orElse(null);
+        if (product == null) {
+            throw new UnprocessableEntityException(
+                    "Product with concept code " + productCode + " doesn't exists in Odoo");
+        }
+
+        SaleOrderLine saleOrderLine = saleOrderLineService
+                .getBySaleOrderIdAndProductId(existingSaleOrder.getId(), product.getId())
+                .orElse(null);
+        if (saleOrderLine == null) {
+            throw new UnprocessableEntityException(
+                    "Sale order line doesn't exists for product " + productCode + " in Odoo");
+        }
+
+        saleOrderLineService.delete(String.valueOf(saleOrderLine.getId()));
+        log.info(
+                "Deleted sale order line with id {} from sale order with id {}",
+                saleOrderLine.getId(),
+                existingSaleOrder.getId());
     }
 
     @Override

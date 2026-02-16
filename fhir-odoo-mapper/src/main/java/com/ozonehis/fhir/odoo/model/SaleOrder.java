@@ -35,6 +35,9 @@ public class SaleOrder extends BaseOdooModel {
     @JsonProperty("type_name")
     private String orderTypeName;
 
+    @JsonProperty("order_line")
+    private Object orderLine;
+
     @JsonProperty("x_customer_weight")
     private String partnerWeight;
 

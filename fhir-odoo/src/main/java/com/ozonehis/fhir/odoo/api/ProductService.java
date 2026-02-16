@@ -7,6 +7,7 @@
  */
 package com.ozonehis.fhir.odoo.api;
 
+import static com.ozonehis.fhir.odoo.OdooConstants.LOINC_SOURCE;
 import static com.ozonehis.fhir.odoo.OdooConstants.MODEL_PRODUCT;
 import static com.ozonehis.fhir.odoo.util.OdooUtils.get;
 
@@ -86,13 +87,15 @@ public class ProductService extends BaseOdooService<Product> implements OdooServ
         return product;
     }
 
-    public Optional<Product> getByName(String name) {
+    public Optional<Product> getByConceptCode(String conceptCode) {
         FilterCollection filters = new FilterCollection();
         try {
-            filters.add("name", "=", name);
+            filters.add("x_concept_code", "=", conceptCode);
+            filters.add("x_concept_source", "=", LOINC_SOURCE);
             Collection<Product> results = this.search(filters);
             if (results.size() > 1) {
-                throw new RuntimeException("Multiple Products found for " + MODEL_PRODUCT + " with name " + name);
+                throw new RuntimeException(
+                        "Multiple Products found for " + MODEL_PRODUCT + " with concept code " + conceptCode);
             } else if (results.size() == 1) {
                 return results.stream().findFirst();
             }

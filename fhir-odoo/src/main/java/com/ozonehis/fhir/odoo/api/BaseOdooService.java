@@ -126,6 +126,57 @@ public abstract class BaseOdooService<T extends OdooResource> implements OdooSer
     }
 
     /**
+     * @see OdooService#update(String, Map)
+     */
+    @Override
+    public int update(@Nonnull String id, Map<String, Object> resource) {
+        try {
+            ObjectAdapter objectAdapter = objectAdapter();
+            FilterCollection filters = new FilterCollection();
+            filters.add("id", "=", id);
+            RowCollection rows = objectAdapter.searchAndReadObject(filters, modelFields());
+
+            if (rows.isEmpty()) {
+                throw new RuntimeException("Resource with id " + id + " not found");
+            }
+
+            Row existingRow = rows.get(0);
+
+            // Update the fields
+            for (Map.Entry<String, Object> e : resource.entrySet()) {
+                existingRow.put(e.getKey(), e.getValue());
+            }
+
+            objectAdapter.writeObject(existingRow, true);
+            return existingRow.getID();
+        } catch (Exception e) {
+            throw new RuntimeException("Encountered error while updating Odoo resource with id " + id, e);
+        }
+    }
+
+    /**
+     * @see OdooService#delete(String)
+     */
+    @Override
+    public void delete(@Nonnull String id) {
+        try {
+            ObjectAdapter objectAdapter = objectAdapter();
+            FilterCollection filters = new FilterCollection();
+            filters.add("id", "=", id);
+            RowCollection rows = objectAdapter.searchAndReadObject(filters, modelFields());
+
+            if (rows.isEmpty()) {
+                throw new RuntimeException("Resource with id " + id + " not found");
+            }
+
+            Row rowToDelete = rows.get(0);
+            objectAdapter.unlinkObject(rowToDelete);
+        } catch (Exception e) {
+            throw new RuntimeException("Encountered error while deleting Odoo resource with id " + id, e);
+        }
+    }
+
+    /**
      * Maps a Row object to a resource.
      *
      * @param row the Row object

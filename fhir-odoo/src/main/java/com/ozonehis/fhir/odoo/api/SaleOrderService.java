@@ -53,6 +53,8 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         saleOrder.setOrderState((String) row.get("state"));
         saleOrder.setOrderPartnerId((int) row.get("partner_id"));
         saleOrder.setOrderTypeName((String) row.get("type_name"));
+        Object orderLineValue = row.get("order_line");
+        saleOrder.setOrderLine(orderLineValue);
 
         saleOrder.setPartnerWeight((String) row.get(odooPartnerWeightField));
         saleOrder.setPartnerBirthDate(
@@ -131,14 +133,13 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         return map;
     }
 
-    public Optional<SaleOrder> getByOrderRef(String ref) {
+    public Optional<SaleOrder> getByName(String name) {
         FilterCollection filters = new FilterCollection();
         try {
-            filters.add("client_order_ref", "=", ref);
+            filters.add("name", "=", name);
             Collection<SaleOrder> results = this.search(filters);
             if (results.size() > 1) {
-                throw new RuntimeException(
-                        "Multiple Sale order found for " + MODEL_SALE_ORDER + " with reference " + ref);
+                throw new RuntimeException("Multiple Sale order found for " + MODEL_SALE_ORDER + " with name " + name);
             } else if (results.size() == 1) {
                 return results.stream().findFirst();
             }
