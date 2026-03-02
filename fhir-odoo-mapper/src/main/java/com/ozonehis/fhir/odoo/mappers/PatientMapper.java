@@ -66,9 +66,11 @@ public class PatientMapper<F extends IAnyResource & OdooResource> implements ToO
     }
 
     protected Optional<String> getPatientName(Patient patient) {
-        return patient.getName().stream()
+        return patient.getName().stream().findFirst().map(name -> Optional.ofNullable(name.getGiven()).stream()
+                .flatMap(List::stream)
                 .findFirst()
-                .map(name -> name.getGiven().get(0) + " " + name.getFamily());
+                .map(given -> given + " " + name.getFamily())
+                .orElse(name.getFamily() != null ? name.getFamily() : ""));
     }
 
     protected void addAddress(Patient patient, Partner partner, Country country, CountryState countryState) {

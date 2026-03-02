@@ -12,7 +12,9 @@ import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Product;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
 import com.ozonehis.fhir.odoo.model.SaleOrderLine;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.hl7.fhir.instance.model.api.IAnyResource;
@@ -37,8 +39,11 @@ public class SaleOrderLineMapper<F extends IAnyResource & OdooResource> implemen
             return null;
         }
         saleOrderLine.setSaleOrderLineProductUomQty(1.0); // default quantity is 1 for serviceRequests.
-        String categoryDisplay =
-                serviceRequest.getCategory().get(0).getCodingFirstRep().getDisplay();
+        String categoryDisplay = Optional.ofNullable(serviceRequest.getCategory()).stream()
+                .flatMap(Collection::stream)
+                .findFirst()
+                .map(cat -> cat.getCodingFirstRep().getDisplay())
+                .orElse("");
         String serviceDisplay = serviceRequest.getCode().getCodingFirstRep().getDisplay();
         saleOrderLine.setName(serviceDisplay + " (" + categoryDisplay + ")");
 
