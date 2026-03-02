@@ -17,11 +17,12 @@ import com.ozonehis.fhir.odoo.mappers.PatientMapper;
 import com.ozonehis.fhir.odoo.model.Partner;
 import com.ozonehis.fhir.odoo.patient.PatientService;
 import jakarta.annotation.Nonnull;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -90,16 +91,17 @@ public class PatientServiceImpl implements PatientService {
         Map<String, Object> resourceMap = new HashMap<>();
         resourceMap.put(OdooConstants.MODEL_FHIR_PATIENT, patient);
 
-        Address address = patient.getAddress().get(0);
-
-        countryService
-                .getByName(address.getCountry())
-                .ifPresent(country -> resourceMap.put(OdooConstants.MODEL_COUNTRY, country));
-
-        countryStateService
-                .getByName(address.getState())
-                .ifPresent(state -> resourceMap.put(OdooConstants.MODEL_COUNTRY_STATE, state));
-
+        Stream.ofNullable(patient.getAddress())
+                .flatMap(Collection::stream)
+                .findFirst()
+                .ifPresent(address -> {
+                    countryService
+                            .getByName(address.getCountry())
+                            .ifPresent(value -> resourceMap.put(OdooConstants.MODEL_COUNTRY, value));
+                    countryStateService
+                            .getByName(address.getState())
+                            .ifPresent(value -> resourceMap.put(OdooConstants.MODEL_COUNTRY_STATE, value));
+                });
         return resourceMap;
     }
 
