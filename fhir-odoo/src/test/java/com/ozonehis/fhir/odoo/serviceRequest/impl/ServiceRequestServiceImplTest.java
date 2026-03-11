@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 
 import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
+import com.ozonehis.fhir.odoo.api.ExtIdService;
 import com.ozonehis.fhir.odoo.api.PartnerService;
 import com.ozonehis.fhir.odoo.api.ProductService;
 import com.ozonehis.fhir.odoo.api.SaleOrderLineService;
@@ -67,6 +68,9 @@ class ServiceRequestServiceImplTest {
     @Mock
     private ProductService productService;
 
+    @Mock
+    private ExtIdService extIdService;
+
     private ServiceRequestServiceImpl serviceRequestService;
 
     @BeforeEach
@@ -77,7 +81,8 @@ class ServiceRequestServiceImplTest {
                 saleOrderLineMapper,
                 saleOrderMapper,
                 partnerService,
-                productService);
+                productService,
+                extIdService);
     }
 
     @Test

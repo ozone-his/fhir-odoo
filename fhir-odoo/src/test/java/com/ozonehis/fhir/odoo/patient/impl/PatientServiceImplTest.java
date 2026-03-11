@@ -16,6 +16,7 @@ import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import com.ozonehis.fhir.odoo.api.CountryService;
 import com.ozonehis.fhir.odoo.api.CountryStateService;
+import com.ozonehis.fhir.odoo.api.ExtIdService;
 import com.ozonehis.fhir.odoo.api.PartnerService;
 import com.ozonehis.fhir.odoo.mappers.PatientMapper;
 import com.ozonehis.fhir.odoo.model.Country;
@@ -49,11 +50,15 @@ class PatientServiceImplTest {
     @Mock
     private PatientMapper patientMapper;
 
+    @Mock
+    private ExtIdService extIdService;
+
     private PatientServiceImpl patientService;
 
     @BeforeEach
     void setUp() {
-        patientService = new PatientServiceImpl(countryService, countryStateService, partnerService, patientMapper);
+        patientService = new PatientServiceImpl(
+                countryService, countryStateService, partnerService, patientMapper, extIdService);
     }
 
     @Test

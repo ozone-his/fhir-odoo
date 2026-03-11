@@ -11,6 +11,7 @@ import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.OdooUtils;
 import com.ozonehis.fhir.odoo.model.Country;
 import com.ozonehis.fhir.odoo.model.CountryState;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Partner;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class PatientMapper<F extends IAnyResource & OdooResource> implements ToO
         Patient patient = (Patient) resourceMap.get(OdooConstants.MODEL_FHIR_PATIENT);
         Country country = (Country) resourceMap.get(OdooConstants.MODEL_COUNTRY);
         CountryState countryState = (CountryState) resourceMap.get(OdooConstants.MODEL_COUNTRY_STATE);
+        ExtId companyExtId = (ExtId) resourceMap.get(OdooConstants.MODEL_COMPANY);
 
         if (patient == null) {
             return null;
@@ -48,6 +50,7 @@ public class PatientMapper<F extends IAnyResource & OdooResource> implements ToO
         partner.setPartnerComment(patientIdentifier);
         partner.setPartnerExternalId(patientIdentifier);
         partner.setName(patientName);
+        partner.setCompanyId(companyExtId.getResId());
         partner.setPartnerBirthDate(
                 OdooUtils.convertEEEMMMddDateToOdooFormat(patient.getBirthDate().toString())
                         .orElse(""));

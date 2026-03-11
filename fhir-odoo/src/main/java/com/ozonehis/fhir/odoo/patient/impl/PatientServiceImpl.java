@@ -12,17 +12,21 @@ import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.api.CountryService;
 import com.ozonehis.fhir.odoo.api.CountryStateService;
+import com.ozonehis.fhir.odoo.api.ExtIdService;
 import com.ozonehis.fhir.odoo.api.PartnerService;
 import com.ozonehis.fhir.odoo.mappers.PatientMapper;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Partner;
 import com.ozonehis.fhir.odoo.patient.PatientService;
 import jakarta.annotation.Nonnull;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
+import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,16 +44,20 @@ public class PatientServiceImpl implements PatientService {
 
     private final PatientMapper patientMapper;
 
+    private final ExtIdService extIdService;
+
     @Autowired
     public PatientServiceImpl(
             CountryService countryService,
             CountryStateService countryStateService,
             PartnerService partnerService,
-            PatientMapper patientMapper) {
+            PatientMapper patientMapper,
+            ExtIdService extIdService) {
         this.countryService = countryService;
         this.countryStateService = countryStateService;
         this.partnerService = partnerService;
         this.patientMapper = patientMapper;
+        this.extIdService = extIdService;
     }
 
     @Override
@@ -90,6 +98,7 @@ public class PatientServiceImpl implements PatientService {
     private Map<String, Object> buildResourceMap(Patient patient) {
         Map<String, Object> resourceMap = new HashMap<>();
         resourceMap.put(OdooConstants.MODEL_FHIR_PATIENT, patient);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, getCompanyExtId(getFacilityId(patient)));
 
         Stream.ofNullable(patient.getAddress())
                 .flatMap(Collection::stream)
@@ -115,6 +124,25 @@ public class PatientServiceImpl implements PatientService {
             log.info("Creating new Partner with reference {}", patientRef);
             return partnerService.create(partnerMap);
         }
+    }
+
+    private ExtId getCompanyExtId(String facilityId) {
+        Collection<ExtId> extIds = extIdService.getResIdsByNameAndModel(
+                Collections.singletonList(facilityId), OdooConstants.MODEL_COMPANY);
+        if (extIds.stream().findFirst().isPresent()) {
+            return extIds.stream().findFirst().get();
+        }
+        throw new UnprocessableEntityException("Odoo doesn't have a company mapping with facility id {}", facilityId);
+    }
+
+    private String getFacilityId(Patient patient) {
+        for (Identifier identifier : patient.getIdentifier()) {
+            if (identifier.getSystem().equals(OdooConstants.IDENTIFIER_FACILITY_ID_SYSTEM)) {
+                return identifier.getValue();
+            }
+        }
+        throw new UnprocessableEntityException(
+                "Facility identifier is missing in Patient with id {}", patient.getIdPart());
     }
 
     @Override

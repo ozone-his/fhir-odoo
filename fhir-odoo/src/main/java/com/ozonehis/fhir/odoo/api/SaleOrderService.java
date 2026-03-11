@@ -52,6 +52,7 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         saleOrder.setOrderClientOrderRef((String) row.get("client_order_ref"));
         saleOrder.setOrderState((String) row.get("state"));
         saleOrder.setOrderPartnerId((int) row.get("partner_id"));
+        saleOrder.setCompanyId((int) row.get("company_id"));
         saleOrder.setOrderTypeName((String) row.get("type_name"));
         Object orderLineValue = row.get("order_line");
         saleOrder.setOrderLine(orderLineValue);
@@ -99,6 +100,7 @@ public class SaleOrderService extends BaseOdooService<SaleOrder> implements Odoo
         map.put("client_order_ref", saleOrder.getOrderClientOrderRef());
         map.put("state", saleOrder.getOrderState());
         map.put("partner_id", saleOrder.getOrderPartnerId());
+        map.put("company_id", saleOrder.getCompanyId());
         map.put("type_name", saleOrder.getOrderTypeName());
 
         map.put(odooPartnerWeightField, saleOrder.getPartnerWeight());

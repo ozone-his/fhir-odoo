@@ -9,6 +9,7 @@ package com.ozonehis.fhir.odoo.mappers;
 
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import com.ozonehis.fhir.odoo.OdooConstants;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Partner;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
@@ -31,6 +32,7 @@ public class SaleOrderMapper<F extends IAnyResource & OdooResource> implements T
         SaleOrder saleOrder = new SaleOrder();
         ServiceRequest serviceRequest = (ServiceRequest) resourceMap.get(OdooConstants.MODEL_FHIR_SERVICE_REQUEST);
         Partner partner = (Partner) resourceMap.get(OdooConstants.MODEL_PARTNER);
+        ExtId companyExtId = (ExtId) resourceMap.get(OdooConstants.MODEL_COMPANY);
 
         if (serviceRequest == null || partner == null) {
             return null;
@@ -53,6 +55,7 @@ public class SaleOrderMapper<F extends IAnyResource & OdooResource> implements T
         saleOrder.setOrderState("draft"); // Default value is always `draft`
 
         saleOrder.setOrderPartnerId(partner.getId());
+        saleOrder.setCompanyId(companyExtId.getResId());
         // Add Partner DOB to Odoo Quotation
         saleOrder.setPartnerBirthDate(partner.getPartnerBirthDate());
         // Add Partner id to Odoo Quotation
