@@ -31,6 +31,7 @@ import java.util.Optional;
 import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Reference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -69,6 +70,9 @@ class PatientServiceImplTest {
         Identifier facilityIdentifier = new Identifier();
         facilityIdentifier.setSystem(OdooConstants.IDENTIFIER_FACILITY_ID_SYSTEM);
         facilityIdentifier.setValue(facilityId);
+        Reference assigner = new Reference();
+        assigner.setReference("Organization/" + facilityId);
+        facilityIdentifier.setAssigner(assigner);
         patient.addIdentifier(facilityIdentifier);
     }
 
@@ -175,6 +179,7 @@ class PatientServiceImplTest {
         when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
                 .thenReturn(Collections.singletonList(companyExtId));
         when(countryService.getByName("United States")).thenReturn(Optional.empty());
+        when(countryStateService.getByName(any())).thenReturn(Optional.empty());
         when(patientMapper.toOdoo(any())).thenReturn(null);
 
         Assertions.assertThrows(UnprocessableEntityException.class, () -> patientService.create(patient));

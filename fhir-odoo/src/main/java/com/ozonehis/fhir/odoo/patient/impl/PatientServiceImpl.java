@@ -132,17 +132,21 @@ public class PatientServiceImpl implements PatientService {
         if (extIds.stream().findFirst().isPresent()) {
             return extIds.stream().findFirst().get();
         }
-        throw new UnprocessableEntityException("Odoo doesn't have a company mapping with facility id {}", facilityId);
+        throw new UnprocessableEntityException("Odoo doesn't have a company mapping with facility id ", facilityId);
     }
 
     private String getFacilityId(Patient patient) {
         for (Identifier identifier : patient.getIdentifier()) {
             if (identifier.getSystem().equals(OdooConstants.IDENTIFIER_FACILITY_ID_SYSTEM)) {
-                return identifier.getValue();
+                if (identifier.getAssigner() != null
+                        && identifier.getAssigner().getReference() != null
+                        && !identifier.getAssigner().getReference().isEmpty()) {
+                    return identifier.getAssigner().getReference().split("/")[1];
+                }
             }
         }
         throw new UnprocessableEntityException(
-                "Facility identifier is missing in Patient with id {}", patient.getIdPart());
+                "Facility identifier is missing in Patient with id ", patient.getIdPart());
     }
 
     @Override

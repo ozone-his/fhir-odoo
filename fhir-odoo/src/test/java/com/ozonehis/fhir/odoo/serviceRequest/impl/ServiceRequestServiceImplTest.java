@@ -491,6 +491,9 @@ class ServiceRequestServiceImplTest {
         Identifier facilityIdentifier = new Identifier();
         facilityIdentifier.setSystem(OdooConstants.IDENTIFIER_FACILITY_ID_SYSTEM);
         facilityIdentifier.setValue(facilityId);
+        Reference assigner = new Reference();
+        assigner.setReference("Organization/" + facilityId);
+        facilityIdentifier.setAssigner(assigner);
         serviceRequest.addIdentifier(facilityIdentifier);
     }
 
