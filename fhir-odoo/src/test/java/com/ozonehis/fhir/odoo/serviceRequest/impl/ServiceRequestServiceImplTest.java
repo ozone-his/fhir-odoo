@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 
 import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
+import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.api.ExtIdService;
 import com.ozonehis.fhir.odoo.api.PartnerService;
 import com.ozonehis.fhir.odoo.api.ProductService;
@@ -27,10 +28,12 @@ import com.ozonehis.fhir.odoo.api.SaleOrderLineService;
 import com.ozonehis.fhir.odoo.api.SaleOrderService;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderLineMapper;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderMapper;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Partner;
 import com.ozonehis.fhir.odoo.model.Product;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
 import com.ozonehis.fhir.odoo.model.SaleOrderLine;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -114,6 +117,11 @@ class ServiceRequestServiceImplTest {
         Map<String, Object> saleOrderLineMap = new HashMap<>();
         saleOrderLineMap.put("order_id", 200);
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
+        when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
+                .thenReturn(Collections.singletonList(companyExtId));
         when(saleOrderService.getByName("REQ-001")).thenReturn(Optional.empty());
         when(partnerService.getByRef("123")).thenReturn(Optional.of(partner));
         when(saleOrderMapper.toOdoo(any())).thenReturn(saleOrder);
@@ -171,6 +179,11 @@ class ServiceRequestServiceImplTest {
         Map<String, Object> saleOrderLineMap = new HashMap<>();
         saleOrderLineMap.put("order_id", 250);
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
+        when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
+                .thenReturn(Collections.singletonList(companyExtId));
         when(partnerService.getByRef("456")).thenReturn(Optional.of(partner));
         when(saleOrderMapper.toOdoo(any())).thenReturn(mappedSaleOrder);
         when(saleOrderService.convertSaleOrderToMap(mappedSaleOrder)).thenReturn(saleOrderMap);
@@ -200,9 +213,15 @@ class ServiceRequestServiceImplTest {
         ServiceRequest serviceRequest = createServiceRequest(
                 "d30d786d-645f-464a-95a6-b295fdd087f1", "REQ-003", "Patient/999", "CT Scan", "26464-8");
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
+        when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
+                .thenReturn(Collections.singletonList(companyExtId));
         when(partnerService.getByRef("999")).thenReturn(Optional.empty());
 
         assertThrows(UnprocessableEntityException.class, () -> serviceRequestService.create(serviceRequest));
+        verify(partnerService).getByRef("999");
         verify(saleOrderMapper, never()).toOdoo(any());
         verify(saleOrderService, never()).create(any());
     }
@@ -222,6 +241,11 @@ class ServiceRequestServiceImplTest {
         Map<String, Object> saleOrderMap = new HashMap<>();
         saleOrderMap.put("client_order_ref", "50cc7ede-0dec-46d4-bb9e-1674f1c78664");
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
+        when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
+                .thenReturn(Collections.singletonList(companyExtId));
         when(saleOrderService.getByName("REQ-004")).thenReturn(Optional.empty());
         when(partnerService.getByRef("123")).thenReturn(Optional.of(partner));
         when(saleOrderMapper.toOdoo(any())).thenReturn(saleOrder);
@@ -261,6 +285,11 @@ class ServiceRequestServiceImplTest {
         Map<String, Object> saleOrderMap = new HashMap<>();
         saleOrderMap.put("client_order_ref", "06a7e887-c407-4bb7-8f5b-97d802538fe7");
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
+        when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
+                .thenReturn(Collections.singletonList(companyExtId));
         when(partnerService.getByRef("123")).thenReturn(Optional.of(partner));
         when(saleOrderMapper.toOdoo(any())).thenReturn(mappedSaleOrder);
         when(saleOrderService.convertSaleOrderToMap(mappedSaleOrder)).thenReturn(saleOrderMap);
@@ -458,11 +487,19 @@ class ServiceRequestServiceImplTest {
         verify(saleOrderService).update("408", saleOrderMap);
     }
 
+    private void addFacilityIdentifier(ServiceRequest serviceRequest, String facilityId) {
+        Identifier facilityIdentifier = new Identifier();
+        facilityIdentifier.setSystem(OdooConstants.IDENTIFIER_FACILITY_ID_SYSTEM);
+        facilityIdentifier.setValue(facilityId);
+        serviceRequest.addIdentifier(facilityIdentifier);
+    }
+
     private ServiceRequest createServiceRequest(
             String id, String requisitionValue, String patientRef, String serviceDisplay, String conceptCode) {
         ServiceRequest serviceRequest = new ServiceRequest();
 
         serviceRequest.setId(id);
+        addFacilityIdentifier(serviceRequest, "facility-1");
 
         Identifier requisition = new Identifier();
         requisition.setValue(requisitionValue);

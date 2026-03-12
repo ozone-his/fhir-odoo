@@ -15,6 +15,7 @@ import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.mappers.PatientMapper;
 import com.ozonehis.fhir.odoo.model.Country;
 import com.ozonehis.fhir.odoo.model.CountryState;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Partner;
 import java.util.Date;
 import java.util.HashMap;
@@ -87,7 +88,11 @@ class PatientMapperTest {
         address.setType(Address.AddressType.BOTH);
         patient.addAddress(address);
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
         resourceMap.put(OdooConstants.MODEL_FHIR_PATIENT, patient);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, companyExtId);
 
         Partner partner = mapper.toOdoo(resourceMap);
 
@@ -133,9 +138,13 @@ class PatientMapperTest {
         countryState.setId(5);
         countryState.setName("California");
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
         resourceMap.put(OdooConstants.MODEL_FHIR_PATIENT, patient);
         resourceMap.put(OdooConstants.MODEL_COUNTRY, country);
         resourceMap.put(OdooConstants.MODEL_COUNTRY_STATE, countryState);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, companyExtId);
 
         Partner partner = mapper.toOdoo(resourceMap);
 
@@ -180,7 +189,11 @@ class PatientMapperTest {
 
         patient.addAddress(address);
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
         resourceMap.put(OdooConstants.MODEL_FHIR_PATIENT, patient);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, companyExtId);
 
         Partner partner = mapper.toOdoo(resourceMap);
 
@@ -205,7 +218,11 @@ class PatientMapperTest {
         Date birthDate = new Date();
         patient.setBirthDate(birthDate);
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
         resourceMap.put(OdooConstants.MODEL_FHIR_PATIENT, patient);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, companyExtId);
 
         Partner partner = mapper.toOdoo(resourceMap);
 

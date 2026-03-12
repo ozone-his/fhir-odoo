@@ -53,6 +53,7 @@ class SaleOrderServiceTest {
         when(row.get("client_order_ref")).thenReturn("REF-001");
         when(row.get("state")).thenReturn("draft");
         when(row.get("partner_id")).thenReturn(100);
+        when(row.get("company_id")).thenReturn(1);
         when(row.get("type_name")).thenReturn("Sales Order");
         when(row.get("order_line")).thenReturn(new Object[] {1, 2, 3});
         when(row.get("x_customer_weight")).thenReturn("70kg");
@@ -80,6 +81,7 @@ class SaleOrderServiceTest {
         assertEquals("1990-01-01", saleOrder.getPartnerBirthDate());
         assertEquals("EXT-001", saleOrder.getOdooPartnerId());
         assertEquals("SO001", saleOrder.getName());
+        assertEquals(1, saleOrder.getCompanyId());
         assertEquals("SO001 Display", saleOrder.getDisplayName());
         assertNotNull(saleOrder.getCreatedOn());
         assertEquals(10, saleOrder.getCreatedBy());
@@ -95,6 +97,7 @@ class SaleOrderServiceTest {
         when(row.get("client_order_ref")).thenReturn(null);
         when(row.get("state")).thenReturn(null);
         when(row.get("partner_id")).thenReturn(0);
+        when(row.get("company_id")).thenReturn(0);
         when(row.get("type_name")).thenReturn(null);
         when(row.get("order_line")).thenReturn(null);
         when(row.get("x_customer_weight")).thenReturn(null);
@@ -111,6 +114,7 @@ class SaleOrderServiceTest {
 
         assertNotNull(saleOrder);
         assertEquals(0, saleOrder.getId());
+        assertEquals(0, saleOrder.getCompanyId());
         assertNull(saleOrder.getOrderClientOrderRef());
         assertNull(saleOrder.getOrderState());
         assertEquals(0, saleOrder.getOrderPartnerId());
@@ -140,6 +144,7 @@ class SaleOrderServiceTest {
         when(row.get("x_customer_dob")).thenReturn(null);
         when(row.get("x_external_identifier")).thenReturn("EXT-002");
         when(row.get("name")).thenReturn("SO002");
+        when(row.get("company_id")).thenReturn(1);
 
         SaleOrder saleOrder = saleOrderService.mapRowToResource(row);
 

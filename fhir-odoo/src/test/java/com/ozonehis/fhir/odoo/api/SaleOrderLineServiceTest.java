@@ -48,6 +48,7 @@ class SaleOrderLineServiceTest {
         when(row.get("id")).thenReturn(1);
         when(row.get("order_id")).thenReturn(100);
         when(row.get("product_id")).thenReturn(50);
+        when(row.get("company_id")).thenReturn(1);
         when(row.get("product_uom_qty")).thenReturn(2.5);
         when(row.get("product_uom")).thenReturn(1);
         when(row.get("name")).thenReturn("Test Product");
@@ -61,6 +62,7 @@ class SaleOrderLineServiceTest {
 
         assertNotNull(saleOrderLine);
         assertEquals(1, saleOrderLine.getId());
+        assertEquals(1, saleOrderLine.getCompanyId());
         assertEquals(100, saleOrderLine.getSaleOrderLineOrderId());
         assertEquals(50, saleOrderLine.getSaleOrderLineProductId());
         assertEquals(2.5, saleOrderLine.getSaleOrderLineProductUomQty());
@@ -88,11 +90,13 @@ class SaleOrderLineServiceTest {
         when(row.get("create_uid")).thenReturn(null);
         when(row.get("write_date")).thenReturn(null);
         when(row.get("write_uid")).thenReturn(null);
+        when(row.get("company_id")).thenReturn(0);
 
         SaleOrderLine saleOrderLine = saleOrderLineService.mapRowToResource(row);
 
         assertNotNull(saleOrderLine);
         assertEquals(0, saleOrderLine.getId());
+        assertEquals(0, saleOrderLine.getCompanyId());
         assertNull(saleOrderLine.getSaleOrderLineOrderId());
         assertNull(saleOrderLine.getSaleOrderLineProductId());
         assertNull(saleOrderLine.getSaleOrderLineProductUomQty());

@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
+import com.ozonehis.fhir.odoo.OdooConstants;
 import com.ozonehis.fhir.odoo.api.CountryService;
 import com.ozonehis.fhir.odoo.api.CountryStateService;
 import com.ozonehis.fhir.odoo.api.ExtIdService;
@@ -21,11 +22,14 @@ import com.ozonehis.fhir.odoo.api.PartnerService;
 import com.ozonehis.fhir.odoo.mappers.PatientMapper;
 import com.ozonehis.fhir.odoo.model.Country;
 import com.ozonehis.fhir.odoo.model.CountryState;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Partner;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.hl7.fhir.r4.model.Address;
+import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Patient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,11 +65,19 @@ class PatientServiceImplTest {
                 countryService, countryStateService, partnerService, patientMapper, extIdService);
     }
 
+    private void addFacilityIdentifier(Patient patient, String facilityId) {
+        Identifier facilityIdentifier = new Identifier();
+        facilityIdentifier.setSystem(OdooConstants.IDENTIFIER_FACILITY_ID_SYSTEM);
+        facilityIdentifier.setValue(facilityId);
+        patient.addIdentifier(facilityIdentifier);
+    }
+
     @Test
     @DisplayName("Should create patient with country and state")
     void create_shouldCreatePatientWithCountryAndState() {
         Patient patient = new Patient();
         patient.setId("123");
+        addFacilityIdentifier(patient, "facility-1");
 
         Address address = new Address();
         address.setCountry("United States");
@@ -86,6 +98,11 @@ class PatientServiceImplTest {
         Map<String, Object> partnerMap = new HashMap<>();
         partnerMap.put("name", "Test Partner");
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
+        when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
+                .thenReturn(Collections.singletonList(companyExtId));
         when(countryService.getByName("United States")).thenReturn(Optional.of(country));
         when(countryStateService.getByName("California")).thenReturn(Optional.of(countryState));
         when(patientMapper.toOdoo(any())).thenReturn(partner);
@@ -107,6 +124,7 @@ class PatientServiceImplTest {
     void create_shouldCreatePatientWithoutCountryAndStateWhenNotFound() {
         Patient patient = new Patient();
         patient.setId("123");
+        addFacilityIdentifier(patient, "facility-1");
 
         Address address = new Address();
         address.setCountry("Unknown Country");
@@ -119,6 +137,11 @@ class PatientServiceImplTest {
         Map<String, Object> partnerMap = new HashMap<>();
         partnerMap.put("name", "Test Partner");
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
+        when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
+                .thenReturn(Collections.singletonList(companyExtId));
         when(countryService.getByName("Unknown Country")).thenReturn(Optional.empty());
         when(countryStateService.getByName("Unknown State")).thenReturn(Optional.empty());
         when(patientMapper.toOdoo(any())).thenReturn(partner);
@@ -140,11 +163,17 @@ class PatientServiceImplTest {
     void create_shouldReturnPatientWhenPartnerMapperReturnsNull() {
         Patient patient = new Patient();
         patient.setId("123");
+        addFacilityIdentifier(patient, "facility-1");
 
         Address address = new Address();
         address.setCountry("United States");
         patient.addAddress(address);
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
+        when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
+                .thenReturn(Collections.singletonList(companyExtId));
         when(countryService.getByName("United States")).thenReturn(Optional.empty());
         when(patientMapper.toOdoo(any())).thenReturn(null);
 
@@ -156,6 +185,7 @@ class PatientServiceImplTest {
     void create_shouldReturnPatientWhenPartnerServiceReturnsZero() {
         Patient patient = new Patient();
         patient.setId("123");
+        addFacilityIdentifier(patient, "facility-1");
 
         Address address = new Address();
         address.setCountry("Unknown Country");
@@ -168,6 +198,11 @@ class PatientServiceImplTest {
         Map<String, Object> partnerMap = new HashMap<>();
         partnerMap.put("name", "Test Partner");
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
+        when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
+                .thenReturn(Collections.singletonList(companyExtId));
         when(countryService.getByName("Unknown Country")).thenReturn(Optional.empty());
         when(countryStateService.getByName("Unknown State")).thenReturn(Optional.empty());
         when(patientMapper.toOdoo(any())).thenReturn(partner);

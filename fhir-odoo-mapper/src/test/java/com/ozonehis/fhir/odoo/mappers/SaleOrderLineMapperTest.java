@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.ozonehis.fhir.odoo.OdooConstants;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Product;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
 import com.ozonehis.fhir.odoo.model.SaleOrderLine;
@@ -112,9 +113,13 @@ class SaleOrderLineMapperTest {
         SaleOrder saleOrder = new SaleOrder();
         saleOrder.setId(200);
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
         resourceMap.put(OdooConstants.MODEL_PRODUCT, product);
         resourceMap.put(OdooConstants.MODEL_SALE_ORDER, saleOrder);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, companyExtId);
 
         SaleOrderLine result = mapper.toOdoo(resourceMap);
 
@@ -149,9 +154,13 @@ class SaleOrderLineMapperTest {
         SaleOrder saleOrder = new SaleOrder();
         saleOrder.setId(300);
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
         resourceMap.put(OdooConstants.MODEL_PRODUCT, product);
         resourceMap.put(OdooConstants.MODEL_SALE_ORDER, saleOrder);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, companyExtId);
 
         SaleOrderLine result = mapper.toOdoo(resourceMap);
 
