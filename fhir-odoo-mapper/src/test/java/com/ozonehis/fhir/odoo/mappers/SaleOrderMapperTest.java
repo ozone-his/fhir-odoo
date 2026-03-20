@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.ozonehis.fhir.odoo.OdooConstants;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Partner;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
 import java.util.HashMap;
@@ -103,8 +104,12 @@ class SaleOrderMapperTest {
         partner.setPartnerBirthDate("1990-01-15");
         partner.setPartnerExternalId("<p>EXT-001</p>");
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
         resourceMap.put(OdooConstants.MODEL_PARTNER, partner);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, companyExtId);
 
         SaleOrder result = mapper.toOdoo(resourceMap);
 
@@ -131,8 +136,12 @@ class SaleOrderMapperTest {
         partner.setId(200);
         partner.setPartnerExternalId("<P>EXT-002</P>");
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
         resourceMap.put(OdooConstants.MODEL_PARTNER, partner);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, companyExtId);
 
         SaleOrder result = mapper.toOdoo(resourceMap);
 
@@ -154,8 +163,12 @@ class SaleOrderMapperTest {
         partner.setId(300);
         partner.setPartnerExternalId("<p>EXT-003</P>");
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
         resourceMap.put(OdooConstants.MODEL_PARTNER, partner);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, companyExtId);
 
         SaleOrder result = mapper.toOdoo(resourceMap);
 
@@ -178,8 +191,12 @@ class SaleOrderMapperTest {
         partner.setPartnerBirthDate(null);
         partner.setPartnerExternalId("EXT-004");
 
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
         resourceMap.put(OdooConstants.MODEL_PARTNER, partner);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, companyExtId);
 
         SaleOrder result = mapper.toOdoo(resourceMap);
 

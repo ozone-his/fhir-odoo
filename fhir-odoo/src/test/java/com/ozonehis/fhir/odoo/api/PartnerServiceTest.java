@@ -57,6 +57,7 @@ class PartnerServiceTest {
         when(row.get("city")).thenReturn("New York");
         when(row.get("zip")).thenReturn("10001");
         when(row.get("country_id")).thenReturn(1);
+        when(row.get("company_id")).thenReturn(0);
         when(row.get("state_id")).thenReturn(5);
         when(row.get("active")).thenReturn(true);
         when(row.get("comment")).thenReturn("100000Y");
@@ -105,6 +106,7 @@ class PartnerServiceTest {
         when(row.get("city")).thenReturn(null);
         when(row.get("zip")).thenReturn(null);
         when(row.get("country_id")).thenReturn(null);
+        when(row.get("company_id")).thenReturn(0);
         when(row.get("state_id")).thenReturn(null);
         when(row.get("active")).thenReturn(null);
         when(row.get("comment")).thenReturn(null);
@@ -133,6 +135,7 @@ class PartnerServiceTest {
         assertNull(partner.getPartnerComment());
         assertNull(partner.getName());
         assertNull(partner.getDisplayName());
+        assertEquals(0, partner.getCompanyId());
         assertNull(partner.getPartnerBirthDate());
         assertNull(partner.getPartnerExternalId());
         assertNull(partner.getCreatedOn());

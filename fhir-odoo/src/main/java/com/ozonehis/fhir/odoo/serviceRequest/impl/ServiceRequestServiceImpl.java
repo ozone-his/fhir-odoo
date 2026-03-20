@@ -12,22 +12,27 @@ import static com.ozonehis.fhir.odoo.OdooConstants.LOINC_SOURCE;
 import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import com.ozonehis.fhir.odoo.OdooConstants;
+import com.ozonehis.fhir.odoo.api.ExtIdService;
 import com.ozonehis.fhir.odoo.api.PartnerService;
 import com.ozonehis.fhir.odoo.api.ProductService;
 import com.ozonehis.fhir.odoo.api.SaleOrderLineService;
 import com.ozonehis.fhir.odoo.api.SaleOrderService;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderLineMapper;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderMapper;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.Partner;
 import com.ozonehis.fhir.odoo.model.Product;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
 import com.ozonehis.fhir.odoo.model.SaleOrderLine;
 import com.ozonehis.fhir.odoo.serviceRequest.ServiceRequestService;
 import jakarta.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,6 +54,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
     private final ProductService productService;
 
+    private final ExtIdService extIdService;
+
     @Autowired
     public ServiceRequestServiceImpl(
             SaleOrderService saleOrderService,
@@ -56,13 +63,15 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
             SaleOrderLineMapper saleOrderLineMapper,
             SaleOrderMapper saleOrderMapper,
             PartnerService partnerService,
-            ProductService productService) {
+            ProductService productService,
+            ExtIdService extIdService) {
         this.saleOrderService = saleOrderService;
         this.saleOrderLineService = saleOrderLineService;
         this.saleOrderLineMapper = saleOrderLineMapper;
         this.saleOrderMapper = saleOrderMapper;
         this.partnerService = partnerService;
         this.productService = productService;
+        this.extIdService = extIdService;
     }
 
     @Override
@@ -94,6 +103,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
     private SaleOrder createSaleOrder(ServiceRequest serviceRequest) {
         Map<String, Object> resourceMap = new HashMap<>();
         resourceMap.put(OdooConstants.MODEL_FHIR_SERVICE_REQUEST, serviceRequest);
+        resourceMap.put(OdooConstants.MODEL_COMPANY, getCompanyExtId(getFacilityId(serviceRequest)));
 
         String patientIdReference = serviceRequest.getSubject().getReference().split("/")[1];
         Partner partner = partnerService.getByRef(patientIdReference).orElse(null);
@@ -134,6 +144,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
     private SaleOrderLine createSaleOrderLine(ServiceRequest serviceRequest, SaleOrder saleOrder) {
         Map<String, Object> resourceMap = new HashMap<>();
+        resourceMap.put(OdooConstants.MODEL_COMPANY, getCompanyExtId(getFacilityId(serviceRequest)));
 
         String productCode = getProductCode(serviceRequest);
         Product product = productService.getByConceptCode(productCode).orElse(null);
@@ -251,6 +262,29 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
                 "Deleted sale order line with id {} from sale order with id {}",
                 saleOrderLine.getId(),
                 existingSaleOrder.getId());
+    }
+
+    private ExtId getCompanyExtId(String facilityId) {
+        Collection<ExtId> extIds = extIdService.getResIdsByNameAndModel(
+                Collections.singletonList(facilityId), OdooConstants.MODEL_COMPANY);
+        if (extIds.stream().findFirst().isPresent()) {
+            return extIds.stream().findFirst().get();
+        }
+        throw new UnprocessableEntityException("Odoo doesn't have a company mapping with facility id ", facilityId);
+    }
+
+    private String getFacilityId(ServiceRequest serviceRequest) {
+        for (Identifier identifier : serviceRequest.getIdentifier()) {
+            if (identifier.getSystem().equals(OdooConstants.IDENTIFIER_FACILITY_ID_SYSTEM)) {
+                if (identifier.getAssigner() != null
+                        && identifier.getAssigner().getReference() != null
+                        && !identifier.getAssigner().getReference().isEmpty()) {
+                    return identifier.getAssigner().getReference().split("/")[1];
+                }
+            }
+        }
+        throw new UnprocessableEntityException(
+                "Facility identifier is missing in ServiceRequest with id ", serviceRequest.getIdPart());
     }
 
     @Override

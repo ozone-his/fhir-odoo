@@ -32,6 +32,9 @@ public class SaleOrder extends BaseOdooModel {
     @JsonProperty("partner_id")
     private int orderPartnerId; // Can be used as a list or Integer
 
+    @JsonProperty("company_id")
+    private int companyId;
+
     @JsonProperty("type_name")
     private String orderTypeName;
 

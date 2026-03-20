@@ -54,6 +54,7 @@ public class PartnerService extends BaseOdooService<Partner> implements OdooServ
         partner.setPartnerZip((String) row.get("zip"));
         partner.setPartnerCountryId((Integer) row.get("country_id"));
         partner.setPartnerStateId((Integer) row.get("state_id"));
+        partner.setCompanyId((int) row.get("company_id"));
         partner.setPartnerActive((Boolean) row.get("active"));
         partner.setPartnerComment((String) row.get("comment"));
         partner.setPartnerBirthDate(
@@ -105,6 +106,7 @@ public class PartnerService extends BaseOdooService<Partner> implements OdooServ
         map.put("state_id", partner.getPartnerStateId());
         map.put("active", partner.getPartnerActive());
         map.put("comment", partner.getPartnerComment());
+        map.put("company_id", partner.getCompanyId());
 
         map.put("name", partner.getName());
         map.put("display_name", partner.getDisplayName());

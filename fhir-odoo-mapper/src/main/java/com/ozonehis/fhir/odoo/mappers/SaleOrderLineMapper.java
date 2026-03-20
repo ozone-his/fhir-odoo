@@ -8,6 +8,7 @@
 package com.ozonehis.fhir.odoo.mappers;
 
 import com.ozonehis.fhir.odoo.OdooConstants;
+import com.ozonehis.fhir.odoo.model.ExtId;
 import com.ozonehis.fhir.odoo.model.OdooResource;
 import com.ozonehis.fhir.odoo.model.Product;
 import com.ozonehis.fhir.odoo.model.SaleOrder;
@@ -34,6 +35,7 @@ public class SaleOrderLineMapper<F extends IAnyResource & OdooResource> implemen
         ServiceRequest serviceRequest = (ServiceRequest) resourceMap.get(OdooConstants.MODEL_FHIR_SERVICE_REQUEST);
         Product product = (Product) resourceMap.get(OdooConstants.MODEL_PRODUCT);
         SaleOrder saleOrder = (SaleOrder) resourceMap.get(OdooConstants.MODEL_SALE_ORDER);
+        ExtId companyExtId = (ExtId) resourceMap.get(OdooConstants.MODEL_COMPANY);
 
         if (serviceRequest == null || product == null || saleOrder == null) {
             return null;
@@ -50,6 +52,7 @@ public class SaleOrderLineMapper<F extends IAnyResource & OdooResource> implemen
         saleOrderLine.setSaleOrderLineProductId(product.getId());
         saleOrderLine.setSaleOrderLineOrderId(saleOrder.getId());
         saleOrderLine.setSaleOrderLineProductUom(1);
+        saleOrderLine.setCompanyId(companyExtId.getResId());
 
         return saleOrderLine;
     }

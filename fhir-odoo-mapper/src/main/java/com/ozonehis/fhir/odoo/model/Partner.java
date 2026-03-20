@@ -47,6 +47,9 @@ public class Partner extends BaseOdooModel {
     @JsonProperty("state_id")
     private Integer partnerStateId;
 
+    @JsonProperty("company_id")
+    private int companyId;
+
     @JsonProperty("active")
     private Boolean partnerActive;
 

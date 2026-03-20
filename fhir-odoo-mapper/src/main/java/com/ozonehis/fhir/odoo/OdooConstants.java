@@ -44,6 +44,8 @@ public class OdooConstants {
 
     public static final String MODEL_PRODUCT = "product.product";
 
+    public static final String MODEL_COMPANY = "res.company";
+
     public static final String MODEL_PRODUCT_CATEGORY = "product.category";
 
     public static final String MODEL_CURRENCY = "res.currency";
@@ -67,4 +69,6 @@ public class OdooConstants {
     public static final String MODEL_SALE_ORDER_LINE = "sale.order.line";
 
     public static final String LOINC_SOURCE = "http://loinc.org";
+
+    public static final String IDENTIFIER_FACILITY_ID_SYSTEM = "http://openelis-global.org/facility_id";
 }

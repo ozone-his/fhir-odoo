@@ -34,4 +34,7 @@ public class SaleOrderLine extends BaseOdooModel {
 
     @JsonProperty("product_uom")
     private int saleOrderLineProductUom;
+
+    @JsonProperty("company_id")
+    private int companyId;
 }

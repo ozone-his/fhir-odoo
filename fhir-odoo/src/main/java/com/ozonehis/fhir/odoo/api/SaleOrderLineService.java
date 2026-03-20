@@ -43,6 +43,7 @@ public class SaleOrderLineService extends BaseOdooService<SaleOrderLine> impleme
         saleOrderLine.setSaleOrderLineProductId(row.get("product_id"));
         saleOrderLine.setSaleOrderLineProductUomQty((Double) row.get("product_uom_qty"));
         saleOrderLine.setSaleOrderLineProductUom((int) row.get("product_uom"));
+        saleOrderLine.setCompanyId((int) row.get("company_id"));
 
         saleOrderLine.setName((String) row.get("name"));
         saleOrderLine.setDisplayName((String) row.get("display_name"));
@@ -81,6 +82,7 @@ public class SaleOrderLineService extends BaseOdooService<SaleOrderLine> impleme
         map.put("product_id", saleOrderLine.getSaleOrderLineProductId());
         map.put("product_uom_qty", saleOrderLine.getSaleOrderLineProductUomQty());
         map.put("product_uom", saleOrderLine.getSaleOrderLineProductUom());
+        map.put("company_id", saleOrderLine.getCompanyId());
 
         map.put("name", saleOrderLine.getName());
         map.put("display_name", saleOrderLine.getDisplayName());
