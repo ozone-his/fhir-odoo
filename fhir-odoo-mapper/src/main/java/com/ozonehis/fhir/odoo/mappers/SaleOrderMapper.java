@@ -45,8 +45,7 @@ public class SaleOrderMapper<F extends IAnyResource & OdooResource> implements T
                     "ServiceRequest with id {} does not have a requisition value, cannot map to sale order",
                     serviceRequest.getIdPart());
             throw new UnprocessableEntityException(
-                    "ServiceRequest with id {} does not have a requisition value, cannot map to sale order",
-                    serviceRequest.getIdPart());
+                    "ServiceRequest does not have a requisition value, cannot map to sale order");
         }
 
         String serviceRequestId = serviceRequest.getIdPart();
