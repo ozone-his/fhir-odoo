@@ -68,7 +68,7 @@ public class PatientServiceImpl implements PatientService {
         Partner partner = patientMapper.toOdoo(resourceMap);
 
         if (partner == null) {
-            log.error("Unable to map Patient to Partner: required data missing");
+            log.error("Unable to map Patient to Partner, required data missing {}", patient.getIdPart());
             throw new UnprocessableEntityException("Required fields missing in Patient payload");
         }
 
@@ -132,7 +132,8 @@ public class PatientServiceImpl implements PatientService {
         if (extIds.stream().findFirst().isPresent()) {
             return extIds.stream().findFirst().get();
         }
-        throw new UnprocessableEntityException("Odoo doesn't have a company mapping with facility id ", facilityId);
+        log.error("Missing company mapping in Odoo with facility id {}", facilityId);
+        throw new UnprocessableEntityException("Missing company mapping in Odoo");
     }
 
     private String getFacilityId(Patient patient) {
@@ -145,8 +146,8 @@ public class PatientServiceImpl implements PatientService {
                 }
             }
         }
-        throw new UnprocessableEntityException(
-                "Facility identifier is missing in Patient with id ", patient.getIdPart());
+        log.error("Facility identifier is missing in Patient with id {}", patient.getIdPart());
+        throw new UnprocessableEntityException("Facility identifier is missing in Patient");
     }
 
     @Override
