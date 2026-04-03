@@ -90,8 +90,7 @@ public class PatientServiceImpl implements PatientService {
         }
 
         if (patient.getAddress().isEmpty()) {
-            log.error("Patient address is missing");
-            throw new UnprocessableEntityException("Patient address is required");
+            log.warn("Patient address is missing");
         }
     }
 
