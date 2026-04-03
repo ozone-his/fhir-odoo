@@ -141,7 +141,7 @@ public class PatientServiceImpl implements PatientService {
                 if (identifier.getAssigner() != null
                         && identifier.getAssigner().getReference() != null
                         && !identifier.getAssigner().getReference().isEmpty()) {
-                    return identifier.getAssigner().getReference().split("/")[1];
+                    return identifier.getValue();
                 }
             }
         }
