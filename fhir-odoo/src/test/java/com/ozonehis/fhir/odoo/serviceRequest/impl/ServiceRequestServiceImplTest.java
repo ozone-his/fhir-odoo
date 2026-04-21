@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,6 +28,7 @@ import com.ozonehis.fhir.odoo.api.PartnerService;
 import com.ozonehis.fhir.odoo.api.ProductService;
 import com.ozonehis.fhir.odoo.api.SaleOrderLineService;
 import com.ozonehis.fhir.odoo.api.SaleOrderService;
+import com.ozonehis.fhir.odoo.lock.DistributedLockManager;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderLineMapper;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderMapper;
 import com.ozonehis.fhir.odoo.model.ExtId;
@@ -37,6 +40,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Identifier;
@@ -74,6 +89,9 @@ class ServiceRequestServiceImplTest {
     @Mock
     private ExtIdService extIdService;
 
+    @Mock
+    private DistributedLockManager distributedLockManager;
+
     private ServiceRequestServiceImpl serviceRequestService;
 
     @BeforeEach
@@ -85,7 +103,16 @@ class ServiceRequestServiceImplTest {
                 saleOrderMapper,
                 partnerService,
                 productService,
-                extIdService);
+                extIdService,
+                distributedLockManager);
+        lenient()
+                .doAnswer(invocation -> {
+                    Runnable action = invocation.getArgument(1);
+                    action.run();
+                    return null;
+                })
+                .when(distributedLockManager)
+                .executeWithLock(anyString(), any(Runnable.class));
     }
 
     @Test
@@ -144,6 +171,7 @@ class ServiceRequestServiceImplTest {
         verify(saleOrderLineService).getBySaleOrderIdAndProductId(200, 50);
         verify(saleOrderLineMapper).toOdoo(any());
         verify(saleOrderLineService).create(saleOrderLineMap);
+        verify(distributedLockManager).executeWithLock(eq("service-request:requisition:REQ-001"), any(Runnable.class));
     }
 
     @Test
@@ -205,6 +233,57 @@ class ServiceRequestServiceImplTest {
         verify(productService).getByConceptCode("26464-8");
         verify(saleOrderLineService).getBySaleOrderIdAndProductId(250, 60);
         verify(saleOrderLineService).create(saleOrderLineMap);
+    }
+
+    @Test
+    @DisplayName("Should throw RuntimeException when duplicate SaleOrder create occurs")
+    void create_shouldThrowRuntimeExceptionWhenDuplicateSaleOrderCreateOccurs() {
+        ServiceRequest serviceRequest =
+                createServiceRequest("duplicate-create-001", "REQ-DUP-001", "Patient/456", "X-Ray", "26464-8");
+
+        Partner partner = new Partner();
+        partner.setId(200);
+
+        SaleOrder existingSaleOrder = new SaleOrder();
+        existingSaleOrder.setId(251);
+        existingSaleOrder.setOrderClientOrderRef("duplicate-create-001");
+
+        SaleOrder mappedSaleOrder = new SaleOrder();
+        mappedSaleOrder.setOrderClientOrderRef("duplicate-create-001");
+
+        Product product = new Product();
+        product.setId(60);
+        product.setName("X-Ray");
+        product.setConceptCode("26464-8");
+
+        SaleOrderLine saleOrderLine = new SaleOrderLine();
+        saleOrderLine.setId(350);
+
+        Map<String, Object> saleOrderMap = new HashMap<>();
+        saleOrderMap.put("client_order_ref", "duplicate-create-001");
+
+        Map<String, Object> saleOrderLineMap = new HashMap<>();
+        saleOrderLineMap.put("order_id", 251);
+
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
+        when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
+                .thenReturn(Collections.singletonList(companyExtId));
+        when(partnerService.getByRef("456")).thenReturn(Optional.of(partner));
+        when(saleOrderMapper.toOdoo(any())).thenReturn(mappedSaleOrder);
+        when(saleOrderService.convertSaleOrderToMap(mappedSaleOrder)).thenReturn(saleOrderMap);
+        when(saleOrderService.getByName("REQ-DUP-001"))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.empty());
+        when(saleOrderService.create(saleOrderMap))
+                .thenThrow(
+                        new RuntimeException("duplicate key value violates unique constraint sale_order_name_unique"));
+        assertThrows(RuntimeException.class, () -> serviceRequestService.create(serviceRequest));
+
+        verify(saleOrderService, times(1)).getByName("REQ-DUP-001");
+        verify(saleOrderService).create(saleOrderMap);
+        verify(saleOrderLineService, never()).create(any());
     }
 
     @Test
@@ -305,6 +384,109 @@ class ServiceRequestServiceImplTest {
         verify(saleOrderLineService).getBySaleOrderIdAndProductId(300, 70);
         verify(saleOrderLineMapper, never()).toOdoo(any());
         verify(saleOrderLineService, never()).create(any());
+    }
+
+    @Test
+    @DisplayName("Should prevent duplicate SaleOrder creation under concurrent requests with same requisition")
+    void create_shouldPreventDuplicateSaleOrderCreationUnderConcurrencyForSameRequisition() throws Exception {
+        DistributedLockManager sharedDistributedLockManager = new InMemoryDistributedLockManager();
+        ServiceRequestServiceImpl firstInstance = new ServiceRequestServiceImpl(
+                saleOrderService,
+                saleOrderLineService,
+                saleOrderLineMapper,
+                saleOrderMapper,
+                partnerService,
+                productService,
+                extIdService,
+                sharedDistributedLockManager);
+        ServiceRequestServiceImpl secondInstance = new ServiceRequestServiceImpl(
+                saleOrderService,
+                saleOrderLineService,
+                saleOrderLineMapper,
+                saleOrderMapper,
+                partnerService,
+                productService,
+                extIdService,
+                sharedDistributedLockManager);
+
+        ServiceRequest serviceRequestOne =
+                createServiceRequest("concurrency-001", "REQ-CONCURRENT-001", "Patient/777", "CBC", "26464-8");
+        ServiceRequest serviceRequestTwo =
+                createServiceRequest("concurrency-001", "REQ-CONCURRENT-001", "Patient/777", "CBC", "26464-8");
+
+        Partner partner = new Partner();
+        partner.setId(777);
+
+        Product product = new Product();
+        product.setId(90);
+        product.setConceptCode("26464-8");
+
+        SaleOrder mappedSaleOrder = new SaleOrder();
+        mappedSaleOrder.setOrderClientOrderRef("concurrency-001");
+
+        SaleOrder existingSaleOrder = new SaleOrder();
+        existingSaleOrder.setId(701);
+
+        SaleOrderLine mappedSaleOrderLine = new SaleOrderLine();
+
+        ExtId companyExtId = new ExtId();
+        companyExtId.setResId(1);
+
+        Map<String, Object> saleOrderMap = new HashMap<>();
+        saleOrderMap.put("client_order_ref", "concurrency-001");
+
+        Map<String, Object> saleOrderLineMap = new HashMap<>();
+        saleOrderLineMap.put("product_id", 90);
+
+        when(extIdService.getResIdsByNameAndModel(Collections.singletonList("facility-1"), OdooConstants.MODEL_COMPANY))
+                .thenReturn(Collections.singletonList(companyExtId));
+        when(partnerService.getByRef("777")).thenReturn(Optional.of(partner));
+        when(saleOrderMapper.toOdoo(any())).thenReturn(mappedSaleOrder);
+        when(saleOrderService.convertSaleOrderToMap(mappedSaleOrder)).thenReturn(saleOrderMap);
+        when(saleOrderService.getByName("REQ-CONCURRENT-001"))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(existingSaleOrder));
+        when(saleOrderService.create(saleOrderMap)).thenReturn(701);
+
+        when(productService.getByConceptCode("26464-8")).thenReturn(Optional.of(product));
+        when(saleOrderLineService.getBySaleOrderIdAndProductId(anyInt(), anyInt()))
+                .thenReturn(Optional.empty());
+        when(saleOrderLineMapper.toOdoo(any())).thenReturn(mappedSaleOrderLine);
+        when(saleOrderLineService.convertSaleOrderLineToMap(mappedSaleOrderLine))
+                .thenReturn(saleOrderLineMap);
+        when(saleOrderLineService.create(saleOrderLineMap)).thenReturn(801);
+
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        CountDownLatch startGate = new CountDownLatch(1);
+        try {
+            Callable<ServiceRequest> firstCreateTask = () -> {
+                if (!startGate.await(2, TimeUnit.SECONDS)) {
+                    throw new AssertionError("Concurrent test start gate did not open in time");
+                }
+                return firstInstance.create(serviceRequestOne);
+            };
+            Callable<ServiceRequest> secondCreateTask = () -> {
+                if (!startGate.await(2, TimeUnit.SECONDS)) {
+                    throw new AssertionError("Concurrent test start gate did not open in time");
+                }
+                return secondInstance.create(serviceRequestTwo);
+            };
+
+            Future<ServiceRequest> firstResult = executorService.submit(firstCreateTask);
+            Future<ServiceRequest> secondResult = executorService.submit(secondCreateTask);
+
+            startGate.countDown();
+
+            assertNotNull(getFutureResult(firstResult));
+            assertNotNull(getFutureResult(secondResult));
+        } finally {
+            executorService.shutdownNow();
+            if (!executorService.awaitTermination(2, TimeUnit.SECONDS)) {
+                throw new AssertionError("Executor service did not terminate in time");
+            }
+        }
+
+        verify(saleOrderService, times(1)).create(saleOrderMap);
     }
 
     @Test
@@ -529,5 +711,32 @@ class ServiceRequestServiceImplTest {
         serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.ACTIVE);
 
         return serviceRequest;
+    }
+
+    private ServiceRequest getFutureResult(Future<ServiceRequest> future)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        return future.get(5, TimeUnit.SECONDS);
+    }
+
+    private static class InMemoryDistributedLockManager implements DistributedLockManager {
+
+        private final ConcurrentMap<String, ReentrantLock> locks = new ConcurrentHashMap<>();
+
+        @Override
+        public <T> T executeWithLock(String lockKey, Supplier<T> action) {
+            ReentrantLock lock = locks.computeIfAbsent(lockKey, ignored -> new ReentrantLock());
+            lock.lock();
+            try {
+                return action.get();
+            } finally {
+                lock.unlock();
+                locks.compute(
+                        lockKey,
+                        (key, existingLock) ->
+                                existingLock != null && !existingLock.isLocked() && !existingLock.hasQueuedThreads()
+                                        ? null
+                                        : existingLock);
+            }
+        }
     }
 }
