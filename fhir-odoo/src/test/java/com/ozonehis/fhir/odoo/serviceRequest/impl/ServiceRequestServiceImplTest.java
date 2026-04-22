@@ -113,6 +113,14 @@ class ServiceRequestServiceImplTest {
                 })
                 .when(distributedLockManager)
                 .executeWithLock(anyString(), any(Runnable.class));
+        lenient()
+                .doAnswer(invocation -> {
+                    Runnable action = invocation.getArgument(2);
+                    action.run();
+                    return null;
+                })
+                .when(distributedLockManager)
+                .executeWithLock(anyString(), any(long.class), any(Runnable.class));
     }
 
     @Test
@@ -724,10 +732,45 @@ class ServiceRequestServiceImplTest {
 
         @Override
         public <T> T executeWithLock(String lockKey, Supplier<T> action) {
+            return executeWithLock(lockKey, Long.MAX_VALUE, action);
+        }
+
+        @Override
+        public <T> T executeWithLock(String lockKey, long waitTimeoutMs, Supplier<T> action) {
             ReentrantLock lock = locks.computeIfAbsent(lockKey, ignored -> new ReentrantLock());
-            lock.lock();
+            boolean acquired;
+            try {
+                acquired = lock.tryLock(waitTimeoutMs, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new com.ozonehis.fhir.odoo.lock.LockAcquisitionException(
+                        "Interrupted while waiting to acquire lock for key " + lockKey, e);
+            }
+            if (!acquired) {
+                throw new com.ozonehis.fhir.odoo.lock.LockAcquisitionException(
+                        "Timed out acquiring lock for key " + lockKey + " after " + waitTimeoutMs + " ms");
+            }
             try {
                 return action.get();
+            } finally {
+                lock.unlock();
+                locks.compute(
+                        lockKey,
+                        (key, existingLock) ->
+                                existingLock != null && !existingLock.isLocked() && !existingLock.hasQueuedThreads()
+                                        ? null
+                                        : existingLock);
+            }
+        }
+
+        @Override
+        public <T> Optional<T> tryWithLock(String lockKey, Supplier<T> action) {
+            ReentrantLock lock = locks.computeIfAbsent(lockKey, ignored -> new ReentrantLock());
+            if (!lock.tryLock()) {
+                return Optional.empty();
+            }
+            try {
+                return Optional.ofNullable(action.get());
             } finally {
                 lock.unlock();
                 locks.compute(

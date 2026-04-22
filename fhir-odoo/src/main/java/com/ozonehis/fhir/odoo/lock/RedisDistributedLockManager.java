@@ -10,6 +10,7 @@ package com.ozonehis.fhir.odoo.lock;
 import jakarta.annotation.PreDestroy;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -67,17 +68,49 @@ public class RedisDistributedLockManager implements DistributedLockManager {
 
     @Override
     public <T> T executeWithLock(String lockKey, Supplier<T> action) {
+        return executeWithLock(lockKey, waitTimeoutMs, action);
+    }
+
+    @Override
+    public <T> T executeWithLock(String lockKey, long waitTimeoutMs, Supplier<T> action) {
         Objects.requireNonNull(action, "action must not be null");
         String redisKey = toRedisKey(lockKey);
         String lockValue = UUID.randomUUID().toString();
 
-        acquireLock(redisKey, lockValue);
+        acquireLock(redisKey, lockValue, waitTimeoutMs);
+        log.debug("Acquired Redis lock for key {}", redisKey);
         ScheduledFuture<?> renewalTask = scheduleLockRenewal(redisKey, lockValue);
         try {
             return action.get();
         } finally {
             renewalTask.cancel(true);
             releaseLock(redisKey, lockValue);
+            log.debug("Released Redis lock for key {}", redisKey);
+        }
+    }
+
+    @Override
+    public <T> Optional<T> tryWithLock(String lockKey, Supplier<T> action) {
+        Objects.requireNonNull(action, "action must not be null");
+        String redisKey = toRedisKey(lockKey);
+        String lockValue = UUID.randomUUID().toString();
+
+        Boolean acquired = stringRedisTemplate
+                .opsForValue()
+                .setIfAbsent(redisKey, lockValue, leaseDurationMs, TimeUnit.MILLISECONDS);
+        if (!Boolean.TRUE.equals(acquired)) {
+            log.debug("Redis lock for key {} is already held by another owner; skipping action", redisKey);
+            return Optional.empty();
+        }
+
+        log.debug("Acquired Redis lock (try) for key {}", redisKey);
+        ScheduledFuture<?> renewalTask = scheduleLockRenewal(redisKey, lockValue);
+        try {
+            return Optional.ofNullable(action.get());
+        } finally {
+            renewalTask.cancel(true);
+            releaseLock(redisKey, lockValue);
+            log.debug("Released Redis lock (try) for key {}", redisKey);
         }
     }
 
@@ -86,7 +119,7 @@ public class RedisDistributedLockManager implements DistributedLockManager {
         renewalExecutor.shutdownNow();
     }
 
-    private void acquireLock(String redisKey, String lockValue) {
+    private void acquireLock(String redisKey, String lockValue, long waitTimeoutMs) {
         long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(waitTimeoutMs);
 
         do {
@@ -97,10 +130,12 @@ public class RedisDistributedLockManager implements DistributedLockManager {
                 return;
             }
 
+            log.debug("Redis lock for key {} is held by another owner; retrying in {} ms", redisKey, retryIntervalMs);
             waitForRetry(redisKey);
         } while (System.nanoTime() <= deadline);
 
-        throw new IllegalStateException("Timed out acquiring Redis lock for key " + redisKey);
+        throw new LockAcquisitionException(
+                "Timed out acquiring Redis lock for key " + redisKey + " after " + waitTimeoutMs + " ms");
     }
 
     private ScheduledFuture<?> scheduleLockRenewal(String redisKey, String lockValue) {
@@ -115,6 +150,8 @@ public class RedisDistributedLockManager implements DistributedLockManager {
                     RENEW_LOCK_SCRIPT, List.of(redisKey), lockValue, String.valueOf(leaseDurationMs));
             if (!Long.valueOf(1L).equals(renewed)) {
                 log.warn("Redis lock {} could not be renewed because ownership was lost", redisKey);
+            } else {
+                log.debug("Renewed Redis lock for key {}", redisKey);
             }
         } catch (RuntimeException exception) {
             log.warn("Failed to renew Redis lock {}", redisKey, exception);
@@ -128,7 +165,7 @@ public class RedisDistributedLockManager implements DistributedLockManager {
                 log.warn("Redis lock {} was not released because it no longer belonged to this owner", redisKey);
             }
         } catch (RuntimeException exception) {
-            throw new IllegalStateException("Failed to release Redis lock for key " + redisKey, exception);
+            throw new LockAcquisitionException("Failed to release Redis lock for key " + redisKey, exception);
         }
     }
 
@@ -137,7 +174,7 @@ public class RedisDistributedLockManager implements DistributedLockManager {
             TimeUnit.MILLISECONDS.sleep(retryIntervalMs);
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException(
+            throw new LockAcquisitionException(
                     "Interrupted while waiting to acquire Redis lock for key " + redisKey, exception);
         }
     }
