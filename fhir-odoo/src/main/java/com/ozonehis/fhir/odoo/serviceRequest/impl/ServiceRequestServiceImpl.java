@@ -17,6 +17,8 @@ import com.ozonehis.fhir.odoo.api.PartnerService;
 import com.ozonehis.fhir.odoo.api.ProductService;
 import com.ozonehis.fhir.odoo.api.SaleOrderLineService;
 import com.ozonehis.fhir.odoo.api.SaleOrderService;
+import com.ozonehis.fhir.odoo.lock.DistributedLockManager;
+import com.ozonehis.fhir.odoo.lock.LockPurpose;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderLineMapper;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderMapper;
 import com.ozonehis.fhir.odoo.model.ExtId;
@@ -56,6 +58,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
     private final ExtIdService extIdService;
 
+    private final DistributedLockManager distributedLockManager;
+
     @Autowired
     public ServiceRequestServiceImpl(
             SaleOrderService saleOrderService,
@@ -64,7 +68,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
             SaleOrderMapper saleOrderMapper,
             PartnerService partnerService,
             ProductService productService,
-            ExtIdService extIdService) {
+            ExtIdService extIdService,
+            DistributedLockManager distributedLockManager) {
         this.saleOrderService = saleOrderService;
         this.saleOrderLineService = saleOrderLineService;
         this.saleOrderLineMapper = saleOrderLineMapper;
@@ -72,6 +77,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
         this.partnerService = partnerService;
         this.productService = productService;
         this.extIdService = extIdService;
+        this.distributedLockManager = distributedLockManager;
     }
 
     @Override
@@ -82,18 +88,22 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
         }
 
         if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)) {
-            // Create Sale order and Sale order line
-            SaleOrder saleOrder = createSaleOrder(serviceRequest);
-            SaleOrderLine saleOrderLine = createSaleOrderLine(serviceRequest, saleOrder);
+            String requisitionId = serviceRequest.getRequisition().getValue();
+            distributedLockManager.executeWithLock(LockPurpose.SERVICE_REQUEST_REQUISITION, requisitionId, () -> {
+                SaleOrder saleOrder = createSaleOrder(serviceRequest);
+                createSaleOrderLine(serviceRequest, saleOrder);
+            });
         } else if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.REVOKED)
                 || serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ENTEREDINERROR)) {
             // Delete sale order line and check if sale order is empty delete sale order also
             deleteSaleOrderLine(serviceRequest);
             cancelSaleOrder(serviceRequest);
         } else if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.COMPLETED)) {
-            // Mark sale order as confirmed if all sale order lines (tests) are completed
+            log.debug(
+                    "ServiceRequest {} is completed; sale order confirmation is not implemented yet",
+                    serviceRequest.getIdPart());
         } else if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.UNKNOWN)) {
-            // Do nothing
+            log.debug("Ignoring ServiceRequest {} with UNKNOWN status", serviceRequest.getIdPart());
         }
 
         return serviceRequest;
