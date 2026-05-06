@@ -29,6 +29,7 @@ import com.ozonehis.fhir.odoo.api.ProductService;
 import com.ozonehis.fhir.odoo.api.SaleOrderLineService;
 import com.ozonehis.fhir.odoo.api.SaleOrderService;
 import com.ozonehis.fhir.odoo.lock.DistributedLockManager;
+import com.ozonehis.fhir.odoo.lock.LockPurpose;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderLineMapper;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderMapper;
 import com.ozonehis.fhir.odoo.model.ExtId;
@@ -107,20 +108,12 @@ class ServiceRequestServiceImplTest {
                 distributedLockManager);
         lenient()
                 .doAnswer(invocation -> {
-                    Runnable action = invocation.getArgument(1);
-                    action.run();
-                    return null;
-                })
-                .when(distributedLockManager)
-                .executeWithLock(anyString(), any(Runnable.class));
-        lenient()
-                .doAnswer(invocation -> {
                     Runnable action = invocation.getArgument(2);
                     action.run();
                     return null;
                 })
                 .when(distributedLockManager)
-                .executeWithLock(anyString(), any(long.class), any(Runnable.class));
+                .executeWithLock(any(LockPurpose.class), anyString(), any(Runnable.class));
     }
 
     @Test
@@ -179,7 +172,8 @@ class ServiceRequestServiceImplTest {
         verify(saleOrderLineService).getBySaleOrderIdAndProductId(200, 50);
         verify(saleOrderLineMapper).toOdoo(any());
         verify(saleOrderLineService).create(saleOrderLineMap);
-        verify(distributedLockManager).executeWithLock(eq("service-request:requisition:REQ-001"), any(Runnable.class));
+        verify(distributedLockManager)
+                .executeWithLock(eq(LockPurpose.SERVICE_REQUEST_REQUISITION), eq("REQ-001"), any(Runnable.class));
     }
 
     @Test
@@ -731,16 +725,11 @@ class ServiceRequestServiceImplTest {
         private final ConcurrentMap<String, ReentrantLock> locks = new ConcurrentHashMap<>();
 
         @Override
-        public <T> T executeWithLock(String lockKey, Supplier<T> action) {
-            return executeWithLock(lockKey, Long.MAX_VALUE, action);
-        }
-
-        @Override
-        public <T> T executeWithLock(String lockKey, long waitTimeoutMs, Supplier<T> action) {
+        public <T> T executeWithLock(LockPurpose purpose, String lockKey, Supplier<T> action) {
             ReentrantLock lock = locks.computeIfAbsent(lockKey, ignored -> new ReentrantLock());
             boolean acquired;
             try {
-                acquired = lock.tryLock(waitTimeoutMs, TimeUnit.MILLISECONDS);
+                acquired = lock.tryLock(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new com.ozonehis.fhir.odoo.lock.LockAcquisitionException(
@@ -748,7 +737,7 @@ class ServiceRequestServiceImplTest {
             }
             if (!acquired) {
                 throw new com.ozonehis.fhir.odoo.lock.LockAcquisitionException(
-                        "Timed out acquiring lock for key " + lockKey + " after " + waitTimeoutMs + " ms");
+                        "Timed out acquiring lock for key " + lockKey);
             }
             try {
                 return action.get();
@@ -764,13 +753,13 @@ class ServiceRequestServiceImplTest {
         }
 
         @Override
-        public <T> Optional<T> tryWithLock(String lockKey, Supplier<T> action) {
+        public <T> java.util.Optional<T> tryWithLock(LockPurpose purpose, String lockKey, Supplier<T> action) {
             ReentrantLock lock = locks.computeIfAbsent(lockKey, ignored -> new ReentrantLock());
             if (!lock.tryLock()) {
-                return Optional.empty();
+                return java.util.Optional.empty();
             }
             try {
-                return Optional.ofNullable(action.get());
+                return java.util.Optional.ofNullable(action.get());
             } finally {
                 lock.unlock();
                 locks.compute(

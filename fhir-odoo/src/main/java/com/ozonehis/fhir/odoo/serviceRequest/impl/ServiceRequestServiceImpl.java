@@ -18,6 +18,8 @@ import com.ozonehis.fhir.odoo.api.ProductService;
 import com.ozonehis.fhir.odoo.api.SaleOrderLineService;
 import com.ozonehis.fhir.odoo.api.SaleOrderService;
 import com.ozonehis.fhir.odoo.lock.DistributedLockManager;
+import com.ozonehis.fhir.odoo.lock.LockPurpose;
+import com.ozonehis.fhir.odoo.mappers.PatientMapper;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderLineMapper;
 import com.ozonehis.fhir.odoo.mappers.SaleOrderMapper;
 import com.ozonehis.fhir.odoo.model.ExtId;
@@ -89,7 +91,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
         if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)) {
             String requisitionId = serviceRequest.getRequisition().getValue();
-            distributedLockManager.executeWithLock(lockKeyForRequisition(requisitionId), () -> {
+            distributedLockManager.executeWithLock(LockPurpose.SERVICE_REQUEST_REQUISITION, requisitionId, () -> {
                 SaleOrder saleOrder = createSaleOrder(serviceRequest);
                 createSaleOrderLine(serviceRequest, saleOrder);
             });
@@ -304,28 +306,5 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
     @Override
     public Optional<ServiceRequest> getById(@Nonnull String id) {
         throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    private String lockKeyForRequisition(String requisitionId) {
-        return "service-request:requisition:" + requisitionId;
-    }
-
-    private boolean isDuplicateCreateFailure(RuntimeException exception) {
-        Throwable current = exception;
-        while (current != null) {
-            String message = current.getMessage();
-            if (message != null) {
-                String normalizedMessage = message.toLowerCase(Locale.ROOT);
-                if (normalizedMessage.contains("duplicate")
-                        || normalizedMessage.contains("already exists")
-                        || normalizedMessage.contains("unique")
-                        || normalizedMessage.contains("constraint")) {
-                    return true;
-                }
-            }
-            current = current.getCause();
-        }
-
-        return false;
     }
 }

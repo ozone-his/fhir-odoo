@@ -8,8 +8,13 @@
 package com.ozonehis.fhir.odoo.lock;
 
 /**
- * Thrown when a distributed lock could not be acquired within the allowed timeout,
- * or when the current thread is interrupted while waiting for the lock.
+ * Base exception for distributed lock failures.
+ * <ul>
+ *   <li>Thrown when a lock cannot be acquired within the configured wait timeout.</li>
+ *   <li>Thrown when the thread is interrupted while waiting for the lock.</li>
+ *   <li>Subclassed by {@link RedisUnavailableException} when the Redis backend itself is
+ *       unreachable and lock operations should not even be attempted.</li>
+ * </ul>
  */
 public class LockAcquisitionException extends RuntimeException {
 
