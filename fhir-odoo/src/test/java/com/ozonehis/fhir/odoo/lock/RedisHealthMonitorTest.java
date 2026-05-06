@@ -53,10 +53,6 @@ class RedisHealthMonitorTest {
         }
     }
 
-    // ---------------------------------------------------------------------------
-    // Startup wait — success path
-    // ---------------------------------------------------------------------------
-
     @Test
     @DisplayName("waitForRedisAtStartup() succeeds immediately when Redis responds with PONG")
     void waitForRedisAtStartup_succeedsImmediately_whenRedisPongsOnFirstAttempt() {
@@ -83,10 +79,6 @@ class RedisHealthMonitorTest {
         verify(connection, atLeastOnce()).ping();
     }
 
-    // ---------------------------------------------------------------------------
-    // Startup wait — timeout path
-    // ---------------------------------------------------------------------------
-
     @Test
     @DisplayName("waitForRedisAtStartup() throws IllegalStateException after maxWaitMs with explicit message")
     void waitForRedisAtStartup_throwsIllegalStateException_afterMaxWaitMsExceeded() {
@@ -100,10 +92,6 @@ class RedisHealthMonitorTest {
 
         assertThat(monitor.isRedisReachable()).isFalse();
     }
-
-    // ---------------------------------------------------------------------------
-    // assertReachable — live gating
-    // ---------------------------------------------------------------------------
 
     @Test
     @DisplayName("assertReachable() does not throw when Redis is reachable")
@@ -125,10 +113,6 @@ class RedisHealthMonitorTest {
                 .isInstanceOf(RedisUnavailableException.class)
                 .hasMessageContaining("test:key");
     }
-
-    // ---------------------------------------------------------------------------
-    // Background probe — state transitions
-    // ---------------------------------------------------------------------------
 
     @Test
     @DisplayName("runHealthProbe() sets reachable=false on AVAILABLE→DOWN transition")
@@ -184,10 +168,6 @@ class RedisHealthMonitorTest {
         assertThat(monitor.isRedisReachable()).isTrue();
     }
 
-    // ---------------------------------------------------------------------------
-    // pingRedis
-    // ---------------------------------------------------------------------------
-
     @Test
     @DisplayName("pingRedis() returns true when Redis responds with PONG")
     void pingRedis_returnsTrue_whenRedisRespondsPong() {
@@ -215,10 +195,6 @@ class RedisHealthMonitorTest {
         assertThat(monitor.pingRedis()).isFalse();
     }
 
-    // ---------------------------------------------------------------------------
-    // Factory helpers
-    // ---------------------------------------------------------------------------
-
     /** Creates a monitor with short timeouts suitable for timeout-testing startup wait. */
     private RedisHealthMonitor monitorWithShortTimeouts() {
         RedisLockProperties props = new RedisLockProperties();
@@ -238,6 +214,5 @@ class RedisHealthMonitorTest {
         props.getHealth().setProbeIntervalMs(50L);
         props.getHealth().setPeriodicWarnIntervalMs(100L);
         return new RedisHealthMonitor(connectionFactory, props);
-        // Note: @PostConstruct / initialize() is NOT called; redisReachable stays false.
     }
 }

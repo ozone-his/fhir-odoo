@@ -30,10 +30,6 @@ class RedisLockPropertiesTest {
         // Built-in defaults are set by field initialisation; no further wiring needed.
     }
 
-    // ---------------------------------------------------------------------------
-    // Default profile
-    // ---------------------------------------------------------------------------
-
     @Test
     @DisplayName("resolve() returns built-in defaults when no purpose-specific override is configured")
     void resolve_returnsBuiltInDefaults_whenNoPurposeOverrideIsConfigured() {
@@ -60,10 +56,6 @@ class RedisLockPropertiesTest {
         assertThat(resolved.getKeyPrefix()).isEqualTo("custom:prefix");
         assertThat(resolved.getWaitTimeoutMs()).isEqualTo(10_000L);
     }
-
-    // ---------------------------------------------------------------------------
-    // Purpose-specific overrides
-    // ---------------------------------------------------------------------------
 
     @Test
     @DisplayName("resolve() merges purpose override on top of defaults — only non-null fields override")
@@ -109,10 +101,6 @@ class RedisLockPropertiesTest {
         assertThat(resolved.getRetryIntervalMs()).isEqualTo(50L);
     }
 
-    // ---------------------------------------------------------------------------
-    // Merge immutability
-    // ---------------------------------------------------------------------------
-
     @Test
     @DisplayName("resolve() returns a new instance — mutations do not affect defaults or the override")
     void resolve_returnsNewInstance_mutationsDoNotAffectOriginals() {
@@ -127,10 +115,6 @@ class RedisLockPropertiesTest {
         assertThat(properties.getDefaults().getKeyPrefix()).isEqualTo("fhir-odoo:lock");
     }
 
-    // ---------------------------------------------------------------------------
-    // DEFAULT sentinel guard
-    // ---------------------------------------------------------------------------
-
     @Test
     @DisplayName("resolve() throws IllegalArgumentException when LockPurpose.DEFAULT is passed")
     void resolve_throwsIllegalArgumentException_whenDefaultPurposeIsPassed() {
@@ -138,10 +122,6 @@ class RedisLockPropertiesTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sentinel");
     }
-
-    // ---------------------------------------------------------------------------
-    // Cross-field validation helpers
-    // ---------------------------------------------------------------------------
 
     @Test
     @DisplayName("isDefaultRetryLessThanLease() returns true when retry < lease (valid config)")
@@ -181,10 +161,6 @@ class RedisLockPropertiesTest {
 
         assertThat(properties.isDefaultWaitTimeoutValid()).isFalse();
     }
-
-    // ---------------------------------------------------------------------------
-    // Nested settings defaults
-    // ---------------------------------------------------------------------------
 
     @Test
     @DisplayName("StartupSettings defaults to 60000ms maxWaitMs")
