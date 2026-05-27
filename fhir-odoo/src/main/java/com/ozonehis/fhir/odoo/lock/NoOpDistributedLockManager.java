@@ -28,9 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 public class NoOpDistributedLockManager implements DistributedLockManager {
 
     public NoOpDistributedLockManager() {
-        log.warn(
-                "Redis distributed locking is DISABLED. Actions will execute without any mutual exclusion. "
-                        + "Set fhir.odoo.lock.redis.enabled=true to enable Redis-backed locking.");
+        log.warn("Redis distributed locking is DISABLED. Actions will execute without any mutual exclusion. "
+                + "Set fhir.odoo.lock.redis.enabled=true to enable Redis-backed locking.");
     }
 
     @Override
@@ -41,7 +40,10 @@ public class NoOpDistributedLockManager implements DistributedLockManager {
 
     @Override
     public <T> Optional<T> tryWithLock(LockPurpose purpose, String lockKey, Supplier<T> action) {
-        log.debug("NoOp lock: executing tryWithLock action for purpose={} key={} without acquiring a lock", purpose, lockKey);
+        log.debug(
+                "NoOp lock: executing tryWithLock action for purpose={} key={} without acquiring a lock",
+                purpose,
+                lockKey);
         return Optional.ofNullable(action.get());
     }
 }
