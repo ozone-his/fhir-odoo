@@ -7,6 +7,7 @@
  */
 package com.ozonehis.fhir.odoo.lock;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -15,39 +16,70 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
- * Spring configuration that wires the Redis-backed distributed lock subsystem.
- * <p>All lock beans are created here rather than via {@code @Component} annotations so that
- * the dependency graph is explicit, testable, and disabled as a unit when {@code fhir.odoo.lock.redis.enabled=false}.
- * <p>The entire subsystem is skipped when {@code fhir.odoo.lock.redis.enabled=false}, allowing
- * tests or environments without Redis to opt out cleanly.
+ * Top-level lock configuration — always active.
+ *
+ * <p>Property binding is enabled here so {@link RedisLockProperties} is available regardless of
+ * whether Redis locking is enabled. The Redis-specific beans live in the nested
+ * {@link RedisLockConfiguration} class which is only activated when
+ * {@code fhir.odoo.lock.redis.enabled=true}. When that condition is false the
+ * {@link NoOpDistributedLockManager} fallback is registered instead, ensuring the application
+ * context always contains exactly one {@link DistributedLockManager} bean.
  */
 @Configuration
 @EnableConfigurationProperties(RedisLockProperties.class)
-@ConditionalOnProperty(name = "fhir.odoo.lock.redis.enabled", havingValue = "true", matchIfMissing = true)
 public class LockAutoConfiguration {
 
     /**
-     * Creates the {@link RedisHealthMonitor}, which performs the Redis startup wait via
-     * {@link jakarta.annotation.PostConstruct} and runs the ongoing background probe.
-     * <p>This bean is declared first so that it is fully initialized (and startup wait has
-     * completed) before the {@link DistributedLockManager} bean that depends on it is created.
+     * Fallback {@link DistributedLockManager} registered when Redis locking is disabled
+     * ({@code fhir.odoo.lock.redis.enabled=false}, the default).
+     *
+     * <p>Executes actions directly — no lock is acquired, no Redis connection is required.
+     * This allows the application to start without Redis. A WARN is logged at startup to
+     * make it explicit that mutual exclusion is not enforced.
+     *
+     * <p>This bean is skipped automatically when {@link RedisLockConfiguration} registers a
+     * Redis-backed {@link DistributedLockManager} first.
      */
     @Bean
-    public RedisHealthMonitor redisHealthMonitor(
-            RedisConnectionFactory connectionFactory, RedisLockProperties properties) {
-        return new RedisHealthMonitor(connectionFactory, properties);
+    @ConditionalOnMissingBean(DistributedLockManager.class)
+    public DistributedLockManager noOpDistributedLockManager() {
+        return new NoOpDistributedLockManager();
     }
 
     /**
-     * Creates the {@link DistributedLockManager} backed by Redis.
-     * <p>Depends on {@link RedisHealthMonitor} being fully initialized, which guarantees Redis is
-     * reachable before any lock operation is ever attempted.
+     * Nested configuration activated only when {@code fhir.odoo.lock.redis.enabled=true}.
+     *
+     * <p>Declares the {@link RedisHealthMonitor} (which blocks at {@link jakarta.annotation.PostConstruct} until
+     * Redis is reachable or the startup timeout elapses) and the Redis-backed
+     * {@link DistributedLockManager}. Because these beans are registered before the outer-class
+     * {@link #noOpDistributedLockManager()} is evaluated, the {@code @ConditionalOnMissingBean}
+     * fallback is correctly suppressed.
      */
-    @Bean
-    public DistributedLockManager distributedLockManager(
-            StringRedisTemplate stringRedisTemplate,
-            RedisLockProperties properties,
-            RedisHealthMonitor redisHealthMonitor) {
-        return new RedisDistributedLockManager(stringRedisTemplate, properties, redisHealthMonitor);
+    @Configuration
+    @ConditionalOnProperty(name = "fhir.odoo.lock.redis.enabled", havingValue = "true")
+    static class RedisLockConfiguration {
+
+        /**
+         * Creates the {@link RedisHealthMonitor}, which performs the Redis startup wait and runs
+         * the ongoing background probe. Declared before the lock manager to ensure Redis is
+         * reachable before any lock operation is ever attempted.
+         */
+        @Bean
+        public RedisHealthMonitor redisHealthMonitor(
+                RedisConnectionFactory connectionFactory, RedisLockProperties properties) {
+            return new RedisHealthMonitor(connectionFactory, properties);
+        }
+
+        /**
+         * Creates the {@link DistributedLockManager} backed by Redis. Depends on
+         * {@link RedisHealthMonitor} being fully initialized.
+         */
+        @Bean
+        public DistributedLockManager distributedLockManager(
+                StringRedisTemplate stringRedisTemplate,
+                RedisLockProperties properties,
+                RedisHealthMonitor redisHealthMonitor) {
+            return new RedisDistributedLockManager(stringRedisTemplate, properties, redisHealthMonitor);
+        }
     }
 }
