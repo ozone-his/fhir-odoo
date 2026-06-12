@@ -23,10 +23,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 class LockAutoConfigurationTest {
 
     /**
-     * Registers both the outer configuration and the nested {@code RedisLockConfiguration} as
-     * independent candidates, mirroring what component scanning does in the real application
-     * (nested {@code @Configuration} classes are scanned as top-level candidates too). This is
-     * the arrangement that previously produced two {@code DistributedLockManager} beans.
+     * Registers both the outer configuration and the nested {@code RedisLockConfiguration} as independent candidates,
+     * mirroring what component scanning does in the real application (nested {@code @Configuration} classes are scanned as
+     * top-level candidates too). This allows the tests to verify that the correct {@link DistributedLockManager}
+     * implementation is registered based on the presence and value of the {@code fhir.odoo.lock.redis.enabled} property,
+     * without relying on the autoconfiguration machinery or a live Redis instance.
      */
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withUserConfiguration(
