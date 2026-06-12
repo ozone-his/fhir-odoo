@@ -7,7 +7,6 @@
  */
 package com.ozonehis.fhir.odoo.lock;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -37,11 +36,14 @@ public class LockAutoConfiguration {
      * This allows the application to start without Redis. A WARN is logged at startup to
      * make it explicit that mutual exclusion is not enforced.
      *
-     * <p>This bean is skipped automatically when {@link RedisLockConfiguration} registers a
-     * Redis-backed {@link DistributedLockManager} first.
+     * <p>Gated on the same property as {@link RedisLockConfiguration} (inverted) rather than on
+     * {@code @ConditionalOnMissingBean}: bean-registration order is only guaranteed for true
+     * auto-configurations, and this class is discovered via component scanning, so a
+     * missing-bean condition could be evaluated before the Redis-backed bean is registered —
+     * leaving two {@link DistributedLockManager} beans in the context.
      */
     @Bean
-    @ConditionalOnMissingBean(DistributedLockManager.class)
+    @ConditionalOnProperty(name = "fhir.odoo.lock.redis.enabled", havingValue = "false", matchIfMissing = true)
     public DistributedLockManager noOpDistributedLockManager() {
         return new NoOpDistributedLockManager();
     }
